@@ -1,0 +1,195 @@
+---
+/**
+ * CookieBanner.astro
+ * Styled to match Header.astro link animations.
+ */
+---
+
+<div
+  id="cookie-banner"
+  class="cookie-banner-wrapper fixed z-[999] opacity-0 translate-y-8 pointer-events-none transition-all duration-[1000ms] ease-[cubic-bezier(0.19,1,0.22,1)]"
+>
+  <!-- Main Pill Container (White Background) -->
+  <div class="bg-white px-8 py-4 rounded-[64px] md:rounded-full shadow-[0_15px_40px_rgba(0,0,0,0.18)] flex flex-col gap-3 border border-black/5">
+
+    <!-- Top Row: Headline -->
+    <span class="text-[17px] font-Bold text-black leading-tight tracking-[-0.02em]">
+      We use cookies.
+    </span>
+
+    <!-- Bottom Row: Horizontal CTAs -->
+    <div class="flex items-center justify-between md:justify-start gap-5 md:gap-8">
+      <!-- Link -->
+      <a href="/privacy-cookies-policy" class="studio-link text-[15px] font-Bold text-black whitespace-nowrap">
+        Privacy & Cookies Policy
+      </a>
+
+      <!-- Actions Group -->
+      <div class="flex items-center gap-5 md:gap-8">
+        <!-- Accept Button -->
+        <button
+          id="accept-cookies"
+          class="studio-link text-[15px] font-Bold text-black cursor-pointer whitespace-nowrap"
+        >
+          Accept
+        </button>
+
+        <!-- Reject Button -->
+        <button
+          id="reject-cookies"
+          class="studio-link text-[15px] font-Bold text-black cursor-pointer whitespace-nowrap"
+        >
+          Reject
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  (function() {
+    const banner = document.getElementById('cookie-banner');
+    const acceptBtn = document.getElementById('accept-cookies');
+    const rejectBtn = document.getElementById('reject-cookies');
+    const COOKIE_KEY = 'datt_studio_consent_v5';
+
+    // 1. Initialize Google Consent Mode
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+
+    if (!localStorage.getItem(COOKIE_KEY)) {
+      gtag('consent', 'default', {
+        'ad_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied',
+        'analytics_storage': 'denied',
+        'wait_for_update': 500
+      });
+    }
+
+    // 2. Custom Event Listener for Rejection
+    window.addEventListener('cookie-consent-changed', (e) => {
+      if (e.detail === 'rejected') {
+        console.log('Non-essential tracking disabled.');
+        // Add specific tracker shutdowns here (e.g., FB Pixel, Hotjar)
+        if (typeof fbq === 'function') fbq('consent', 'revoke');
+      }
+    });
+
+    // 3. Purge non-essential cookies
+    function purgeNonEssentialCookies() {
+      const essentialCookies = [COOKIE_KEY, 'PHPSESSID'];
+      const cookies = document.cookie.split(";");
+
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i];
+        const eqPos = cookie.indexOf("=");
+        const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+
+        if (!essentialCookies.includes(name)) {
+          document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+          document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=" + window.location.hostname.replace(/^www\./, "");
+        }
+      }
+    }
+
+    // 4. Update Consent logic
+    function updateConsent(status) {
+      localStorage.setItem(COOKIE_KEY, status);
+      const isAccepted = status === 'accepted';
+
+      gtag('consent', 'update', {
+        'ad_storage': isAccepted ? 'granted' : 'denied',
+        'ad_user_data': isAccepted ? 'granted' : 'denied',
+        'ad_personalization': isAccepted ? 'granted' : 'denied',
+        'analytics_storage': isAccepted ? 'granted' : 'denied'
+      });
+
+      if (!isAccepted) purgeNonEssentialCookies();
+
+      window.dispatchEvent(new CustomEvent('cookie-consent-changed', { detail: status }));
+      hideBanner();
+    }
+
+    function hideBanner() {
+      if (!banner) return;
+      banner.classList.remove('opacity-100', 'translate-y-0');
+      banner.classList.add('opacity-0', 'translate-y-8');
+      banner.style.pointerEvents = 'none';
+    }
+
+    if (!localStorage.getItem(COOKIE_KEY) && banner) {
+      setTimeout(() => {
+        banner.classList.remove('opacity-0', 'translate-y-8', 'pointer-events-none');
+        banner.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
+      }, 1000);
+    }
+
+    acceptBtn?.addEventListener('click', () => updateConsent('accepted'));
+    rejectBtn?.addEventListener('click', () => updateConsent('rejected'));
+  })();
+</script>
+
+<style>
+  :root {
+    --studio-grey: #7C7C7D;
+  }
+
+  .cookie-banner-wrapper {
+    font-family: 'Inter', sans-serif;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 92vw;
+    max-width: 480px;
+    bottom: max(40px, calc(24px + env(safe-area-inset-bottom)));
+  }
+
+  /*
+     INVERTED BRAND LINK ANIMATION
+     Optimized for White Background
+  */
+  .studio-link {
+    position: relative;
+    display: inline-block;
+    text-decoration: none;
+    color: #000000; /* Inverted to Black for White BG */
+    letter-spacing: -0.02em;
+    transition: color 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  .studio-link:hover {
+    color: var(--studio-grey); /* Keep same hover color */
+  }
+
+  .studio-link::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background-color: currentColor; /* Matches text color (Black -> Grey) */
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  .studio-link:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  @media (min-width: 768px) {
+    .cookie-banner-wrapper {
+      left: auto;
+      right: 40px;
+      transform: none;
+      width: auto;
+      bottom: 40px;
+    }
+    .cookie-banner-wrapper.translate-y-0 { transform: translateY(0); }
+    .cookie-banner-wrapper.translate-y-8 { transform: translateY(2rem); }
+  }
+</style>

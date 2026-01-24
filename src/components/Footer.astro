@@ -1,0 +1,24 @@
+---
+/**
+ * Footer.astro
+ * Logic: Reverse on mobile (Links on top), Row on desktop.
+ * Links: Horizontal on all screens with 24px spacing.
+ * Text size: 12px. Color: #7C7C7D.
+ */
+---
+
+<!-- Removed 'border-t border-white/10' from the class list below -->
+<footer class="pt-8 flex flex-col-reverse md:flex-row justify-between items-start md:items-center gap-8 md:gap-6 text-[12px] text-[#7C7C7D] mt-auto">
+
+  <!-- Copyright (Bottom on mobile) -->
+  <div class="max-w-3xl leading-tight">
+    © 2025 Datt Studio Ltd | England and Wales | Company no. 16695845. | 94 Repton Close, LU3 3UP
+  </div>
+
+  <!-- Links (Top on mobile, Horizontal layout with 24px gap) -->
+  <div class="flex flex-row gap-[24px] items-center">
+    <a href="/privacy-cookies-policy" class="studio-link !text-white">Privacy and Cookie Policy</a>
+    <a href="/terms-of-use" class="studio-link !text-white">Terms Of Use</a>
+  </div>
+
+</footer>

@@ -1,0 +1,84 @@
+---
+/**
+ * Header.astro
+ */
+---
+
+<header class="w-full px-6 pt-10 md:px-12 md:pt-14 bg-black">
+  <div class="flex justify-start items-start w-full">
+    <a href="/" class="block group">
+      <img
+        id="nav-logo"
+        src="/assets/dattstudio_logo.svg"
+        alt="Datt Studio"
+        draggable="false"
+        class="w-[80vw] md:w-[50vw] h-auto object-contain select-none"
+      />
+    </a>
+  </div>
+</header>
+
+<style is:global>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+  :root {
+    --studio-grey: #7C7C7D;
+    --studio-highlight: #26FF34;
+  }
+
+  /* Global Selection Styling */
+  ::selection {
+    background-color: var(--studio-highlight);
+    color: #000000;
+  }
+  ::-moz-selection {
+    background-color: var(--studio-highlight);
+    color: #000000;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    line-height: 1.15;
+    background-color: black;
+    color: white;
+    -webkit-font-smoothing: antialiased;
+    margin: 0;
+  }
+
+  /* Universal tight tracking */
+  h1, h2, h3, p, a, li, span {
+    letter-spacing: -0.02em;
+  }
+
+  /* --- CUSTOM LINK ANIMATION --- */
+  .studio-link {
+    position: relative;
+    display: inline-block;
+    text-decoration: none;
+    color: inherit;
+    transition: color 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  .studio-link:hover {
+    color: var(--studio-grey);
+  }
+
+  .studio-link::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background-color: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  .studio-link:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+</style>

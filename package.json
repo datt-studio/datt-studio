@@ -1,0 +1,28 @@
+{
+  "name": "dattstudio",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "sanity:dev": "sanity start",
+    "sanity:build": "sanity build"
+  },
+  "dependencies": {
+    "@sanity/astro": "^3.2.10",
+    "@sanity/client": "^7.12.0",
+    "astro": "^4.0.0",
+    "date-fns": "^4.1.0",
+    "marked": "^5.1.0",
+    "sanity": "^4.20.3"
+  },
+  "devDependencies": {
+    "@astrojs/tailwind": "^6.0.2",
+    "@sanity/cli": "^4.10.2",
+    "autoprefixer": "^10.4.22",
+    "baseline-browser-mapping": "^2.9.17",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.18"
+  }
+}

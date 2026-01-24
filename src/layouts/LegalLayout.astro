@@ -1,0 +1,14 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/main.css';
+---
+
+<Header />
+
+    <main class="relative" style="z-index: 10;">
+        <slot />
+    </main>
+
+<Footer />

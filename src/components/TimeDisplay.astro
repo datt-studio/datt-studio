@@ -1,0 +1,24 @@
+---
+// src/components/TimeDisplay.astro
+---
+<div class=`flex items-center gap-2 font-normal ${Astro.props.className}`>
+    <span>UK (GMT+1)</span>
+    <span id="clock-display">00:00</span>
+</div>
+
+<script is:inline>
+  function updateClock() {
+    const clockEl = document.getElementById('clock-display');
+    if (!clockEl) return;
+    const now = new Date();
+    // Format to HH:mm
+    const timeString = now.toLocaleTimeString('en-GB', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+    });
+    clockEl.textContent = timeString;
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+</script>

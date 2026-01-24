@@ -1,0 +1,205 @@
+---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import Layout from '../layouts/Layout.astro';
+/**
+ * Privacy & Cookies Policy Page
+ * Exact layout/padding matching index.astro
+ */
+---
+
+<Layout title="Privacy & Cookies Policy | Datt Studio">
+  <Header />
+
+  <!-- Main container matching index.astro exactly -->
+  <main class="bg-black text-white px-6 md:px-12 pb-10 flex flex-col min-h-screen">
+
+    <!-- 1. Meta Info section (Matches Clock section spacing) -->
+    <div class="mt-10 mb-32 md:mb-40">
+      <div class="text-[#7C7C7D] text-[15px] flex flex-col gap-1 font-semibold tracking-[-0.02em]">
+        <span>UK (GMT+1) 13:03</span>
+        <span>Last updated: 23 January 2025</span>
+      </div>
+    </div>
+
+    <!-- 2. Main Content Grid -->
+    <!-- Matches the Information Grid spacing/logic -->
+    <section class="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-x-24 gap-y-20 mb-32 md:mb-64">
+
+      <!-- COLUMN 1: Sidebar Navigation -->
+      <aside class="flex flex-col gap-4 items-start h-fit md:sticky md:top-14">
+        <a href="/privacy-cookies-policy" class="studio-link text-[18px] font-semibold text-white">
+          Privacy & Cookies Policy
+        </a>
+        <a href="/terms-of-use" class="studio-link text-[18px] font-semibold text-white">
+          Terms of Use
+        </a>
+      </aside>
+
+      <!-- COLUMN 2: Policy Content -->
+      <article class="flex flex-col gap-6 max-w-2xl">
+
+        <!-- Cookie Policy -->
+        <div id="cookie-policy" class="flex flex-col gap-6">
+          <h1 class="text-[24px] md:text-[24px] font-semibold text-white leading-none tracking-[-0.02em]">Cookie Policy</h1>
+
+          <div class="flex flex-col gap-6 text-[18px] leading-[1.4] tracking-[-0.02em] font-semibold">
+            <div class="flex flex-col gap-3">
+              <h2 style="color: #7C7C7D;">Introduction</h2>
+              <p class="opacity-90">
+                This Cookie Policy explains how Datt Studio Ltd ("we", "us", or "our") uses cookies and similar technologies on the website <a href="https://www.dattstudio.com" class="studio-link underline">www.dattstudio.com</a> ("Web Site"). By using the Site, you consent to the use of cookies as described here, subject to your cookie preferences and consent.
+              </p>
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <h2 style="color: #7C7C7D;">What Are Cookies</h2>
+              <ul class="list-disc pl-5 flex flex-col gap-1 opacity-90">
+                <li><strong>Strictly Necessary Cookies:</strong> Essential for website functionality; do not require consent.</li>
+                <li><strong>Performance and Analytical Cookies:</strong> Collect information about how you use the site to help us improve it. Consent required.</li>
+                <li><strong>Functional Cookies:</strong> Remember choices and preferences for improved experience. Consent required.</li>
+                <li><strong>Targeting/Advertising Cookies:</strong> Used to deliver relevant ads and track marketing metrics. Consent required.</li>
+              </ul>
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <h2 style="color: #7C7C7D;">Types of Cookies We Use</h2>
+              <p class="opacity-90">Cookies are small text files placed on your device by websites to help deliver a better browsing experience and collect data about site usage. Under GDPR, we require your explicit consent before placing non-essential cookies.</p>
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <h2 style="color: #7C7C7D;">Cookie Consent and Management</h2>
+              <p class="opacity-90">We use a cookie consent banner to request your consent before setting non-essential cookies. You can manage or withdraw your consent at any time via cookie settings accessible on the website or through your browser preferences.</p>
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <h2 style="color: #7C7C7D;">Data Retention</h2>
+              <p class="opacity-90">Cookie data is retained only as long as necessary for its purpose, typically no longer than 26 months before anonymisation or deletion.</p>
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <h2 style="color: #7C7C7D;">More Information</h2>
+              <p class="opacity-90">For more details or to change cookie settings, visit your browser's help section or contact us at <a href="mailto:hello@dattstudio.com" class="studio-link">hello@dattstudio.com</a>.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Privacy Policy -->
+        <div id="privacy-policy" class="flex flex-col gap-6">
+          <h1 class="text-[24px] md:text-[24px] font-semibold text-white leading-none tracking-[-0.02em]">Privacy Policy</h1>
+
+          <div class="flex flex-col gap-10 text-[18px] leading-[1.4] tracking-[-0.02em] font-semibold">
+            <div class="flex flex-col gap-1">
+              <h2 style="color: #7C7C7D;">Introduction</h2>
+              <p class="opacity-90">Datt Studio Ltd ("we", "us", "our") respects your privacy and complies with UK and EU GDPR. This Privacy Policy explains how we collect, use, and protect your personal data when you use our website <a href="https://www.dattstudio.com" class="studio-link underline">www.dattstudio.com</a> and related services.</p>
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <h2 style="color: #7C7C7D;">Personal Data We Collect</h2>
+              <ul class="list-disc pl-5 flex flex-col gap-2 opacity-90">
+                <li>Contact details (name, email, phone)</li>
+                <li>Usage data (IP address, browser type, device info)</li>
+                <li>Cookies and tracking data</li>
+                <li>Communications and marketing preferences</li>
+                <li>Payment and transaction data (if applicable)</li>
+              </ul>
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <h2 style="color: #7C7C7D;">How We Use Your Data</h2>
+              <ul class="list-disc pl-5 flex flex-col gap-2 opacity-90">
+                <li>To provide and maintain our services</li>
+                <li>To communicate with you</li>
+                <li>To personalised your experience</li>
+                <li>To comply with legal obligations</li>
+                <li>For marketing, with your consent</li>
+              </ul>
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <h2 style="color: #7C7C7D;">Lawful Bases for Processing</h2>
+              <p class="opacity-90">We rely on various lawful bases including consent, legitimate interests, contractual necessity, and legal obligations as per Articles 6(1)(a)-(f) of the GDPR.</p>
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <h2 style="color: #7C7C7D;">Data Sharing and Transfers</h2>
+              <p class="opacity-90">We may share your data with trusted third-party service providers under GDPR-compliant agreements. Transfers outside the UK/EU are safeguarded by appropriate mechanisms like Standard Contractual Clauses.</p>
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <h2 style="color: #7C7C7D;">Data Retention</h2>
+              <p class="opacity-90">We retain personal data only as long as necessary for the purpose collected or required by law, typically no more than 3 years after last interaction.</p>
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <h2 style="color: #7C7C7D;">Security</h2>
+              <p class="opacity-90">You have the right to: Access your data; Rectify inaccurate data; Erase your data ("right to be forgotten"); Restrict or object to processing; Data portability; Withdraw consent at any time; Lodge a complaint with a supervisory authority (e.g., ICO). To exercise these rights, contact us at <a href="mailto:hello@dattstudio.com" class="studio-link">hello@dattstudio.com</a>.</p>
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <h2 style="color: #7C7C7D;">Your Rights</h2>
+              <p class="opacity-90">We implement appropriate technical and organisational measures to protect your data.</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+    </section>
+
+    <!-- Footer component pushed to bottom by flex-col min-h-screen -->
+    <Footer />
+
+  </main>
+</Layout>
+
+<style is:global>
+  /* Global brand styles matching your Header/Home */
+  :root {
+    --studio-grey: #7C7C7D;
+  }
+
+  body {
+    background-color: black;
+    color: white;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, p, a, li, span {
+    letter-spacing: -0.02em;
+  }
+
+  h2 {
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  /* --- CUSTOM LINK ANIMATION --- */
+  .studio-link {
+    position: relative;
+    display: inline-block;
+    text-decoration: none;
+    color: inherit;
+    transition: color 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  .studio-link:hover {
+    color: var(--studio-grey);
+  }
+
+  .studio-link::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background-color: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  .studio-link:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+</style>

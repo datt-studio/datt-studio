@@ -1,0 +1,51 @@
+---
+import CookieBanner from '../components/CookieBanner.astro';
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- CSP SECURITY POLICY -->
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'self';
+      script-src 'self' 'unsafe-inline';
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+      font-src 'self' https://fonts.gstatic.com;
+      img-src 'self' data: https://cdn.sanity.io;
+      connect-src 'self' https://d9mob5o5.api.sanity.io https://d9mob5o5.apicdn.sanity.io;
+    ">
+
+    <!-- FAVICONS -->
+    <link rel="icon" type="image/svg+xml" href="/favicon_512px.svg" sizes="any" />
+    <link rel="icon" type="image/svg+xml" href="/favicon_16px.svg" sizes="16x16" />
+    <link rel="icon" type="image/svg+xml" href="/favicon_32px.svg" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/favicon_512px.svg" />
+
+    <!-- Google Fonts (Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+    <title>{title}</title>
+    <meta name="description" content="Shaping powerful identities and unforgettable digital experiences." />
+
+    <meta property="og:title" content="Datt Studio" />
+    <meta property="og:description" content="Shaping powerful identities and unforgettable digital experiences." />
+    <meta property="og:image" content="/assets/og-image.jpg" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body>
+    <slot />
+    <CookieBanner />
+  </body>
+</html>

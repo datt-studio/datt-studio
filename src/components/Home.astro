@@ -1,0 +1,155 @@
+---
+// components/Home.astro
+
+interface Props {
+  videoSrc?: string;
+}
+
+const { videoSrc = '/videos/showreel.mp4' } = Astro.props;
+---
+
+<section class="home">
+  <div class="home-content">
+    {/* LEFT SIDE */}
+    <div class="home-left">
+      <h1>Design, direction, strategy, production & motion.</h1>
+      <a href="/contact" class="cta">Start a project</a>
+    </div>
+
+    {/* RIGHT SIDE - VIDEO */}
+    <div class="home-right">
+      <div class="video-box">
+        <video
+          src={videoSrc}
+          muted
+          autoplay
+          loop
+          playsinline
+        ></video>
+      </div>
+      <p>Watch showreel</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .home {
+    margin-top: 80px;
+    background: #f5f5f5;
+    padding: 80px 40px;
+    min-height: calc(100vh - 80px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .home-content {
+    max-width: 1320px;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 60px;
+    align-items: center;
+  }
+
+  /* LEFT COLUMN */
+  .home-left {
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+  }
+
+  .home-left h1 {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #000;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+
+  .cta {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    color: #000;
+    text-decoration: underline;
+    width: fit-content;
+    transition: opacity 0.3s;
+  }
+
+  .cta:hover {
+    opacity: 0.7;
+  }
+
+  /* RIGHT COLUMN */
+  .home-right {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .video-box {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .video-box video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .home-right p {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 13px;
+    color: #aaa;
+    margin: 0;
+    font-weight: 400;
+  }
+
+  /* TABLET */
+  @media (max-width: 1024px) {
+    .home {
+      padding: 60px 30px;
+    }
+
+    .home-content {
+      gap: 40px;
+    }
+
+    .home-left h1 {
+      font-size: 40px;
+    }
+
+    .home-left {
+      gap: 40px;
+    }
+  }
+
+  /* MOBILE */
+  @media (max-width: 768px) {
+    .home {
+      padding: 60px 24px;
+      min-height: auto;
+    }
+
+    .home-content {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+
+    .home-left h1 {
+      font-size: 32px;
+      line-height: 1.25;
+    }
+
+    .home-left {
+      gap: 32px;
+    }
+  }
+</style>
