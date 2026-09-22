@@ -9,7 +9,7 @@ interface Props {
 }
 
 const { code, message } = Astro.props;
-const digits = code.split(''); // This turns "500" into ['5', '0', '0']
+const digits = (code ?? 'ERR').split('');
 ---
 
 <Layout title={`${code} — ${message}`} isDark={true}>
