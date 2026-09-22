@@ -125,6 +125,15 @@ const posterSrc = "/assets/video-poster-retina.jpg";
   }
 
 
+  /* --- MOBILE: always show the underline on "Made to hold." --- */
+  @media (max-width: 767px) {
+    .trigger-line::after {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+  }
+
+
   .link-underline:hover::after {
     transform: scaleX(1) !important;
     transform-origin: left !important;
