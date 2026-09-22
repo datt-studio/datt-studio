@@ -2,204 +2,231 @@
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import Layout from '../layouts/Layout.astro';
-/**
- * Privacy & Cookies Policy Page
- * Exact layout/padding matching index.astro
- */
+import SecureEmail from '../components/SecureEmail.astro';
+
+const { pathname } = Astro.url;
+const normalizedPath = pathname.replace(/\/$/, "");
+const isActive = (path: string) => normalizedPath === path;
+
+const sidebarLinks = [
+  { href: '/privacy-cookies-policy', label: 'Privacy & Cookie Policy' },
+  { href: '/terms-of-use', label: 'Terms of Use' },
+  { href: '/accessibility', label: 'Accessibility Statement' },
+  { href: '/data-processing', label: 'Data Processing Agreement' },
+];
+
+const lastUpdated = "16 June 2026";
 ---
 
-<Layout title="Privacy & Cookies Policy | Datt Studio">
-  <Header />
+<Layout title="DATT STUDIO - Privacy & Cookie Policy" isDark={true}>
+  <Header isInverted={true} />
 
-  <!-- Main container matching index.astro exactly -->
-  <main class="bg-black text-white px-6 md:px-12 pb-10 flex flex-col min-h-screen">
+  <style is:global>
+    html, body { background-color: #000000 !important; }
+    /* Table Styling for Cookie IDs */
+    .policy-table { width: 100%; border-collapse: collapse; margin-top: 1.5rem; font-size: 13px; }
+    .policy-table th { text-align: left; padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); color: #727272; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+    .policy-table td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #b4b4b4; }
+  </style>
 
-    <!-- 1. Meta Info section (Matches Clock section spacing) -->
-    <div class="mt-10 mb-32 md:mb-40">
-      <div class="text-[#7C7C7D] text-[15px] flex flex-col gap-1 font-semibold tracking-[-0.02em]">
-        <span>UK (GMT+1) 13:03</span>
-        <span>Last updated: 23 January 2025</span>
-      </div>
-    </div>
+  <main id="main-content" class="reveal-trigger w-full max-w-[1440px] pt-[120px] px-[var(--page-padding)] pb-32 bg-black text-white">
+    <div class="flex flex-col md:flex-row w-full gap-y-16 md:gap-x-24">
 
-    <!-- 2. Main Content Grid -->
-    <!-- Matches the Information Grid spacing/logic -->
-    <section class="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-x-24 gap-y-20 mb-32 md:mb-64">
-
-      <!-- COLUMN 1: Sidebar Navigation -->
-      <aside class="flex flex-col gap-4 items-start h-fit md:sticky md:top-14">
-        <a href="/privacy-cookies-policy" class="studio-link text-[18px] font-semibold text-white">
-          Privacy & Cookies Policy
-        </a>
-        <a href="/terms-of-use" class="studio-link text-[18px] font-semibold text-white">
-          Terms of Use
-        </a>
-      </aside>
-
-      <!-- COLUMN 2: Policy Content -->
-      <article class="flex flex-col gap-6 max-w-2xl">
-
-        <!-- Cookie Policy -->
-        <div id="cookie-policy" class="flex flex-col gap-6">
-          <h1 class="text-[24px] md:text-[24px] font-semibold text-white leading-none tracking-[-0.02em]">Cookie Policy</h1>
-
-          <div class="flex flex-col gap-6 text-[18px] leading-[1.4] tracking-[-0.02em] font-semibold">
-            <div class="flex flex-col gap-3">
-              <h2 style="color: #7C7C7D;">Introduction</h2>
-              <p class="opacity-90">
-                This Cookie Policy explains how Datt Studio Ltd ("we", "us", or "our") uses cookies and similar technologies on the website <a href="https://www.dattstudio.com" class="studio-link underline">www.dattstudio.com</a> ("Web Site"). By using the Site, you consent to the use of cookies as described here, subject to your cookie preferences and consent.
-              </p>
+      <article class="w-full md:w-[65%] flex flex-col">
+        <div class="mb-[120px]">
+            <div class="brands-line-mask">
+                <h1 class="brands-line-inner text-white">Privacy & Cookie Policy</h1>
             </div>
-
-            <div class="flex flex-col gap-2">
-              <h2 style="color: #7C7C7D;">What Are Cookies</h2>
-              <ul class="list-disc pl-5 flex flex-col gap-1 opacity-90">
-                <li><strong>Strictly Necessary Cookies:</strong> Essential for website functionality; do not require consent.</li>
-                <li><strong>Performance and Analytical Cookies:</strong> Collect information about how you use the site to help us improve it. Consent required.</li>
-                <li><strong>Functional Cookies:</strong> Remember choices and preferences for improved experience. Consent required.</li>
-                <li><strong>Targeting/Advertising Cookies:</strong> Used to deliver relevant ads and track marketing metrics. Consent required.</li>
-              </ul>
-            </div>
-
-            <div class="flex flex-col gap-2">
-                <h2 style="color: #7C7C7D;">Types of Cookies We Use</h2>
-              <p class="opacity-90">Cookies are small text files placed on your device by websites to help deliver a better browsing experience and collect data about site usage. Under GDPR, we require your explicit consent before placing non-essential cookies.</p>
-            </div>
-
-            <div class="flex flex-col gap-2">
-              <h2 style="color: #7C7C7D;">Cookie Consent and Management</h2>
-              <p class="opacity-90">We use a cookie consent banner to request your consent before setting non-essential cookies. You can manage or withdraw your consent at any time via cookie settings accessible on the website or through your browser preferences.</p>
-            </div>
-
-            <div class="flex flex-col gap-2">
-              <h2 style="color: #7C7C7D;">Data Retention</h2>
-              <p class="opacity-90">Cookie data is retained only as long as necessary for its purpose, typically no longer than 26 months before anonymisation or deletion.</p>
-            </div>
-
-            <div class="flex flex-col gap-2">
-              <h2 style="color: #7C7C7D;">More Information</h2>
-              <p class="opacity-90">For more details or to change cookie settings, visit your browser's help section or contact us at <a href="mailto:hello@dattstudio.com" class="studio-link">hello@dattstudio.com</a>.</p>
-            </div>
-          </div>
         </div>
 
-        <!-- Privacy Policy -->
-        <div id="privacy-policy" class="flex flex-col gap-6">
-          <h1 class="text-[24px] md:text-[24px] font-semibold text-white leading-none tracking-[-0.02em]">Privacy Policy</h1>
+        <div class="flex flex-col gap-y-32">
+            <section id="privacy-policy" class="flex flex-col">
+              <div class="mb-[48px]">
+                <div class="brands-line-mask">
+                    <p class="brands-line-inner text-label !text-[#727272]">Last Updated — {lastUpdated}</p>
+                </div>
+              </div>
 
-          <div class="flex flex-col gap-10 text-[18px] leading-[1.4] tracking-[-0.02em] font-semibold">
-            <div class="flex flex-col gap-1">
-              <h2 style="color: #7C7C7D;">Introduction</h2>
-              <p class="opacity-90">Datt Studio Ltd ("we", "us", "our") respects your privacy and complies with UK and EU GDPR. This Privacy Policy explains how we collect, use, and protect your personal data when you use our website <a href="https://www.dattstudio.com" class="studio-link underline">www.dattstudio.com</a> and related services.</p>
-            </div>
+              <div class="mb-[64px]">
+                <div class="brands-line-mask">
+                    <h2 class="brands-line-inner text-label !text-white">Privacy Policy</h2>
+                </div>
+              </div>
 
-            <div class="flex flex-col gap-2">
-              <h2 style="color: #7C7C7D;">Personal Data We Collect</h2>
-              <ul class="list-disc pl-5 flex flex-col gap-2 opacity-90">
-                <li>Contact details (name, email, phone)</li>
-                <li>Usage data (IP address, browser type, device info)</li>
-                <li>Cookies and tracking data</li>
-                <li>Communications and marketing preferences</li>
-                <li>Payment and transaction data (if applicable)</li>
-              </ul>
-            </div>
+              <div class="flex flex-col gap-y-12">
+                <!-- 1. Controller -->
+                <div class="brands-line-mask">
+                  <div class="brands-line-inner flex flex-col">
+                    <h4 class="text-white">1. Data Controller & ICO</h4>
+                    <div class="mt-4"><p>DATT STUDIO LTD is a data controller registered in England (No. 16695845). We process personal data in accordance with the UK GDPR and the Data Protection Act 2018. We maintain active registration with the Information Commissioner’s Office (ICO).</p></div>
+                  </div>
+                </div>
 
-            <div class="flex flex-col gap-2">
-              <h2 style="color: #7C7C7D;">How We Use Your Data</h2>
-              <ul class="list-disc pl-5 flex flex-col gap-2 opacity-90">
-                <li>To provide and maintain our services</li>
-                <li>To communicate with you</li>
-                <li>To personalised your experience</li>
-                <li>To comply with legal obligations</li>
-                <li>For marketing, with your consent</li>
-              </ul>
-            </div>
+                <!-- 2. Lawful Basis -->
+                <div class="brands-line-mask">
+                  <div class="brands-line-inner flex flex-col">
+                    <h4 class="text-white">2. Lawful Basis for Processing</h4>
+                    <div class="mt-4"><p>We process data under the following legal bases: <strong>Consent</strong> for analytical cookies; <strong>Contractual Necessity</strong> for service delivery; and <strong>Legitimate Interests</strong> for responding to enquiries and maintaining site security.</p></div>
+                  </div>
+                </div>
 
-            <div class="flex flex-col gap-2">
-              <h2 style="color: #7C7C7D;">Lawful Bases for Processing</h2>
-              <p class="opacity-90">We rely on various lawful bases including consent, legitimate interests, contractual necessity, and legal obligations as per Articles 6(1)(a)-(f) of the GDPR.</p>
-            </div>
+                <!-- 3. AI Protection -->
+                <div class="brands-line-mask">
+                  <div class="brands-line-inner flex flex-col">
+                    <h4 class="text-white">3. Usage & AI Protection</h4>
+                    <div class="mt-4"><p>Personal data is processed solely for service delivery and site analytics. DATT STUDIO LTD guarantees that no personal data collected via this Site - including enquiry info and tracking identifiers - is utilized for automated profiling, machine learning optimization, or the training of third-party AI models.</p></div>
+                  </div>
+                </div>
 
-            <div class="flex flex-col gap-2">
-              <h2 style="color: #7C7C7D;">Data Sharing and Transfers</h2>
-              <p class="opacity-90">We may share your data with trusted third-party service providers under GDPR-compliant agreements. Transfers outside the UK/EU are safeguarded by appropriate mechanisms like Standard Contractual Clauses.</p>
-            </div>
+                <!-- 4. Transfers -->
+                <div class="brands-line-mask">
+                  <div class="brands-line-inner flex flex-col">
+                    <h4 class="text-white">4. Third-Party Disclosures & Transfers</h4>
+                    <div class="mt-4"><p>We do not sell your data. We share information only with essential service providers (e.g., Google Analytics, Vercel). Data may be processed outside the UK/EEA (e.g., on US-based servers). We ensure standard contractual clauses or equivalent safeguards are in place to protect your information.</p></div>
+                  </div>
+                </div>
 
-            <div class="flex flex-col gap-2">
-              <h2 style="color: #7C7C7D;">Data Retention</h2>
-              <p class="opacity-90">We retain personal data only as long as necessary for the purpose collected or required by law, typically no more than 3 years after last interaction.</p>
-            </div>
+                <!-- 5. Retention -->
+                <div class="brands-line-mask">
+                  <div class="brands-line-inner flex flex-col">
+                    <h4 class="text-white">5. Data Retention</h4>
+                    <div class="mt-4"><p>General enquiry data is held for two years. Contractual and financial records are held for six years in accordance with English statutory limitation periods and HMRC requirements.</p></div>
+                  </div>
+                </div>
 
-            <div class="flex flex-col gap-2">
-              <h2 style="color: #7C7C7D;">Security</h2>
-              <p class="opacity-90">You have the right to: Access your data; Rectify inaccurate data; Erase your data ("right to be forgotten"); Restrict or object to processing; Data portability; Withdraw consent at any time; Lodge a complaint with a supervisory authority (e.g., ICO). To exercise these rights, contact us at <a href="mailto:hello@dattstudio.com" class="studio-link">hello@dattstudio.com</a>.</p>
-            </div>
+                <!-- 6. Rights -->
+                <div class="brands-line-mask">
+                  <div class="brands-line-inner flex flex-col">
+                    <h4 class="text-white">6. Your Rights</h4>
+                    <div class="mt-4">
+                        <p>You have the right to access, rectify, or erase your data, and to object to processing. Contact our Data Protection Officer:
+                        <SecureEmail email="hello@dattstudio.com" className="cta-link !lowercase !text-[16px] !tracking-tight" isInverted={true} />. You also have the right to lodge a complaint with the ICO (ico.org.uk).</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
 
-            <div class="flex flex-col gap-2">
-              <h2 style="color: #7C7C7D;">Your Rights</h2>
-              <p class="opacity-90">We implement appropriate technical and organisational measures to protect your data.</p>
-            </div>
-          </div>
+            <section id="cookie-policy" class="flex flex-col pt-24 border-t border-white/10">
+                <div class="mb-[64px]">
+                    <div class="brands-line-mask">
+                        <h2 class="brands-line-inner text-label !text-white">Cookie Policy</h2>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-y-12">
+                  <div class="brands-line-mask">
+                    <div class="brands-line-inner flex flex-col">
+                      <h4 class="text-white">1. Analysis & Function</h4>
+                      <div class="mt-4"><p>We use cookies to ensure site stability and to analyse traffic via Google Analytics (GA4). Strictly necessary cookies are deployed by default; analytics cookies require your explicit consent.</p></div>
+                    </div>
+                  </div>
+
+                  <div class="brands-line-mask">
+                    <div class="brands-line-inner flex flex-col">
+                      <h4 class="text-white">2. Specific Identifiers</h4>
+                      <div class="mt-4">
+                        <table class="policy-table">
+                          <thead>
+                            <tr><th>Name</th><th>Provider</th><th>Purpose</th><th>Expiry</th></tr>
+                          </thead>
+                          <tbody>
+                            <tr><td>_ga</td><td>Google</td><td>GA4 Site Analytics</td><td>2 Years</td></tr>
+                            <tr><td>_ga_*</td><td>Google</td><td>Session Persistence</td><td>2 Years</td></tr>
+                            <tr><td>datt_consent_v10</td><td>DATT</td><td>Stores privacy choice</td><td>1 Year</td></tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="brands-line-mask">
+                      <div class="brands-line-inner flex flex-col pt-12">
+                          <h3 class="font-semibold mb-3 text-white">Data Sovereignty & Status</h3>
+                          <div class="mt-2"><p>Full transparency over your local identifiers and current choice status.</p></div>
+
+                          <div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 bg-white/5 p-8 border border-white/10 rounded-sm mb-12">
+                              <div><p class="text-label !text-[10px] opacity-40 mb-2">Current Choice</p><div id="log-decision" class="font-semibold text-[13px] uppercase tracking-wider text-white">NO DATA</div></div>
+                              <div><p class="text-label !text-[10px] opacity-40 mb-2">Local ID</p><div id="log-id" class="font-semibold text-[13px] break-all text-white">NOT ASSIGNED</div></div>
+                              <div><p class="text-label !text-[10px] opacity-40 mb-2">Timestamp</p><div id="log-time" class="font-semibold text-[13px] text-white">N/A</div></div>
+                              <div><p class="text-label !text-[10px] opacity-40 mb-2">Global Status</p><div id="nuclear-status" class="font-semibold text-[13px] text-white uppercase tracking-wider">PENDING</div></div>
+                          </div>
+
+                          <button id="nuclear-erase" class="erase-btn w-fit">Erase All Consent Data</button>
+                      </div>
+                  </div>
+                </div>
+            </section>
         </div>
       </article>
 
-    </section>
-
-    <!-- Footer component pushed to bottom by flex-col min-h-screen -->
-    <Footer />
-
+      <aside class="w-full md:w-[35%] lg:sticky lg:top-[132px] h-fit md:pl-20 border-l border-white/5">
+        <nav class="flex flex-col items-start gap-y-3">
+          {sidebarLinks.map((link, i) => (
+            <div class="brands-line-mask">
+              <a href={link.href} class:list={['sidebar-link text-label !text-[13px]', { 'active': isActive(link.href) }]} style={`transition-delay: ${0.1 + (i * 0.05)}s`}>{link.label}</a>
+            </div>
+          ))}
+        </nav>
+      </aside>
+    </div>
   </main>
+  <Footer isInverted={true} />
 </Layout>
 
 <style is:global>
-  /* Global brand styles matching your Header/Home */
-  :root {
-    --studio-grey: #7C7C7D;
-  }
-
-  body {
-    background-color: black;
-    color: white;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  h1, h2, h3, p, a, li, span {
-    letter-spacing: -0.02em;
-  }
-
-  h2 {
-    font-size: 18px;
-    font-weight: 600;
-  }
-
-  /* --- CUSTOM LINK ANIMATION --- */
-  .studio-link {
-    position: relative;
-    display: inline-block;
-    text-decoration: none;
-    color: inherit;
-    transition: color 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-  }
-
-  .studio-link:hover {
-    color: var(--studio-grey);
-  }
-
-  .studio-link::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 100%;
-    height: 1px;
-    background-color: currentColor;
-    transform: scaleX(0);
-    transform-origin: right;
-    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-  }
-
-  .studio-link:hover::after {
-    transform: scaleX(1);
-    transform-origin: left;
-  }
+  #main-content h4 { font-size: var(--font-h4); font-weight: 600; }
+  #main-content p { color: #b4b4b4; font-weight: 400; line-height: var(--lh-body); }
+  .cta-link:hover { color: #727272 !important; }
+  .sidebar-link { color: #727272 !important; text-decoration: none; transition: color 0.4s var(--ease-mechanical); }
+  .sidebar-link:hover, .sidebar-link.active { color: #ffffff !important; }
+  .erase-btn { appearance: none; border-radius: 2px; background: #FAFAFA; color: #000; padding: 14px 24px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: all 0.5s var(--ease-mechanical); border: none; }
+  .erase-btn:hover { background: #727272; color: #fff; }
 </style>
+
+<script is:inline>
+  function initPolicyPage() {
+    const CONSENT_KEY = 'datt_studio_consent_v10';
+    const btn = document.getElementById('nuclear-erase');
+    const updateDisplay = () => {
+      const data = localStorage.getItem(CONSENT_KEY);
+      const decEl = document.getElementById('log-decision');
+      const idEl = document.getElementById('log-id');
+      const timeEl = document.getElementById('log-time');
+      const statEl = document.getElementById('nuclear-status');
+      if (!data) {
+        if (decEl) decEl.innerText = "NO DATA";
+        if (idEl) idEl.innerText = "NOT ASSIGNED";
+        if (timeEl) timeEl.innerText = "N/A";
+        if (statEl) statEl.innerText = "PENDING";
+        return;
+      }
+      try {
+        const parsed = JSON.parse(data);
+        if (decEl) decEl.innerText = parsed.decision.toUpperCase();
+        if (idEl) idEl.innerText = parsed.localId || parsed.id || "PRIVACY MODE";
+        if (timeEl) timeEl.innerText = new Date(parsed.timestamp).toLocaleString('en-GB');
+        if (statEl) {
+            statEl.innerText = (parsed.decision === 'accepted') ? "ACTIVE / GRANTED" : "REVOKED / DENIED";
+            statEl.style.color = (parsed.decision === 'accepted') ? "#B4B4B4" : "#FF4B4B";
+        }
+      } catch(e) {}
+    };
+    if (btn) {
+      btn.onclick = (e) => {
+        e.preventDefault();
+        localStorage.removeItem(CONSENT_KEY);
+        sessionStorage.clear();
+        btn.innerText = "PURGED";
+        updateDisplay();
+        window.dispatchEvent(new CustomEvent('datt-consent-updated'));
+        setTimeout(() => window.location.reload(), 600);
+      };
+    }
+    const syncInterval = setInterval(updateDisplay, 1000);
+    document.addEventListener('astro:before-swap', () => clearInterval(syncInterval), { once: true });
+    updateDisplay();
+  }
+  initPolicyPage();
+  document.addEventListener('astro:after-swap', initPolicyPage);
+</script>

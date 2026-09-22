@@ -1,0 +1,118 @@
+---
+// InfoNaming.astro
+const label = "Naming";
+const line1 = "Đạt: To reach or attain.";
+const line2 = "That: A standard, recognised for its quality.";
+const bodyText = "Reaching the mark. Holding it. Built into the process. Reflected in the outcome. Without excess.";
+---
+
+<section id="naming-section" class="relative min-h-screen w-full bg-black px-[var(--page-padding)] py-24 md:py-40 flex items-center overflow-hidden">
+  <div class="w-full max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-[35%_1fr] items-start">
+
+    <!-- Left Label (Column 1) -->
+    <div class="mb-10 md:mb-0">
+      <div class="brands-line-mask">
+        <!-- Using .text-label for refined uppercase wide tracking -->
+        <span class="brands-line-inner text-label text-white">
+          {label}
+        </span>
+      </div>
+    </div>
+
+    <!-- Main Content (Column 2) -->
+    <div class="flex flex-col items-start">
+
+      <!-- Large Headline Block -->
+      <div class="flex flex-col gap-y-4 mb-10 md:mb-10">
+        <h2 class="naming-title text-white">
+          <span class="brands-line-mask block">
+            <span class="brands-line-inner block">{line1}</span>
+          </span>
+        </h2>
+
+        <h2 class="naming-title text-white">
+          <span class="brands-line-mask block max-w-[700px]">
+            <span class="brands-line-inner block" style="transition-delay: 0.1s;">{line2}</span>
+          </span>
+        </h2>
+      </div>
+
+      <!-- Bottom Paragraph -->
+      <div class="max-w-[550px]">
+        <div class="brands-line-mask">
+          <!-- Paragraph now inherits Weight 400 and Leading 1.6 from Layout.astro -->
+          <p class="brands-line-inner text-white/80" style="transition-delay: 0.4s;">
+            {bodyText}
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  /* 1. ALIGNING WITH REFINED TYPE SYSTEM */
+  #naming-section .naming-title {
+    font-size: var(--font-h2);
+    /* Removed weight 900. Inherits weight 600 from Layout.astro */
+    line-height: var(--lh-xtight);
+    letter-spacing: var(--track-tighter); /* Updated from track-tight */
+    max-width: 900px;
+  }
+
+  /* 2. MASKING & 3D ANIMATION - Fixed for Descenders */
+  #naming-section .brands-line-mask {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
+    perspective: 1000px;
+    /* Added padding to prevent refined font descenders from clipping */
+    padding-top: 0.15em;
+    padding-bottom: 0.15em;
+    margin-top: -0.15em;
+    margin-bottom: -0.15em;
+  }
+
+  #naming-section .brands-line-inner {
+    display: inline-block;
+    transform: translateY(115%) rotateX(-15deg); /* Smoother rotation */
+    transform-origin: top;
+    opacity: 0;
+    will-change: transform, opacity;
+    transition: transform 1.2s var(--ease-mechanical), opacity 0.9s var(--ease-mechanical);
+    backface-visibility: hidden;
+  }
+
+  /* 3. REVEAL STATE */
+  #naming-section.is-active .brands-line-inner {
+    transform: translateY(0) rotateX(0deg);
+    opacity: 1;
+  }
+
+  @media (max-width: 768px) {
+    #naming-section .brands-line-mask {
+        display: block;
+    }
+  }
+</style>
+
+<script is:inline>
+  function setupNamingSection() {
+    const section = document.getElementById('naming-section');
+    if (!section) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          section.classList.add('is-active');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+
+    observer.observe(section);
+  }
+  setupNamingSection();
+  document.addEventListener('astro:after-swap', setupNamingSection);
+</script>

@@ -1,0 +1,109 @@
+---
+// HomeStudio.astro
+const title = "A creative studio for brands built to last.";
+const body = "Work shaped through clarity, restraint, and careful execution. Built to be recognised. Designed to endure.";
+---
+
+<section class="home-studio reveal-trigger relative w-full min-h-[100dvh] px-[var(--page-padding)] flex flex-col items-start justify-center text-left bg-black py-24">
+  <div class="max-w-[580px] w-full">
+
+    <!-- 1. Headline: Tight leading, specific margin -->
+    <div class="brands-line-mask mb-12">
+      <h2 class="brands-line-inner text-white" style="transition-delay: 0.1s;">
+        {title}
+      </h2>
+    </div>
+
+    <!-- 2. Body: System leading, white/80 contrast -->
+    <div class="max-w-[500px] mb-10">
+        <div class="brands-line-mask">
+            <p class="brands-line-inner text-white/80" style="transition-delay: 0.4s;">
+              {body}
+            </p>
+        </div>
+    </div>
+
+    <!-- 3. CTA: Studio Label style -->
+    <div class="brands-line-mask inline-block">
+        <div class="brands-line-inner" style="transition-delay: 0.6s">
+          <a href="/info" class="cta-link inverted-cta">
+            About the studio
+          </a>
+        </div>
+    </div>
+
+  </div>
+</section>
+
+<style is:global>
+  /* --- TYPOGRAPHY SYSTEM SYNC --- */
+
+  .home-studio h1 {
+    font-size: var(--font-h1); /* 38px mobile -> 72px desktop */
+    font-weight: 600;
+    /* Tighter leading for the DATT look */
+    line-height: 1.0 !important;
+    letter-spacing: var(--track-tighter) !important;
+    margin: 0;
+    text-transform: none;
+  }
+
+  .home-studio p {
+    font-size: clamp(18px, 3vw, 16px);
+    font-weight: 400;
+    line-height: 1.5 !important; /* Slightly more open body for legibility */
+    letter-spacing: var(--track-tight);
+    margin: 0;
+  }
+
+  /* --- REVEAL ENGINE SYNC --- */
+
+  .home-studio .brands-line-mask {
+    display: block;
+    overflow: hidden;
+    perspective: 1200px;
+    /* Added padding to prevent descender clipping on wrapped text */
+    padding-top: 0.1em;
+    padding-bottom: 0.15em;
+  }
+
+  .home-studio .brands-line-inner {
+    display: block;
+    transform: translateY(115%) rotateX(-60deg);
+    transform-origin: top center;
+    opacity: 0;
+    transition: transform 1.3s var(--ease-mechanical), opacity 0.9s var(--ease-mechanical);
+    will-change: transform, opacity;
+  }
+
+  /* Activation triggered by Intersection Observer in Layout.astro */
+  .home-studio.is-active .brands-line-inner {
+    transform: translateY(0) rotateX(0deg) !important;
+    opacity: 1 !important;
+  }
+
+  /* --- CTA SYSTEM SYNC --- */
+
+  .home-studio .cta-link.inverted-cta {
+    color: #FFFFFF !important;
+    font-size: var(--font-label);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: var(--track-wide);
+    padding-bottom: 6px;
+  }
+
+  .home-studio .cta-link.inverted-cta::after {
+    background-color: #FFFFFF !important;
+    height: 1.5px;
+  }
+
+  /* Spacing Helper */
+  .mb-14 { margin-bottom: 60px; }
+  .mb-12 { margin-bottom: 48px; }
+
+  @media (max-width: 768px) {
+    .mb-14 { margin-bottom: 40px; }
+    .mb-12 { margin-bottom: 32px; }
+  }
+</style>

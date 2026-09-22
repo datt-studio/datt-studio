@@ -1,84 +1,165 @@
 ---
-/**
- * Header.astro
- */
+// Header.astro
+const { isInverted = false } = Astro.props;
 ---
 
-<header class="w-full px-6 pt-10 md:px-12 md:pt-14 bg-black">
-  <div class="flex justify-start items-start w-full">
-    <a href="/" class="block group">
-      <img
-        id="nav-logo"
-        src="/assets/dattstudio_logo.svg"
-        alt="Datt Studio"
-        draggable="false"
-        class="w-[80vw] md:w-[50vw] h-auto object-contain select-none"
-      />
+<header id="main-header" class="fixed top-0 left-0 w-full z-[1000] px-[var(--page-padding)] pt-4 h-20">
+  <div class="flex justify-between items-start w-full">
+    <!-- LOGO: Uses Label weight/track but unique size -->
+    <a href="/" class:list={[
+      "nav-logo font-bold uppercase tracking-[0.05em] transition-colors duration-700 ease-in-out text-[18px] md:text-[14px]",
+      isInverted ? "text-white" : "text-black"
+    ]}>
+      DATT STUDIO
     </a>
+
+    <!-- DESKTOP NAV: Hooked into global .text-label -->
+    <nav class:list={[
+      "hidden md:flex flex-1 justify-between items-start max-w-[62%] ml-auto text-label",
+      isInverted ? "text-white" : "text-black"
+    ]}>
+      <a href="/info" class="desktop-nav-link">Info</a>
+      <a href="/services" class="desktop-nav-link">Services</a>
+      <a href="/contact" class="desktop-nav-link">Contact</a>
+    </nav>
+
+    <!-- MOBILE TOGGLE: Hooked into global .cta-link -->
+    <button id="menu-toggle" class:list={[
+      "md:hidden cta-link border-none bg-transparent cursor-pointer transition-colors duration-700 !text-[18px]",
+      isInverted ? "text-white" : "text-black"
+    ]}>
+      MENU
+    </button>
   </div>
 </header>
 
-<style is:global>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+<!-- MOBILE OVERLAY -->
+<div id="mobile-overlay" class="fixed inset-0 z-[1100] hidden bg-black/95 backdrop-blur-[40px] flex-col px-[var(--page-padding)] pt-4">
+  <div class="flex justify-between items-start w-full h-20 text-white">
+      <a href="/" class="font-bold uppercase text-[18px] md:text-[14px] tracking-[0.05em]">DATT STUDIO</a>
+      <button id="menu-close" class="cta-link text-white border-none bg-transparent cursor-pointer !text-[18px]">CLOSE</button>
+  </div>
 
-  :root {
-    --studio-grey: #7C7C7D;
-    --studio-highlight: #26FF34;
-  }
+  <nav class="flex flex-col items-start mt-12">
+    {['Home', 'Info', 'Services', 'Contact'].map((item, i) => (
+      <!-- Reusing global brands-line-mask from Layout.astro -->
+      <div class="brands-line-mask">
+        <a
+          href={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
+          class="brands-line-inner menu-link"
+          style={`transition-delay: ${0.1 + (i * 0.08)}s`}
+        >
+          {item}
+        </a>
+      </div>
+    ))}
+  </nav>
 
-  /* Global Selection Styling */
-  ::selection {
-    background-color: var(--studio-highlight);
-    color: #000000;
-  }
-  ::-moz-selection {
-    background-color: var(--studio-highlight);
-    color: #000000;
-  }
+  <div class="mt-auto pb-12 flex flex-col gap-5 items-start">
+    <div class="brands-line-mask">
+        <a href="https://www.instagram.com/datt__studio/" class="brands-line-inner social-link" style="transition-delay: 0.5s;">instagram</a>
+    </div>
+    <div class="brands-line-mask">
+        <a href="https://www.linkedin.com/in/dattstudio/" class="brands-line-inner social-link" style="transition-delay: 0.58s;">linkedin</a>
+    </div>
+  </div>
+</div>
 
-  body {
-    font-family: 'Inter', sans-serif;
+<style>
+  /* Local color overrides only - transitions are handled by global classes */
+  .desktop-nav-link { transition: color 0.4s var(--ease-mechanical); }
+  .desktop-nav-link:hover { color: var(--studio-grey) !important; }
+
+  /* MOBILE MENU TYPOGRAPHY: Uses H1 values */
+  .menu-link {
+    font-size: clamp(52px, 12vw, 92px);
     font-weight: 600;
-    line-height: 1.15;
-    background-color: black;
-    color: white;
-    -webkit-font-smoothing: antialiased;
-    margin: 0;
-  }
-
-  /* Universal tight tracking */
-  h1, h2, h3, p, a, li, span {
-    letter-spacing: -0.02em;
-  }
-
-  /* --- CUSTOM LINK ANIMATION --- */
-  .studio-link {
-    position: relative;
-    display: inline-block;
+    color: #fff;
     text-decoration: none;
-    color: inherit;
-    transition: color 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    line-height: var(--lh-tight);
+    letter-spacing: var(--track-tighter);
+    transition: color 0.4s var(--ease-mechanical);
   }
+  .menu-link:hover { color: var(--studio-grey); }
 
-  .studio-link:hover {
+  .social-link {
+    font-size: var(--font-label);
+    font-weight: 600;
+    text-decoration: none;
     color: var(--studio-grey);
+    text-transform: uppercase;
+    letter-spacing: var(--track-wide);
+    transition: color 0.3s ease;
+  }
+  .social-link:hover { color: #ffffff !important; }
+
+  /* OVERLAY FADE */
+  #mobile-overlay {
+    opacity: 0;
+    transition: opacity 0.6s var(--ease-mechanical);
+    pointer-events: none;
+  }
+  #mobile-overlay.is-active {
+    opacity: 1;
+    pointer-events: auto;
   }
 
-  .studio-link::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 100%;
-    height: 1px;
-    background-color: currentColor;
-    transform: scaleX(0);
-    transform-origin: right;
-    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  /* INVERSION LOGIC */
+  :global(body.video-active) .nav-logo,
+  :global(body.page-dark) .nav-logo,
+  :global(body.video-active) .desktop-nav-link,
+  :global(body.page-dark) .desktop-nav-link,
+  :global(body.video-active) #menu-toggle,
+  :global(body.page-dark) #menu-toggle {
+    color: #ffffff !important;
   }
 
-  .studio-link:hover::after {
-    transform: scaleX(1);
-    transform-origin: left;
-  }
+  @media (min-width: 768px) { #menu-toggle { display: none !important; } }
 </style>
+
+<script is:inline>
+  function initMobileMenu() {
+    const overlay = document.getElementById('mobile-overlay');
+    const toggle = document.getElementById('menu-toggle');
+    const closeBtn = document.getElementById('menu-close');
+    if (!overlay || !toggle || !closeBtn) return;
+
+    function toggleMenu(show) {
+      if (show) {
+        document.body.style.overflow = 'hidden';
+        overlay.style.display = 'flex';
+        void overlay.offsetWidth; // Force reflow
+        overlay.classList.add('is-active');
+
+        // Trigger the global flip animation by adding .is-active to the children
+        overlay.querySelectorAll('.brands-line-inner').forEach(el => {
+            el.classList.add('is-active');
+        });
+      } else {
+        overlay.classList.remove('is-active');
+        // Reset the animation state for the next open
+        overlay.querySelectorAll('.brands-line-inner').forEach(el => {
+            el.classList.remove('is-active');
+        });
+
+        setTimeout(() => {
+          if (!overlay.classList.contains('is-active')) {
+            overlay.style.display = 'none';
+            document.body.style.overflow = '';
+          }
+        }, 600);
+      }
+    }
+
+    toggle.onclick = () => toggleMenu(true);
+    closeBtn.onclick = () => toggleMenu(false);
+
+    overlay.querySelectorAll('a').forEach(link => {
+      link.onclick = () => toggleMenu(false);
+    });
+  }
+
+  // Initialize
+  initMobileMenu();
+  document.addEventListener('astro:after-swap', initMobileMenu);
+</script>

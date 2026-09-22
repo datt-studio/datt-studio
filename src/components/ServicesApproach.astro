@@ -1,0 +1,144 @@
+---
+// ServicesApproach.astro
+const mainLabel = "APPROACH";
+
+const headline = "Work shaped with intent. Context defines every decision.";
+
+const process = [
+  {
+    label: "01. OBSERVE",
+    body: "We start by understanding the brand in its current state. Context, constraints, opportunity. Nothing is solved yet. Everything is considered."
+  },
+  {
+    label: "02. ISOLATE",
+    body: "We define the core idea. The part that carries meaning, and the part that does not. What’s unnecessary is removed. What’s essential is clarified."
+  },
+  {
+    label: "03. REFINE",
+    body: "We shape the idea through iteration and restraint. Each decision reduces noise and increases clarity. The work is refined until it feels resolved."
+  },
+  {
+    label: "04. RESOLVE",
+    body: "The system is applied with consistency across identity, systems, and digital experiences. Built to hold in every context it appears."
+  }
+];
+---
+
+<section id="services-approach" class="relative min-h-screen w-full bg-black px-[var(--page-padding)] py-24 md:py-40 flex items-center overflow-hidden">
+  <div class="w-full max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-[38%_1fr] items-start">
+
+    <!-- Column 1: Main Section Label -->
+    <div class="mb-10 md:mb-0">
+      <div class="brands-line-mask">
+        <span class="brands-line-inner text-label text-white">
+          {mainLabel}
+        </span>
+      </div>
+    </div>
+
+    <!-- Column 2: Content -->
+    <div class="flex flex-col items-start w-full">
+
+      <!-- Part A: The Large Headline (One Block) -->
+      <div class="mb-10 md:mb-20 max-w-[900px]">
+        <h2 class="approach-title text-white">
+          <span class="brands-line-mask">
+            <span class="brands-line-inner" style="transition-delay: 0.1s">
+              {headline}
+            </span>
+          </span>
+        </h2>
+      </div>
+
+      <!-- Part B: The 4-Step Process List (Labels above Body) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-x-20 gap-y-16 md:gap-y-10 w-full">
+        {process.map((step, i) => (
+          <div class="flex flex-col items-start max-w-[480px]">
+            <!-- Step Label (Above) -->
+            <div class="mb-4">
+              <div class="brands-line-mask">
+                <span class="brands-line-inner text-label text-white/50" style={`transition-delay: ${0.3 + (i * 0.1)}s`}>
+                  {step.label}
+                </span>
+              </div>
+            </div>
+
+            <!-- Step Body (Below) -->
+            <div class="w-full">
+              <div class="brands-line-mask">
+                <p class="brands-line-inner text-white/80" style={`transition-delay: ${0.4 + (i * 0.1)}s`}>
+                  {step.body}
+                </p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  /* 1. TYPOGRAPHY SYSTEM SYNC */
+  #services-approach .approach-title {
+    font-size: var(--font-h2);
+    font-weight: 600;
+    line-height: var(--lh-xtight); /* 1.05 */
+    letter-spacing: var(--track-tighter);
+  }
+
+  #services-approach p {
+    font-size: clamp(18px, 3vw, 16px);
+    line-height: var(--lh-body); /* 1.4 */
+    letter-spacing: var(--track-tight);
+    font-weight: 400;
+  }
+
+  /* 2. MECHANICAL REVEAL ENGINE SYNC */
+  #services-approach .brands-line-mask {
+    display: block;
+    overflow: hidden;
+    perspective: 1200px;
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
+    margin-top: -0.2em;
+    margin-bottom: -0.2em;
+  }
+
+  #services-approach .brands-line-inner {
+    display: block;
+    transform: translateY(115%) rotateX(-60deg);
+    transform-origin: top center;
+    opacity: 0;
+    will-change: transform, opacity;
+    transition: transform 1.3s var(--ease-mechanical), opacity 0.9s var(--ease-mechanical);
+    backface-visibility: hidden;
+  }
+
+  /* Reveal Activation Logic */
+  #services-approach.is-active .brands-line-inner {
+    transform: translateY(0) rotateX(0deg);
+    opacity: 1;
+  }
+</style>
+
+<script is:inline>
+  function setupServicesApproach() {
+    const section = document.getElementById('services-approach');
+    if (!section) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          section.classList.add('is-active');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    observer.observe(section);
+  }
+  setupServicesApproach();
+  document.addEventListener('astro:after-swap', setupServicesApproach);
+</script>

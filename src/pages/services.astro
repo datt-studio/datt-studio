@@ -1,0 +1,36 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ServicesHero from '../components/ServicesHero.astro';
+import ServicesIdentities from '../components/ServicesIdentities.astro';
+import ServicesSystems from '../components/ServicesSystems.astro';
+import ServicesDigital from '../components/ServicesDigital.astro';
+import ServicesApproach from '../components/ServicesApproach.astro'; // Added Import
+---
+
+<Layout title="DATT STUDIO - Services" isDark={true}>
+  <Header isInverted={true} />
+
+  <main class="bg-black">
+    <ServicesHero />
+    <ServicesIdentities />
+    <ServicesSystems />
+    <ServicesDigital />
+    <!-- Added Approach above Footer -->
+    <ServicesApproach />
+  </main>
+
+  <Footer isInverted={true} disableMagnet={true} />
+</Layout>
+
+<style>
+  /*
+     No extra global CSS needed here.
+     The reveal engine is handled by Layout.astro
+     and specific styles are inside each component.
+  */
+  main {
+    overflow-x: hidden;
+  }
+</style>

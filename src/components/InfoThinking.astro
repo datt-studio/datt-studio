@@ -1,0 +1,129 @@
+---
+// InfoThinking.astro
+const label = "How We Think";
+const headline = "Context before assumptions.";
+const body1 = "The strongest solutions rarely come from adding more. They come from understanding what matters and building around it with intent.";
+const body2 = "What matters is defined early. Everything else is challenged, removed, or refined.";
+---
+
+<section id="thinking-section" class="relative min-h-screen w-full bg-black px-[var(--page-padding)] py-24 md:py-40 flex items-center overflow-hidden">
+  <div class="w-full max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-[35%_1fr] items-start">
+
+    <!-- Left: Label -->
+    <div class="mb-12 md:mb-0">
+      <div class="brands-line-mask">
+        <span class="brands-line-inner text-label text-white">
+          {label}
+        </span>
+      </div>
+    </div>
+
+    <!-- Right: Content Area -->
+    <div class="flex flex-col items-start">
+
+      <!-- Headline -->
+      <h2 class="thinking-title text-white mb-10">
+        <span class="brands-line-mask block">
+          <span class="brands-line-inner block">
+            {headline}
+          </span>
+        </span>
+      </h2>
+
+      <!-- Description Block 1 -->
+      <div class="max-w-[550px] mb-6">
+        <div class="brands-line-mask">
+          <p class="brands-line-inner text-white/80" style="transition-delay: 0.4s;">
+            {body1}
+          </p>
+        </div>
+      </div>
+
+      <!-- Description Block 2 -->
+      <div class="max-w-[550px] mb-10">
+        <div class="brands-line-mask block">
+          <p class="brands-line-inner block text-white/80" style="transition-delay: 0.5s;">
+            {body2}
+          </p>
+        </div>
+      </div>
+
+      <!-- White CTA: Anchor fixed to Services Approach -->
+      <div class="brands-line-mask inline-block">
+        <div class="brands-line-inner" style="transition-delay: 0.6s">
+          <!-- Force white via inverted-cta class -->
+          <a href="/services#services-approach" class="cta-link inverted-cta">
+            View approach
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  #thinking-section .thinking-title {
+    font-size: var(--font-h2);
+    line-height: var(--lh-xtight);
+    letter-spacing: var(--track-tighter);
+    max-width: 800px;
+  }
+
+  /* FORCED WHITE CTA - This prevents it from being invisible (black on black) */
+  #thinking-section .cta-link.inverted-cta {
+    color: #FFFFFF !important;
+  }
+  #thinking-section .cta-link.inverted-cta::after {
+    background-color: #FFFFFF !important;
+  }
+
+  /* SHARED MASKING LOGIC - Kept exactly as your reference */
+  #thinking-section .brands-line-mask {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
+    perspective: 1000px;
+    padding-top: 0.15em;
+    padding-bottom: 0.15em;
+    margin-top: -0.15em;
+    margin-bottom: -0.15em;
+  }
+
+  #thinking-section .brands-line-inner {
+    display: inline-block;
+    transform: translateY(115%) rotateX(-15deg);
+    transform-origin: top;
+    opacity: 0;
+    will-change: transform, opacity;
+    transition: transform 1.2s var(--ease-mechanical), opacity 0.9s var(--ease-mechanical);
+    backface-visibility: hidden;
+  }
+
+  #thinking-section.is-active .brands-line-inner {
+    transform: translateY(0) rotateX(0deg);
+    opacity: 1;
+  }
+
+  @media (max-width: 768px) {
+    #thinking-section .brands-line-mask { display: block; }
+  }
+</style>
+
+<script is:inline>
+  function setupThinkingSection() {
+    const section = document.getElementById('thinking-section');
+    if (!section) return;
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          section.classList.add('is-active');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+    observer.observe(section);
+  }
+  setupThinkingSection();
+  document.addEventListener('astro:after-swap', setupThinkingSection);
+</script>

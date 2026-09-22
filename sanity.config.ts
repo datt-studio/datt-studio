@@ -4,8 +4,9 @@ import { schemaTypes } from './src/sanity/schemas'
 export default defineConfig({
   name: 'dattstudio-studio',
   title: 'Datt Studio Studio',
-  projectId: process.env.SANITY_PROJECT_ID || 'xxxxxx',
-  dataset: process.env.SANITY_DATASET || 'production',
+  // Change process.env to import.meta.env
+  projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID || 'd9mob5o5',
+  dataset: import.meta.env.PUBLIC_SANITY_DATASET || 'production',
   plugins: [],
   schema: {
     types: schemaTypes,

@@ -1,0 +1,279 @@
+---
+// HomeHero.astro
+const headlineText = "We make brands || Impossible to ignore. || Made to hold.";
+const cleanHeadline = headlineText.split('||').map(t => t.trim()).join(' ');
+
+const videoSrc = "/assets/DATT_STUDIO_REEL_2026.mp4";
+const posterSrc = "/assets/video-poster-retina.jpg";
+---
+
+<!-- 1. BACKGROUND HOVER VIDEO -->
+<div id="hero-bg-video-container" class="fixed inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-1000 ease-[var(--ease-mechanical)]">
+  <video
+    id="hero-bg-video"
+    muted
+    loop
+    playsinline
+    preload="auto"
+    class="w-full h-full object-cover grayscale-[20%]"
+  >
+    <source src={videoSrc} type="video/mp4" />
+  </video>
+  <div class="absolute inset-0 bg-black/10"></div>
+</div>
+
+<!-- 2. THE VIDEO PORTAL -->
+<div id="hero-portal-node" class="fixed inset-0 z-[2000] opacity-0 pointer-events-none transition-opacity duration-700 ease-[var(--ease-mechanical)]">
+    <!-- PORTAL CONTROLS -->
+    <div id="hero-portal-controls" class="absolute inset-x-0 bottom-0 z-[200] opacity-0 pointer-events-none px-[var(--page-padding)] pb-12">
+        <div class="flex items-end justify-between gap-4">
+            <button id="hero-pause" class="portal-btn link-underline">PAUSE</button>
+            <button id="hero-mute" class="portal-btn link-underline">UNMUTE</button>
+            <button id="hero-close" class="portal-btn link-underline">CLOSE</button>
+        </div>
+    </div>
+
+    <div id="hero-portal-flip" class="relative w-full h-full overflow-hidden bg-neutral-900 shadow-2xl z-[10] touch-none">
+        <!-- CENTERED 16:9 FRAME -->
+        <div id="portal-video-frame" class="portal-video-frame">
+            <video id="portal-video" muted loop playsinline preload="auto" class="portal-video-el" poster={posterSrc}>
+                <source src={videoSrc} type="video/mp4" />
+            </video>
+        </div>
+    </div>
+</div>
+
+<section id="hero-section" class="relative z-10 min-h-[100dvh] flex flex-col justify-between px-[var(--page-padding)] pt-16 pb-[40px] bg-black transition-colors duration-1000 overflow-hidden">
+  <div class="logo-area brands-line-mask w-full transition-all duration-800 ease-[var(--ease-mechanical)]">
+    <div class="brands-line-inner w-full md:max-w-[414px]">
+      <img src="/assets/datt_logo_s.svg" alt="DATT STUDIO" class="w-full h-auto invert select-none pointer-events-none" />
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-[90%_1fr] items-start md:items-end">
+    <div id="headline-wrapper" class="w-full">
+      <h1 id="brands-text" class="hero-headline text-white" data-text={headlineText} aria-label={cleanHeadline}></h1>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  :root { --ease-mechanical: cubic-bezier(0.19, 1, 0.22, 1); }
+
+  .hero-headline {
+    font-size: clamp(38px, 8.4vw, 72px);
+    line-height: 1.05;
+    letter-spacing: var(--track-tighter);
+    font-weight: 600;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .headline-line {
+    display: block !important;
+    white-space: nowrap;
+    width: fit-content;
+    transition: opacity 0.8s var(--ease-mechanical), transform 0.8s var(--ease-mechanical);
+  }
+
+  /* --- SHARED UNDERLINE SYSTEM --- */
+  .trigger-line, .link-underline {
+    position: relative !important;
+    display: inline-block !important;
+    cursor: pointer;
+    color: white !important;
+  }
+
+  .trigger-line::after, .link-underline::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: white;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.65s var(--ease-mechanical);
+  }
+
+  /* 1. Made to Hold: 5px weight */
+  .trigger-line { padding-bottom: 5px; }
+  .trigger-line::after { height: 5px; }
+
+  /* 2. Video Control Buttons: 2px weight & Very Close */
+  .link-underline { padding-bottom: 0.2px; }
+  .link-underline::after { height: 0.2px; }
+
+  /* --- ACTIVATION STATES --- */
+  body.video-active .trigger-line::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  .link-underline:hover::after {
+    transform: scaleX(1) !important;
+    transform-origin: left !important;
+  }
+
+  /* --- HOVER LAYOUT LOGIC --- */
+  @media (hover: hover) and (pointer: fine) {
+    body.video-active #hero-bg-video-container { opacity: 1 !important; }
+    body.video-active #hero-section { background-color: transparent !important; }
+    body.video-active .logo-area, body.video-active .headline-line:not(.has-trigger) {
+      opacity: 0 !important;
+      transform: translateY(-20px) rotateX(15deg);
+    }
+  }
+
+  /* --- PORTAL LOGIC (FADE IN/OUT) --- */
+  html.is-video-locked { overflow: hidden !important; height: 100% !important; touch-action: none; }
+
+  #hero-portal-node {
+    visibility: hidden;
+    transition: opacity 0.7s var(--ease-mechanical), visibility 0s linear 0.7s;
+  }
+  #hero-portal-node.is-open {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    visibility: visible;
+    transition: opacity 0.7s var(--ease-mechanical), visibility 0s linear 0s;
+  }
+  #hero-portal-node.is-open #hero-portal-controls {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+
+  /* --- PORTAL CONTROL BUTTONS (dedicated, no brand-line styling) --- */
+  .portal-btn {
+    position: relative;
+    display: inline-block;
+    color: #fff;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    line-height: 1.2;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px 0;
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+  #hero-portal-node .portal-btn {
+    opacity: 0;
+    transition: opacity 0.7s var(--ease-mechanical);
+  }
+  #hero-portal-node.is-open .portal-btn {
+    opacity: 1 !important;
+  }
+
+  /* --- CENTERED 16:9 VIDEO FRAME (all screens) --- */
+  .portal-video-frame {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  /* Always span the full viewport width on any resize */
+  width: 100vw;
+  max-width: 100vw;
+  height: auto;           /* height derived from width via the aspect ratio */
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #000;
+  transform: translate(-50%, -50%) translateZ(0);
+  will-change: transform;
+  }
+  
+  .portal-video-el {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    /* Force the media onto its own composited layer */
+    transform: translateZ(0);
+  }
+</style>
+
+<script is:inline>
+  function setupHomeHero() {
+    const headline = document.getElementById('brands-text');
+    const portal = document.getElementById('hero-portal-node');
+    const portalVideo = document.getElementById('portal-video');
+    const bgVideo = document.getElementById('hero-bg-video');
+
+    if (!headline || !portal || !portalVideo || !bgVideo) return;
+
+    // Autoplay policy: set muted via JS property, not just the attribute
+    bgVideo.muted = true;
+    portalVideo.muted = true;
+
+    // 1. Split Text
+    const parts = headline.getAttribute('data-text').split('||');
+    headline.innerHTML = parts.map((t, i) => {
+      const text = t.trim();
+      const isTrigger = text.toLowerCase().includes("made to hold");
+      return `<span class="brands-line-mask headline-line ${isTrigger ? 'has-trigger' : ''}"><span class="brands-line-inner ${isTrigger ? 'trigger-line' : ''}" style="transition-delay: ${i * 0.1}s">${text}</span></span>`;
+    }).join('');
+
+    const trigger = headline.querySelector('.trigger-line');
+    let isFullscreen = false;
+
+    // 2. Interaction
+    if (trigger) {
+        trigger.onmouseenter = () => {
+            document.body.classList.add('video-active');
+            bgVideo.play().catch(() => {});
+        };
+        trigger.onmouseleave = () => {
+            if (!isFullscreen) {
+                document.body.classList.remove('video-active');
+                setTimeout(() => { if (!document.body.classList.contains('video-active')) bgVideo.pause(); }, 800);
+            }
+        };
+        trigger.onclick = (e) => {
+            e.preventDefault();
+            isFullscreen = true;
+            document.documentElement.classList.add('is-video-locked');
+
+            portalVideo.muted = false;
+            document.getElementById('hero-mute').innerText = "MUTE";
+            portal.classList.add('is-open');
+
+            console.log('portal video:', {
+              videoWidth: portalVideo.videoWidth,
+              videoHeight: portalVideo.videoHeight,
+              readyState: portalVideo.readyState,
+              error: portalVideo.error ? portalVideo.error.code : null,
+            });
+
+            if (portalVideo.readyState >= 1) {
+                portalVideo.currentTime = bgVideo.currentTime;
+            }
+            portalVideo.play().catch(() => {});
+        };
+    }
+
+    // 3. Control Actions
+    document.getElementById('hero-close').onclick = () => {
+      isFullscreen = false;
+      document.documentElement.classList.remove('is-video-locked');
+      document.body.classList.remove('video-active');
+      portal.classList.remove('is-open');
+      portalVideo.pause();
+      bgVideo.pause();
+    };
+
+    document.getElementById('hero-pause').onclick = (e) => {
+        if (portalVideo.paused) { portalVideo.play().catch(() => {}); e.currentTarget.innerText = "PAUSE"; }
+        else { portalVideo.pause(); e.currentTarget.innerText = "PLAY"; }
+    };
+
+    document.getElementById('hero-mute').onclick = (e) => {
+        portalVideo.muted = !portalVideo.muted;
+        e.currentTarget.innerText = portalVideo.muted ? "UNMUTE" : "MUTE";
+    };
+  }
+
+  setupHomeHero();
+  document.addEventListener('astro:after-swap', setupHomeHero);
+</script>

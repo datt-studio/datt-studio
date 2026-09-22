@@ -1,51 +1,172 @@
 ---
+// Layout.astro
+import { ViewTransitions } from 'astro:transitions';
 import CookieBanner from '../components/CookieBanner.astro';
+import GoogleAnalytics from '../components/GoogleAnalytics.astro';
 
 interface Props {
-  title: string;
+  title?: string;
+  isDark?: boolean;
 }
 
-const { title } = Astro.props;
+const { title = "DATT STUDIO", isDark = false } = Astro.props;
 ---
-
 <!doctype html>
-<html lang="en">
+<html lang="en" class:list={[{ "page-dark": isDark }]}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
 
-    <!-- CSP SECURITY POLICY -->
-    <meta http-equiv="Content-Security-Policy" content="
-      default-src 'self';
-      script-src 'self' 'unsafe-inline';
-      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-      font-src 'self' https://fonts.gstatic.com;
-      img-src 'self' data: https://cdn.sanity.io;
-      connect-src 'self' https://d9mob5o5.api.sanity.io https://d9mob5o5.apicdn.sanity.io;
-    ">
+    <GoogleAnalytics id="G-MC1VNLCG74" />
+    <ViewTransitions />
 
-    <!-- FAVICONS -->
-    <link rel="icon" type="image/svg+xml" href="/favicon_512px.svg" sizes="any" />
-    <link rel="icon" type="image/svg+xml" href="/favicon_16px.svg" sizes="16x16" />
-    <link rel="icon" type="image/svg+xml" href="/favicon_32px.svg" sizes="32x32" />
-    <link rel="apple-touch-icon" href="/favicon_512px.svg" />
+    <!-- MOTION PREFERENCE -->
+    <script is:inline>
+      function applyMotionSettings() {
+        const isReduced = localStorage.getItem('datt_studio_reduced_motion') === 'true';
+        if (isReduced) {
+          document.documentElement.classList.add('user-reduced-motion');
+        } else {
+          document.documentElement.classList.remove('user-reduced-motion');
+        }
+      }
+      applyMotionSettings();
+      document.addEventListener('astro:after-swap', applyMotionSettings);
+    </script>
 
-    <!-- Google Fonts (Inter) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
 
-    <title>{title}</title>
-    <meta name="description" content="Shaping powerful identities and unforgettable digital experiences." />
+    <style is:global>
+      :root {
+        --ease-mechanical: cubic-bezier(0.8, 0, 0.1, 1);
+        --page-padding: clamp(16px, 5vw, 24px);
+        --studio-grey: #B4B4B4;
 
-    <meta property="og:title" content="Datt Studio" />
-    <meta property="og:description" content="Shaping powerful identities and unforgettable digital experiences." />
-    <meta property="og:image" content="/assets/og-image.jpg" />
-    <meta property="og:type" content="website" />
-    <meta name="twitter:card" content="summary_large_image" />
+        /* TYPE SYSTEM */
+        --font-h1: clamp(38px, 9vw, 72px);
+        --font-h2: clamp(36px, 6vw, 56px);
+        --font-h3: clamp(24px, 4vw, 32px);
+        --font-h4: clamp(18px, 3vw, 22px);
+        --font-body: 16px;
+        --font-label: clamp(12px, 2vw, 14px);
+
+        --track-tighter: -0.03em;
+        --track-tight: -0.015em;
+        --track-wide: 0.08em;
+        --lh-xtight: 1.05;
+        --lh-tight: 1.2;
+        --lh-body: 1.4;
+      }
+
+      /* --- GLOBAL SELECTION COLOURS --- */
+      ::selection {
+        background-color: #FAFAFA;
+        color: #131313;
+        -webkit-text-fill-color: #131313; /* Ensures override on some mobile browsers */
+      }
+
+      /* Firefox support */
+      ::-moz-selection {
+        background-color: var(--studio-grey);
+        color: #131313;
+      }
+
+      /* --- ATOMIC MOTION KILL-SWITCH --- */
+      html.user-reduced-motion,
+      html.user-reduced-motion *,
+      html.user-reduced-motion *::after,
+      html.user-reduced-motion *::before {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+
+      * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+      html { background: #FAFAFA; overflow-anchor: none; }
+      body {
+        background: #FAFAFA; color: #131313; font-family: 'Inter', sans-serif;
+        font-feature-settings: 'ss01' on, 'ss02' on, 'cv01' on, 'cv11' on, 'calt' on;
+        overflow-x: hidden;
+      }
+      html.page-dark, body.page-dark { background-color: #000000 !important; color-scheme: dark; }
+
+      /* GLOBAL TYPOGRAPHY */
+      h1, h2 { font-weight: 600; line-height: var(--lh-xtight); letter-spacing: var(--track-tighter); }
+      h1 { font-size: var(--font-h1); } h2 { font-size: var(--font-h2); }
+      h3, h4 { font-weight: 500; line-height: var(--lh-tight); letter-spacing: var(--track-tight); }
+      p { font-size: clamp(18px, 3vw, 16px); font-weight: 400; line-height: var(--lh-body); letter-spacing: var(--track-tight); }
+      .text-label { font-size: var(--font-label); font-weight: 600; text-transform: uppercase; letter-spacing: var(--track-wide); line-height: var(--lh-body); }
+
+      /* GLOBAL REVEAL ENGINE */
+      .brands-line-mask {
+        display: block; overflow: hidden; perspective: 1200px;
+        padding-top: 0.2em; padding-bottom: 0.2em; margin-top: -0.2em; margin-bottom: -0.2em;
+      }
+      .brands-line-inner {
+        display: block; transform: translateY(115%) rotateX(-60deg); transform-origin: top center; opacity: 0;
+        transition: transform 1.3s var(--ease-mechanical), opacity 0.9s var(--ease-mechanical);
+        will-change: transform, opacity; backface-visibility: hidden;
+      }
+      .is-active .brands-line-inner, .is-active.brands-line-inner {
+        transform: translateY(0) rotateX(0deg) !important; opacity: 1 !important;
+      }
+
+      /* GLOBAL CTA SYSTEM */
+      .cta-link {
+        display: inline-block; position: relative; text-decoration: none !important;
+        color: currentColor; font-size: var(--font-label); font-weight: 600;
+        text-transform: uppercase; letter-spacing: var(--track-wide); padding-bottom: 4px;
+        transition: color 0.4s var(--ease-mechanical);
+      }
+      .cta-link::after {
+        content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 1.5px;
+        background: currentColor; transform: scaleX(1); transform-origin: left;
+        transition: transform 0.6s var(--ease-mechanical);
+      }
+      .cta-link:hover::after { animation: global-underline-flow 0.8s var(--ease-mechanical) forwards; }
+
+      @keyframes global-underline-flow {
+        0% { transform: scaleX(1); transform-origin: right; }
+        45% { transform: scaleX(0); transform-origin: right; }
+        50% { transform: scaleX(0); transform-origin: left; }
+        100% { transform: scaleX(1); transform-origin: left; }
+      }
+
+      /* Header Coloring Logic */
+      body:not([data-page-type="immersive"]):not(.page-dark) #main-header .nav-logo,
+      body:not([data-page-type="immersive"]):not(.page-dark) #main-header .desktop-nav-link,
+      body:not([data-page-type="immersive"]):not(.page-dark) #main-header #menu-toggle { color: #000 !important; }
+    </style>
   </head>
-  <body>
+  <body class:list={[{ "page-dark": isDark }]}>
     <slot />
     <CookieBanner />
+
+    <script is:inline>
+      function initUniversalReveal() {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-active');
+              entry.target.querySelectorAll('.brands-line-mask').forEach(m => m.classList.add('is-active'));
+            }
+          });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('section, footer, .reveal-trigger').forEach(el => observer.observe(el));
+      }
+
+      function initLayout() {
+        if ('scrollRestoration' in history) { history.scrollRestoration = 'auto'; }
+        document.body.classList.remove('video-active');
+        initUniversalReveal();
+      }
+
+      initLayout();
+      document.addEventListener('astro:after-swap', initLayout);
+    </script>
   </body>
 </html>

@@ -1,0 +1,121 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import InfoHero from '../components/InfoHero.astro';
+import InfoNaming from '../components/InfoNaming.astro';
+import InfoPerspective from '../components/InfoPerspective.astro';
+import InfoThinking from '../components/InfoThinking.astro';
+import InfoPhilosophy from '../components/InfoPhilosophy.astro';
+---
+
+<Layout title="DATT STUDIO - Info" isDark={true}>
+  <Header isInverted={true} />
+
+  <main class="bg-black">
+    <InfoHero />
+    <InfoNaming />
+    <InfoPerspective />
+    <InfoThinking />
+    <InfoPhilosophy />
+  </main>
+
+  <Footer isInverted={true} disableMagnet={true} />
+</Layout>
+
+<style is:global>
+  /* --- GLOBAL STABILITY --- */
+  html, body {
+    background-color: #000 !important;
+    scroll-restoration: auto;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* --- THE MECHANICAL REVEAL ENGINE --- */
+  .brands-line-mask {
+    display: block;
+    overflow: hidden;
+    perspective: 1200px;
+    padding-bottom: 0.15em;
+    margin-bottom: -0.15em;
+  }
+
+  .brands-line-inner {
+    display: block;
+    transform: translateY(115%) rotateX(-25deg);
+    transform-origin: top;
+    opacity: 0;
+    transition:
+      transform 1.2s cubic-bezier(0.8, 0, 0.1, 1),
+      opacity 0.9s cubic-bezier(0.8, 0, 0.1, 1);
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  /* Trigger state: Locked once activated */
+  .is-active .brands-line-inner {
+    transform: translateY(0) rotateX(0deg) !important;
+    opacity: 1 !important;
+  }
+
+  /* --- MECHANICAL UNDERLINE CTA --- */
+  .info-cta {
+    display: inline-block;
+    position: relative;
+    text-decoration: none;
+    color: #FFF !important;
+    font-size: 16px;
+    font-weight: 900;
+    padding-bottom: 4px;
+    letter-spacing: -0.01em;
+  }
+
+  .info-cta::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: currentColor;
+    transform: scaleX(1);
+    transform-origin: left;
+    transition: transform 0.6s cubic-bezier(0.8, 0, 0.1, 1);
+  }
+
+  .info-cta:hover::after {
+    animation: underline-flow 0.8s cubic-bezier(0.8, 0, 0.1, 1) forwards;
+  }
+
+  @keyframes underline-flow {
+    0% { transform: scaleX(1); transform-origin: right; }
+    45% { transform: scaleX(0); transform-origin: right; }
+    50% { transform: scaleX(0); transform-origin: left; }
+    100% { transform: scaleX(1); transform-origin: left; }
+  }
+</style>
+
+<script is:inline>
+  (function() {
+    function initInfo() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            e.target.classList.add('is-active');
+            // Unobserve ensures headlines stay visible on scroll up
+            observer.unobserve(e.target);
+          }
+        });
+      }, {
+        threshold: 0.1,
+        rootMargin: "0px 0px -50px 0px"
+      });
+
+      document.querySelectorAll('section, .info-section').forEach(s => observer.observe(s));
+    }
+
+    initInfo();
+    document.addEventListener('astro:after-swap', initInfo);
+  })();
+</script>

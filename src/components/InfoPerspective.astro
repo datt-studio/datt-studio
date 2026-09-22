@@ -1,0 +1,104 @@
+---
+// InfoPerspective.astro
+const label = "Perspective";
+const headline = "Strong brands aren't built through noise.";
+const bodyText = "Built through clarity, consistency, and conviction. The most effective work feels simple. Not because less thought went into it, but because everything unnecessary has been removed.";
+---
+
+<section id="perspective-section" class="relative min-h-screen w-full bg-black px-[var(--page-padding)] py-24 md:py-40 flex items-center overflow-hidden">
+  <div class="w-full max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-[35%_1fr] items-start">
+
+    <!-- Left: Label -->
+    <div class="mb-12 md:mb-0">
+      <div class="brands-line-mask">
+        <span class="brands-line-inner text-label text-white">
+          {label}
+        </span>
+      </div>
+    </div>
+
+    <!-- Right: Content -->
+    <div class="flex flex-col items-start">
+
+      <!-- Headline -->
+      <h2 class="perspective-title text-white mb-12">
+        <span class="brands-line-mask block max-w-[750px]">
+          <span class="brands-line-inner block">
+            {headline}
+          </span>
+        </span>
+      </h2>
+
+      <!-- Paragraph -->
+      <div class="max-w-[550px]">
+        <div class="brands-line-mask">
+          <!-- Weight 400 and Leading 1.6 from Layout.astro -->
+          <p class="brands-line-inner text-white/80" style="transition-delay: 0.4s;">
+            {bodyText}
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  #perspective-section .perspective-title {
+    font-size: var(--font-h2);
+    /* Inherits Weight 600 from Layout.astro */
+    line-height: var(--lh-xtight);
+    letter-spacing: var(--track-tighter);
+    max-width: 800px;
+  }
+
+  /* REFINED MASKING */
+  #perspective-section .brands-line-mask {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
+    perspective: 1000px;
+    /* Safe-zone for refined font descenders and rotation */
+    padding-top: 0.15em;
+    padding-bottom: 0.15em;
+    margin-top: -0.15em;
+    margin-bottom: -0.15em;
+  }
+
+  #perspective-section .brands-line-inner {
+    display: inline-block;
+    transform: translateY(115%) rotateX(-15deg);
+    transform-origin: top;
+    opacity: 0;
+    will-change: transform, opacity;
+    transition: transform 1.2s var(--ease-mechanical), opacity 0.9s var(--ease-mechanical);
+    backface-visibility: hidden;
+  }
+
+  #perspective-section.is-active .brands-line-inner {
+    transform: translateY(0) rotateX(0deg);
+    opacity: 1;
+  }
+
+  @media (max-width: 768px) {
+    #perspective-section .brands-line-mask { display: block; }
+  }
+</style>
+
+<script is:inline>
+  function setupPerspectiveSection() {
+    const section = document.getElementById('perspective-section');
+    if (!section) return;
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          section.classList.add('is-active');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+    observer.observe(section);
+  }
+  setupPerspectiveSection();
+  document.addEventListener('astro:after-swap', setupPerspectiveSection);
+</script>

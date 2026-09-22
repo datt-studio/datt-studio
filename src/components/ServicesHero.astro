@@ -1,0 +1,83 @@
+---
+// InfoHero.astro
+const part1 = "Identity. Systems. Digital.";
+const part2 = "A focused practice spanning brand identity, visual systems, and digital experiences.";
+const part3 = "Work built with structure. Defined by precision.";
+const part4 = "Made to hold.";
+
+const lines = [part1, part2, part3, part4];
+---
+
+<section class="info-hero-section reveal-trigger px-[var(--page-padding)] pt-[120px] pb-20 md:pb-40 bg-black">
+  <div class="max-w-[1010px] w-full flex flex-col gap-y-10 md:gap-y-12">
+
+    {lines.map((line, i) => (
+      <h1 class="hero-title m-0">
+        <span class="brands-line-mask">
+          <span
+            class="brands-line-inner"
+            style={`transition-delay: ${i * 0.12}s`}
+          >
+            {line}
+          </span>
+        </span>
+      </h1>
+    ))}
+
+  </div>
+</section>
+
+<style is:global>
+  /* 1. TYPE SYSTEM INTEGRATION */
+  .info-hero-section .hero-title {
+    font-size: var(--font-h1); /* clamp(38px, 9vw, 72px) */
+    font-weight: 600;
+    line-height: var(--lh-xtight); /* 1.05 */
+    letter-spacing: var(--track-tighter);
+    color: #FFFFFF;
+    margin: 0;
+    text-transform: none; /* Respects sentence case in variables */
+  }
+
+  /* 2. MECHANICAL REVEAL ENGINE */
+  .info-hero-section .brands-line-mask {
+    display: block;
+    overflow: hidden;
+    perspective: 1200px;
+    /* Prevents clipping of the 3D rotation */
+    padding-top: 0.15em;
+    padding-bottom: 0.15em;
+    margin-top: -0.15em;
+    margin-bottom: -0.15em;
+  }
+
+  .info-hero-section .brands-line-inner {
+    display: block;
+    /* -60deg for the heavy mechanical 'flip' look */
+    transform: translateY(115%) rotateX(-60deg);
+    transform-origin: top center;
+    opacity: 0;
+    transition: transform 1.3s var(--ease-mechanical), opacity 0.9s var(--ease-mechanical);
+    will-change: transform, opacity;
+  }
+
+  /* Activation (Triggered by Intersection Observer in Layout or local script) */
+  .info-hero-section.is-active .brands-line-inner {
+    transform: translateY(0) rotateX(0deg) !important;
+    opacity: 1 !important;
+  }
+</style>
+
+<script is:inline>
+  function initInfoHero() {
+    const section = document.querySelector('.info-hero-section');
+    if (section) {
+      // Small delay to allow layout to settle before reveal
+      requestAnimationFrame(() => {
+        setTimeout(() => section.classList.add('is-active'), 100);
+      });
+    }
+  }
+  initInfoHero();
+  document.addEventListener('astro:after-swap', initInfoHero);
+</script>

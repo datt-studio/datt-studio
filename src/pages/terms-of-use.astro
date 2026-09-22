@@ -2,237 +2,157 @@
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import Layout from '../layouts/Layout.astro';
-/**
- * Terms of Use Page
- * Spacing and styling matched to index.astro and your reference snippet.
- */
+import SecureEmail from '../components/SecureEmail.astro';
+
+const { pathname } = Astro.url;
+const normalizedPath = pathname.replace(/\/$/, "");
+const isActive = (path: string) => normalizedPath === path;
+
+const sidebarLinks = [
+  { href: '/privacy-cookies-policy', label: 'Privacy & Cookie Policy' },
+  { href: '/terms-of-use', label: 'Terms of Use' },
+  { href: '/accessibility', label: 'Accessibility Statement' },
+  { href: '/data-processing', label: 'Data Processing Agreement' },
+];
+
+const lastUpdated = "16 June 2026";
 ---
 
-<Layout title="Terms of Use | Datt Studio">
-  <Header />
+<Layout title="DATT STUDIO - Terms of Use" isDark={true}>
+  <Header isInverted={true} />
 
-  <!-- Main container matching index.astro exactly -->
-  <main class="bg-black text-white px-6 md:px-12 pb-10 flex flex-col min-h-screen">
+  <style is:global>
+    html, body { background-color: #000000 !important; }
+  </style>
 
-    <!-- 1. Meta Info section (Matches Clock section spacing) -->
-    <div class="mt-10 mb-32 md:mb-40">
-      <div class="text-[#7C7C7D] text-[15px] flex flex-col gap-1 font-semibold tracking-[-0.02em]">
-        <span>UK (GMT+1) 13:03</span>
-        <span>Last updated: October 2025</span>
-      </div>
-    </div>
+  <main id="main-content" class="reveal-trigger w-full max-w-[1440px] pt-[120px] px-[var(--page-padding)] pb-32 bg-black text-white">
+    <div class="flex flex-col md:flex-row w-full gap-y-16 md:gap-x-24">
 
-    <!-- 2. Main Content Grid -->
-    <section class="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-x-24 gap-y-20 mb-32 md:mb-64">
-
-      <!-- COLUMN 1: Sidebar Navigation -->
-      <aside class="flex flex-col gap-4 items-start h-fit md:sticky md:top-14">
-        <a href="/privacy-cookies-policy" class="studio-link text-[18px] font-semibold text-white">
-          Privacy & Cookies Policy
-        </a>
-        <a href="/terms-of-use" class="studio-link text-[18px] font-semibold text-white">
-          Terms of Use
-        </a>
-      </aside>
-
-      <!-- COLUMN 2: Policy Content -->
-      <article class="flex flex-col gap-16 max-w-2xl">
-
-        <div id="terms-of-use" class="flex flex-col gap-6">
-          <h1 class="text-[24px] font-semibold text-white leading-none tracking-[-0.02em]">Terms Of Use</h1>
-
-          <div class="flex flex-col gap-10 text-[18px] leading-[1.4] tracking-[-0.02em] font-semibold">
-
-            <!-- Terms Header -->
-            <div class="flex flex-col gap-3">
-              <h2 style="color: #7C7C7D;">Terms of Use for <br/>www.dattstudio.com</h2>
-              <p class="opacity-90">
-                These Terms of Use ("Terms") govern your access to and use of the website at <a href="https://www.dattstudio.com" class="studio-link underline">www.dattstudio.com</a> (the "Site") and any related services provided by Datt Studio Ltd, a company registered in England and Wales with company number 16695845 ("we", "us", or "our"). By accessing or using the Site, you agree to these Terms. If you do not agree, do not use the Site.
-              </p>
-              <p class="opacity-90">
-                We may update these Terms at any time. Continued use after changes constitutes acceptance. We will notify you of material changes via email or a Site notice.
-              </p>
+      <article class="w-full md:w-[65%] flex flex-col">
+        <div class="mb-[120px]">
+            <div class="brands-line-mask">
+                <h1 class="brands-line-inner text-white">Terms of Use</h1>
             </div>
+        </div>
 
-            <!-- 1. Acceptable Use -->
-            <div class="flex flex-col gap-3">
-              <h2 style="color: #7C7C7D;">1. Acceptable Use</h2>
-              <p class="opacity-90">You may use the Site only for lawful purposes and in accordance with these Terms. You agree not to:</p>
-              <ul class="list-disc pl-5 flex flex-col gap-2 opacity-90">
-                <li>Copy, modify, distribute, sell, or lease any Content (as defined below) without our prior written consent.</li>
-                <li>Use the Site in any way that breaches any applicable local, national, or international law or regulation.</li>
-                <li>Attempt to gain unauthorised access to our systems, interfere with the Site, or introduce malware.</li>
-                <li>Use the Site for commercial purposes without a separate agreement.</li>
-                <li>Resell, redistribute, or share digital products or licenses obtained from the Site.</li>
-              </ul>
-            </div>
+        <div class="flex flex-col gap-y-32">
+            <section id="terms-of-use" class="flex flex-col">
+              <div class="mb-[48px]">
+                <div class="brands-line-mask">
+                    <p class="brands-line-inner text-label !text-[#727272]">Last Updated — {lastUpdated}</p>
+                </div>
+              </div>
 
-            <!-- 2. Intellectual Property -->
-            <div class="flex flex-col gap-3">
-              <h2 style="color: #7C7C7D;">2. Intellectual Property</h2>
-              <p class="opacity-90">
-                All Content on the Site—including text, images, graphics, logos, videos, software, designs, digital products, and branding elements ("Content")—is owned by Datt Studio Ltd or our licensors and protected by United Kingdom and international copyright, trademark, and other intellectual property laws.
-              </p>
-              <p class="opacity-90">
-                The Datt Studio Ltd logo, along with all other trademarks, service marks, trade names, and branding elements displayed on this site (collectively, the "Trademarks"), are owned by Datt Studio Ltd. You acknowledge that these Trademarks are valid and protected under applicable law. Any use of the Trademarks, including reproduction, distribution, modification, or display, without our prior written permission is strictly prohibited.
-              </p>
-              <p class="opacity-90">You agree not to:</p>
-              <ul class="list-disc pl-5 flex flex-col gap-2 opacity-90">
-                <li>Copy, reproduce, transmit, or use any Content or Trademarks except as expressly permitted below.</li>
-                <li>Use the Trademarks in any manner that suggests sponsorship, endorsement, or affiliation with Datt Studio Ltd.</li>
-                <li>Attempt to register or claim ownership of any Trademarks or similar marks.</li>
-              </ul>
-              <p class="opacity-90">
-                Personal, non-commercial use: You may view, download, and print Content for your personal, non-commercial use only, subject to these Terms.
-              </p>
-              <p class="opacity-90">
-                Digital Product Licenses: Licenses for downloadable products are personal, non-exclusive, non-transferable, revocable, and non-sublicensable. You may not share, redistribute, or use commercially without permission. Attribution to Datt Studio Ltd is required where applicable. We reserve the right to revoke licenses for misuse.
-              </p>
-              <p class="opacity-90">
-                If you believe your intellectual property rights have been infringed, please contact us at <a href="mailto:info@dattstudio.com" class="studio-link underline">info@dattstudio.com</a> with details for review. We reserve the right to take legal action against unauthorized use.
-              </p>
-            </div>
+              <div class="mb-[64px]">
+                <div class="brands-line-mask">
+                  <h2 class="brands-line-inner text-label !text-white">Legal Notice</h2>
+                </div>
+              </div>
 
-            <!-- 3. User Content -->
-            <div class="flex flex-col gap-3">
-              <h2 style="color: #7C7C7D;">3. User Content</h2>
-              <p class="opacity-90">
-                Any content you submit (e.g., comments, feedback) is non-confidential. You grant us a perpetual, worldwide, royalty-free license to use, modify, and distribute it. You warrant you own all rights in User Content and it does not infringe third-party rights.
-              </p>
-            </div>
+              <div class="flex flex-col gap-y-12">
+                <!-- 1. Acceptance -->
+                <div class="brands-line-mask">
+                  <div class="brands-line-inner flex flex-col">
+                    <h4 class="text-white">1. Acceptance of Terms</h4>
+                    <div class="mt-4">
+                      <p>This website (“Site”) is operated by DATT STUDIO LTD (No. 16695845). By accessing the Site, you acknowledge that you have read, understood, and agreed to be bound by these Terms. DATT STUDIO LTD reserves the right to modify these terms at any time; continued usage constitutes acceptance of updated terms.</p>
+                    </div>
+                  </div>
+                </div>
 
-            <!-- 4. Disclaimers -->
-            <div class="flex flex-col gap-3">
-              <h2 style="color: #7C7C7D;">4. Disclaimers</h2>
-              <p class="opacity-90">
-                The Site and Content are provided "as is" and "as available" without warranties of any kind, express or implied, including fitness for purpose, merchantability, or non-infringement. We do not guarantee the Site will be secure, uninterrupted, or error-free. Content is for general information only and not professional advice.
-              </p>
-            </div>
+                <!-- 2. IP -->
+                <div class="brands-line-mask">
+                  <div class="brands-line-inner flex flex-col">
+                    <h4 class="text-white">2. Intellectual Property & Copyright</h4>
+                    <div class="mt-4">
+                      <p>All content on this Site—including typography, visual identities, custom code, motion physics, animations, and curated case studies—is the exclusive property of DATT STUDIO LTD and is protected by UK and international copyright laws. DATT STUDIO LTD hereby asserts its moral rights under the <strong>Copyright, Designs and Patents Act 1988</strong> to be identified as the author of all original work.</p>
+                    </div>
+                  </div>
+                </div>
 
-            <!-- 5. Limitation of Liability -->
-            <div class="flex flex-col gap-3">
-              <h2 style="color: #7C7C7D;">5. Limitation of Liability</h2>
-              <p class="opacity-90">
-                To the fullest extent permitted by law, Datt Studio Ltd (including directors, employees, agents) shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or loss of profits, data, or goodwill, arising from your use of the Site or Content, even if advised of the possibility.
-              </p>
-              <p class="opacity-90">
-                Our total liability for direct losses shall not exceed £100 (or the price paid for any digital product, whichever is greater). Nothing excludes liability for death, personal injury from negligence, fraud, or liability that cannot be excluded under UK law.
-              </p>
-            </div>
+                <!-- 3. AI -->
+                <div class="brands-line-mask">
+                  <div class="brands-line-inner flex flex-col">
+                    <h4 class="text-white">3. AI & Machine Learning Restriction</h4>
+                    <div class="mt-4">
+                      <p>DATT STUDIO LTD expressly prohibits the use of any content, data, or visual assets on this Site for the purpose of training or improving Artificial Intelligence (AI) technologies. Under the laws of England and Wales, we explicitly "opt-out" of any Text and Data Mining (TDM) exceptions. The use of automated "robots" or "scrapers" to extract data for these purposes is a material breach of these Terms.</p>
+                    </div>
+                  </div>
+                </div>
 
-            <!-- 6. Indemnity -->
-            <div class="flex flex-col gap-3">
-              <h2 style="color: #7C7C7D;">6. Indemnity</h2>
-              <p class="opacity-90">
-                You agree to indemnify and hold us harmless from any claims, losses, liabilities, damages, costs, and expenses (including legal fees) arising from your use of the Site, breach of these Terms, or violation of third-party rights.
-              </p>
-            </div>
+                <!-- 4. Liability -->
+                <div class="brands-line-mask">
+                  <div class="brands-line-inner flex flex-col">
+                    <h4 class="text-white">4. Limitation of Liability</h4>
+                    <div class="mt-4">
+                      <p>The Site is provided on an "as-is" basis. To the maximum extent permitted by law, DATT STUDIO LTD shall not be liable for any direct or indirect loss or damage arising from your use of the Site, including but not limited to data loss, system interruption, or errors in content.</p>
+                    </div>
+                  </div>
+                </div>
 
-            <!-- 7. Third-Party Links and Services -->
-            <div class="flex flex-col gap-3">
-              <h2 style="color: #7C7C7D;">7. Third-Party Links and Services</h2>
-              <p class="opacity-90">
-                The Site may link to third-party sites or services. We are not responsible for their content, privacy practices, or availability. Use at your own risk.
-              </p>
-            </div>
+                <!-- 5. External -->
+                <div class="brands-line-mask">
+                  <div class="brands-line-inner flex flex-col">
+                    <h4 class="text-white">5. External Links</h4>
+                    <div class="mt-4">
+                      <p>This Site may contain links to external platforms (e.g., client websites, social media). DATT STUDIO LTD is not responsible for the content, security, or privacy practices of these third-party environments.</p>
+                    </div>
+                  </div>
+                </div>
 
-            <!-- 8. Termination -->
-            <div class="flex flex-col gap-3">
-              <h2 style="color: #7C7C7D;">8. Termination</h2>
-              <p class="opacity-90">
-                We may suspend or terminate your access immediately for breach of these Terms without notice or liability.
-              </p>
-            </div>
+                <!-- 6. Prohibited -->
+                <div class="brands-line-mask">
+                  <div class="brands-line-inner flex flex-col">
+                    <h4 class="text-white">6. Prohibited Usage</h4>
+                    <div class="mt-4">
+                      <p>Users may not attempt to interfere with the Site’s security, reverse-engineer the custom code, or use the Site to transmit malicious software. Unauthorised use of this Site may give rise to a claim for damages and/or be a criminal offence.</p>
+                    </div>
+                  </div>
+                </div>
 
-            <!-- 9. Data Protection -->
-            <div class="flex flex-col gap-3">
-              <h2 style="color: #7C7C7D;">9. Data Protection</h2>
-              <p class="opacity-90">
-                Your use of the Site is also governed by our <a href="/privacy-cookies-policy" class="studio-link underline">Privacy & Cookies Policy</a>, which is incorporated by reference.
-              </p>
-            </div>
+                <!-- 7. Law -->
+                <div class="brands-line-mask">
+                  <div class="brands-line-inner flex flex-col">
+                    <h4 class="text-white">7. Governing Law</h4>
+                    <div class="mt-4">
+                      <p>These Terms are governed by the laws of England and Wales. Any disputes arising from the use of this Site shall be subject to the exclusive jurisdiction of the English courts.</p>
+                    </div>
+                  </div>
+                </div>
 
-            <!-- 10. Governing Law and Disputes -->
-            <div class="flex flex-col gap-3">
-              <h2 style="color: #7C7C7D;">10. Governing Law and Disputes</h2>
-              <p class="opacity-90">
-                These Terms are governed by the laws of England and Wales. The courts of England have exclusive jurisdiction over disputes.
-              </p>
-            </div>
-
-            <!-- 11. Contact Us -->
-            <div class="flex flex-col gap-3">
-              <h2 style="color: #7C7C7D;">11. Contact Us</h2>
-              <p class="opacity-90">
-                Questions about these Terms? Email: <a href="mailto:hello@dattstudio.com" class="studio-link underline">hello@dattstudio.com</a>.
-              </p>
-            </div>
-
-            <div class="pt-10">
-              <p style="color: #7C7C7D;">End Of Terms</p>
-            </div>
-          </div>
+                <!-- 8. Inquiries -->
+                <div class="brands-line-mask">
+                  <div class="brands-line-inner flex flex-col">
+                    <h4 class="text-white">8. Inquiries</h4>
+                    <div class="mt-4">
+                        <p>For inquiries regarding licensing or usage rights, contact:
+                          <SecureEmail email="hello@dattstudio.com" className="cta-link !lowercase !text-[16px] !tracking-tight" isInverted={true} />.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
         </div>
       </article>
 
-    </section>
-
-    <!-- Footer component pushed to bottom by flex-col min-h-screen -->
-    <Footer />
-
+      <aside class="w-full md:w-[35%] lg:sticky lg:top-[132px] h-fit md:pl-20 border-l border-white/5">
+        <nav class="flex flex-col items-start gap-y-3">
+          {sidebarLinks.map((link, i) => (
+            <div class="brands-line-mask">
+              <a href={link.href} class:list={['sidebar-link text-label !text-[13px]', { 'active': isActive(link.href) }]} style={`transition-delay: ${0.1 + (i * 0.05)}s`}>{link.label}</a>
+            </div>
+          ))}
+        </nav>
+      </aside>
+    </div>
   </main>
+  <Footer isInverted={true} />
 </Layout>
 
 <style is:global>
-  /* Global brand styles */
-  :root {
-    --studio-grey: #7C7C7D;
-  }
-
-  body {
-    background-color: black;
-    color: white;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  h1, h2, h3, p, a, li, span {
-    letter-spacing: -0.02em;
-  }
-
-  h2 {
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 4px;
-  }
-
-  /* --- CUSTOM LINK ANIMATION --- */
-  .studio-link {
-    position: relative;
-    display: inline-block;
-    text-decoration: none;
-    color: inherit;
-    transition: color 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-  }
-
-  .studio-link:hover {
-    color: var(--studio-grey);
-  }
-
-  .studio-link::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 100%;
-    height: 1px;
-    background-color: currentColor;
-    transform: scaleX(0);
-    transform-origin: right;
-    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-  }
-
-  .studio-link:hover::after {
-    transform: scaleX(1);
-    transform-origin: left;
-  }
+  #main-content h4 { font-size: var(--font-h4); font-weight: 600; }
+  #main-content p { color: #b4b4b4; font-weight: 400; line-height: var(--lh-body); }
+  .cta-link:hover { color: #727272 !important; }
+  .sidebar-link { color: #727272 !important; text-decoration: none; transition: color 0.4s var(--ease-mechanical); }
+  .sidebar-link:hover, .sidebar-link.active { color: #ffffff !important; }
 </style>

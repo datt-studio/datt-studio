@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
-Disallow: /admin
-Sitemap: https://yourdomain.com/sitemap-index.xml
+Sitemap: https://dattstudio.com/sitemap-index.xml
+
+# Prevent bots from scraping your legal pages too heavily
+Disallow: /privacy-cookies-policy
+Disallow: /terms-of-use

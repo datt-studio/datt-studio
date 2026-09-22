@@ -1,0 +1,67 @@
+---
+// NavLink.astro
+const { href, title, isMobile = false } = Astro.props;
+---
+<a href={href} class:list={['nav-link-custom', { 'mobile-link': isMobile }]}>
+  <span class="link-text">{title}</span>
+</a>
+
+<style>
+  .nav-link-custom {
+    position: relative;
+    text-decoration: none;
+    color: #000000;
+    /* REFINED TYPE SYSTEM */
+    font-weight: 600;
+    font-size: 13px; /* Sharper, more professional scale */
+    text-transform: uppercase;
+    letter-spacing: var(--track-wide); /* 0.05em */
+    display: inline-block;
+    padding: 8px 0;
+    transition: color 0.4s var(--ease-mechanical);
+    cursor: pointer;
+    line-height: 1;
+  }
+
+  /* 1. LIGHT MODE HOVER */
+  .nav-link-custom:hover {
+    color: #727272 !important;
+  }
+
+  /* 2. DARK MODE INVERSION */
+  :global(body.video-active) .nav-link-custom,
+  :global(body.page-dark) .nav-link-custom {
+    color: #ffffff !important;
+  }
+
+  /* 3. DARK MODE HOVER */
+  :global(body.video-active) .nav-link-custom:hover,
+  :global(body.page-dark) .nav-link-custom:hover {
+    color: #b4b4b4 !important;
+  }
+
+  /* --- MOBILE MENU OVERRIDES --- */
+  .mobile-link {
+    /* Uses the massive H1 scale but with refined weight */
+    font-size: clamp(40px, 10vw, 72px);
+    font-weight: 600;
+    margin-bottom: 0;
+    padding: 10px 0;
+    letter-spacing: var(--track-tighter);
+    line-height: var(--lh-xtight);
+    color: #ffffff !important;
+    text-transform: none; /* Often looks more premium on mobile reveals */
+  }
+
+  .mobile-link:hover {
+    color: #b4b4b4 !important;
+    transform: translateX(10px); /* Subtle premium movement */
+  }
+
+  @media (min-width: 768px) {
+    .nav-link-custom {
+        /* Ensuring desktop nav stays razor sharp */
+        font-size: var(--font-label);
+    }
+  }
+</style>

@@ -1,0 +1,93 @@
+---
+// HomeApproach.astro
+const title = "A considered approach. Every project begins with context.";
+const body = "Direction before execution. Structure before expression. Reduced to what matters. Refined until it holds.";
+---
+
+<section class="home-approach reveal-trigger relative w-full min-h-[100dvh] px-[var(--page-padding)] flex flex-col items-start justify-center text-left bg-black py-24">
+  <div class="max-w-[580px] w-full">
+
+    <!-- Title with mechanical reveal -->
+    <h2 class="text-white mb-12">
+      {title.split('||').map((l, i) => (
+        <span class="brands-line-mask">
+          <span class="brands-line-inner" style={`transition-delay: ${i * 0.1}s`}>
+            {l.trim()}
+          </span>
+        </span>
+      ))}
+    </h2>
+
+    <!-- Description -->
+    <div class="max-w-[500px] mb-10">
+        <div class="brands-line-mask">
+            <p class="brands-line-inner text-white/80" style="transition-delay: 0.4s;">
+              {body}
+            </p>
+        </div>
+    </div>
+
+    <!-- White CTA: Integrated into flip engine -->
+    <div class="brands-line-mask inline-block">
+        <div class="brands-line-inner" style="transition-delay: 0.6s">
+          <!-- Update href to include the specific section ID -->
+          <a href="/services#services-approach" class="cta-link inverted-cta">
+            View approach
+          </a>
+        </div>
+    </div>
+
+  </div>
+</section>
+
+<style is:global>
+  .home-approach .brands-line-mask {
+    display: block;
+    overflow: hidden;
+    perspective: 1200px;
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
+    margin-top: -0.2em;
+    margin-bottom: -0.2em;
+  }
+
+  .home-approach .brands-line-inner {
+    display: block;
+    transform: translateY(115%) rotateX(-60deg);
+    transform-origin: top center;
+    opacity: 0;
+    transition: transform 1.3s var(--ease-mechanical), opacity 0.9s var(--ease-mechanical);
+    will-change: transform, opacity;
+  }
+
+  .home-approach.is-active .brands-line-inner {
+    transform: translateY(0) rotateX(0deg) !important;
+    opacity: 1 !important;
+  }
+
+  .home-approach h1 {
+    font-size: var(--font-h1);
+    font-weight: 600;
+    line-height: 1.0 !important;
+    letter-spacing: var(--track-tighter);
+  }
+
+  .home-approach p {
+    font-size: clamp(18px, 3vw, 16px);
+    font-weight: 400;
+    line-height: var(--lh-body);
+    letter-spacing: var(--track-tight);
+  }
+
+  .home-approach .cta-link.inverted-cta {
+    color: #FFFFFF !important;
+    font-size: var(--font-label);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: var(--track-wide);
+  }
+
+  .home-approach .cta-link.inverted-cta::after {
+    background-color: #FFFFFF !important;
+  }
+</style>

@@ -1,0 +1,91 @@
+---
+// InfoPhilosophy.astro
+const lines = [
+  "Built with clarity.",
+  "Refined through restraint.",
+  "Made to hold."
+];
+---
+
+<section id="philosophy-section" class="relative min-h-screen w-full bg-black px-[var(--page-padding)] py-24 md:py-40 flex items-center overflow-hidden">
+  <div class="w-full max-w-[1440px] mx-auto text-left">
+
+    <!-- Content aligned to the left -->
+    <div class="flex flex-col items-start">
+      <h2 class="philosophy-headline text-white text-left">
+        {lines.map((line, i) => (
+          <span class="brands-line-mask block">
+            <span class="brands-line-inner block" style={`transition-delay: ${i * 0.1}s`}>
+              {line}
+            </span>
+          </span>
+        ))}
+      </h2>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  #philosophy-section .philosophy-headline {
+    /* Uses refined H1 scale from Layout.astro */
+    font-size: var(--font-h2);
+    /* Inherits Semi-bold 600 weight from Layout.astro */
+    line-height: var(--lh-xtight);
+    letter-spacing: var(--track-tighter);
+  }
+
+  /* REFINED MASKING */
+  #philosophy-section .brands-line-mask {
+    display: block;
+    overflow: hidden;
+    perspective: 1200px;
+    text-align: left;
+    /* Safe-zone for refined font descenders and 3D rotation */
+    padding-top: 0.15em;
+    padding-bottom: 0.15em;
+    margin-top: -0.15em;
+    margin-bottom: -0.15em;
+  }
+
+  #philosophy-section .brands-line-inner {
+    display: block;
+    /* Mechanical reveal state */
+    transform: translateY(115%) rotateX(-15deg);
+    transform-origin: top;
+    opacity: 0;
+    will-change: transform, opacity;
+    transition: transform 1.2s var(--ease-mechanical), opacity 0.9s var(--ease-mechanical);
+    backface-visibility: hidden;
+    text-align: left;
+    color: #FFFFFF;
+  }
+
+  /* REVEAL STATE */
+  #philosophy-section.is-active .brands-line-inner {
+    transform: translateY(0) rotateX(0deg);
+    opacity: 1;
+  }
+</style>
+
+<script is:inline>
+  function setupPhilosophySection() {
+    const section = document.getElementById('philosophy-section');
+    if (!section) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          section.classList.add('is-active');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, {
+      threshold: 0.15
+    });
+
+    observer.observe(section);
+  }
+
+  setupPhilosophySection();
+  document.addEventListener('astro:after-swap', setupPhilosophySection);
+</script>

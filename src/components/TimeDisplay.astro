@@ -1,24 +1,53 @@
 ---
 // src/components/TimeDisplay.astro
+const { className } = Astro.props;
 ---
-<div class=`flex items-center gap-2 font-normal ${Astro.props.className}`>
+<div class:list={[
+    "flex items-center gap-4 font-semibold uppercase text-label tracking-[0.05em] opacity-80",
+    className
+]}>
     <span>UK (GMT+1)</span>
-    <span id="clock-display">00:00</span>
+    <!-- Use tabular-nums to prevent the clock from "jumping" as numbers change -->
+    <span class="clock-instance tabular-nums">00:00:00</span>
 </div>
 
 <script is:inline>
-  function updateClock() {
-    const clockEl = document.getElementById('clock-display');
-    if (!clockEl) return;
+  function updateAllClocks() {
+    const clockElements = document.querySelectorAll('.clock-instance');
+    if (clockElements.length === 0) return;
+
     const now = new Date();
-    // Format to HH:mm
     const timeString = now.toLocaleTimeString('en-GB', {
         hour: '2-digit',
         minute: '2-digit',
-        hour12: false
+        second: '2-digit',
+        hour12: false,
+        timeZone: 'Europe/London'
     });
-    clockEl.textContent = timeString;
+
+    clockElements.forEach(el => {
+      if (el.textContent !== timeString) {
+        el.textContent = timeString;
+      }
+    });
   }
-  setInterval(updateClock, 1000);
-  updateClock();
+
+  // Initial Run
+  updateAllClocks();
+
+  // Global interval management to prevent memory leaks during Astro transitions
+  if (window.clockInterval) clearInterval(window.clockInterval);
+  window.clockInterval = setInterval(updateAllClocks, 1000);
+
+  // Re-init for Astro View Transitions
+  document.addEventListener('astro:after-swap', updateAllClocks);
 </script>
+
+<style>
+  /* Ensure the clock doesn't shift layout by using fixed-width numbers */
+  .clock-instance {
+    font-variant-numeric: tabular-nums;
+    min-width: 5.5em;
+    display: inline-block;
+  }
+</style>

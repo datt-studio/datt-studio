@@ -1,24 +1,170 @@
 ---
-/**
- * Footer.astro
- * Logic: Reverse on mobile (Links on top), Row on desktop.
- * Links: Horizontal on all screens with 24px spacing.
- * Text size: 12px. Color: #7C7C7D.
- */
+import SecureEmail from './SecureEmail.astro';
+import TimeDisplay from './TimeDisplay.astro';
+const currentYear = new Date().getFullYear();
+const { isInverted = false, disableMagnet = false } = Astro.props;
 ---
 
-<!-- Removed 'border-t border-white/10' from the class list below -->
-<footer class="pt-8 flex flex-col-reverse md:flex-row justify-between items-start md:items-center gap-8 md:gap-6 text-[12px] text-[#7C7C7D] mt-auto">
+<footer
+  id="site-footer"
+  data-disable-magnet={disableMagnet.toString()}
+  class:list={[
+    "relative px-[var(--page-padding)] pb-0 overflow-hidden transition-colors duration-700 w-full",
+    isInverted ? "bg-black text-white" : "bg-white text-black"
+  ]}
+>
+  <div id="footer-magnet-trigger" class="absolute -top-40 left-0 w-full h-20 pointer-events-none"></div>
 
-  <!-- Copyright (Bottom on mobile) -->
-  <div class="max-w-3xl leading-tight">
-    © 2025 Datt Studio Ltd | England and Wales | Company no. 16695845. | 94 Repton Close, LU3 3UP
+  <div id="footer-reveal-trigger" class="flex flex-col min-h-[100dvh] pt-[120px]">
+
+    <!-- Headline: Safe-zone padding added to prevent clipping -->
+    <div class="mb-12 md:mb-12">
+      <div class="brands-line-mask !py-[0.8em] !-my-[0.8em]">
+        <h2 class="brands-line-inner max-w-[1100px]">
+          Let’s talk.
+        </h2>
+      </div>
+    </div>
+
+    <!-- Mobile Time -->
+    <div class="md:hidden mb-12">
+      <div class="brands-line-mask">
+        <div class="brands-line-inner" style="transition-delay: 0.1s;">
+           <TimeDisplay isInverted={isInverted} />
+        </div>
+      </div>
+    </div>
+
+    <!-- Info Grid -->
+    <div class="flex flex-col md:flex-row w-full gap-y-12 md:gap-y-0 mb-10 md:mb-24">
+      <div class="w-full md:w-[35%] flex flex-col gap-y-8 md:gap-y-10">
+        <div class="brands-line-mask">
+          <div class="brands-line-inner" style="transition-delay: 0.15s;">
+            <p class="text-label mb-2">General enquiries</p>
+            <SecureEmail email="hello@dattstudio.com" className="cta-link !text-[18px] !lowercase !tracking-tight" isInverted={isInverted} />
+          </div>
+        </div>
+        <div class="brands-line-mask">
+          <div class="brands-line-inner" style="transition-delay: 0.2s;">
+            <p class="text-label mb-2">New business</p>
+            <SecureEmail email="info@dattstudio.com" className="cta-link !text-[18px] !lowercase !tracking-tight" isInverted={isInverted} />
+          </div>
+        </div>
+      </div>
+
+      <div class="w-full md:w-[65%] flex flex-col md:flex-row justify-between items-start">
+        <div class="brands-line-mask">
+          <div class="brands-line-inner" style="transition-delay: 0.3s;">
+            <p class="text-label text-transform: uppercase mb-2">Legal</p>
+            <div class="flex flex-col gap-y-2">
+              <a href="/privacy-cookies-policy" class="text-label !text-clamp(14px, 3vw, 12px) opacity-60 hover:opacity-100 transition-opacity">Privacy & cookies</a>
+              <a href="/terms-of-use" class="text-label !text-clamp(14px, 3vw, 12px) opacity-60 hover:opacity-100 transition-opacity">Terms of use</a>
+              <a href="/accessibility" class="text-label !text-clamp(14px, 3vw, 12px) opacity-60 hover:opacity-100 transition-opacity">Accessibility</a>
+              <a href="/data-processing" class="text-label !text-clamp(14px, 3vw, 12px) opacity-60 hover:opacity-100 transition-opacity">Data processing</a>
+            </div>
+          </div>
+        </div>
+        <div class="hidden md:block">
+          <div class="brands-line-mask">
+            <div class="brands-line-inner" style="transition-delay: 0.4s;">
+              <TimeDisplay isInverted={isInverted} />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex-grow"></div>
+
+    <!-- Logo -->
+    <div class="brands-line-mask w-full !py-4 !-my-4">
+      <div
+        class:list={["brands-line-inner logo-protection-container mb-6", isInverted ? "invert-logo" : ""]}
+        style="transition-delay: 0.5s;"
+        role="img"
+        aria-label="DATT STUDIO LOGO"
+      >
+        <div class="logo-shield" aria-hidden="true"></div>
+        <img src="/assets/datt_logo_l.svg" alt="DATT" class="hidden md:block w-full h-auto select-none no-drag" />
+        <img src="/assets/datt_logo_s.svg" alt="DATT" class="block md:hidden w-full h-auto select-none no-drag" />
+      </div>
+    </div>
+
+    <!-- Copyright -->
+    <div class="brands-line-mask">
+      <div class="brands-line-inner pb-4" style="transition-delay: 0.7s;">
+      <p class="text-label !text-[11px] opacity-50 !tracking-[0.05em]">
+      © {currentYear} DATT STUDIO LTD.
+      <br class="md:hidden" />
+      Registered in England & Wales: 16695845.
+      </p>
+      </div>
+    </div>
   </div>
-
-  <!-- Links (Top on mobile, Horizontal layout with 24px gap) -->
-  <div class="flex flex-row gap-[24px] items-center">
-    <a href="/privacy-cookies-policy" class="studio-link !text-white">Privacy and Cookie Policy</a>
-    <a href="/terms-of-use" class="studio-link !text-white">Terms Of Use</a>
-  </div>
-
 </footer>
+
+<style is:global>
+  /* Local Adjustments to fix clipping and logo protection */
+  .logo-protection-container { position: relative; user-select: none; }
+  .logo-shield { position: absolute; inset: 0; z-index: 10; background: transparent; }
+  .no-drag { -webkit-user-drag: none; pointer-events: none; }
+  .invert-logo img { filter: invert(1); }
+
+  /* Ensure the headline and logo can rotate fully without hitting mask edges */
+  #site-footer .brands-line-mask {
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
+    margin-top: -0.2em;
+    margin-bottom: -0.2em;
+  }
+
+  /* Corrected Axis state for Footer specifically */
+  #footer-reveal-trigger.is-active .brands-line-inner {
+    transform: translateY(0) rotateX(0deg) !important;
+    opacity: 1 !important;
+  }
+</style>
+
+<script is:inline>
+  function initFooterReveals() {
+    const footer = document.getElementById('site-footer');
+    if (!footer) return;
+
+    let userScrolled = false;
+    const unlockOnScroll = () => { userScrolled = true; };
+    window.addEventListener('wheel', unlockOnScroll, { once: true, passive: true });
+    window.addEventListener('touchmove', unlockOnScroll, { once: true, passive: true });
+    window.addEventListener('keydown', (e) => {
+        if (['ArrowDown', 'Space', 'PageDown'].includes(e.code)) userScrolled = true;
+    }, { once: true, passive: true });
+
+    const isMagnetDisabled = footer.getAttribute('data-disable-magnet') === 'true';
+
+    document.querySelectorAll('.logo-protection-container').forEach(c => {
+      c.addEventListener('contextmenu', e => e.preventDefault());
+      c.addEventListener('dragstart', e => e.preventDefault());
+    });
+
+    const trigger = document.getElementById('footer-reveal-trigger');
+    let isMagnetized = false;
+
+    if (trigger) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            trigger.classList.add('is-active');
+            if (!isMagnetDisabled && !isMagnetized && window.canSnap && userScrolled && entry.intersectionRatio >= 0.5) {
+              isMagnetized = true;
+              window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+              setTimeout(() => { isMagnetized = false; }, 2000);
+            }
+          }
+        });
+      }, { threshold: [0, 0.5] });
+      observer.observe(footer);
+    }
+  }
+
+  initFooterReveals();
+  document.addEventListener('astro:after-swap', initFooterReveals);
+</script>

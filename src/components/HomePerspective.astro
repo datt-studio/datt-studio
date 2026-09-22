@@ -1,0 +1,93 @@
+---
+// BrandStatement.astro
+// Moved "don't" to the first segment
+const text = "Strong brands don't demand attention. They hold it.";
+const text2 = "Built through clarity, consistency, and conviction. The most effective work feels inevitable. Not because it's simple, but because nothing unnecessary remains.";
+---
+<section class="brand-statement reveal-trigger relative w-full min-h-[100dvh] px-[var(--page-padding)] flex flex-col items-start justify-center text-left bg-black py-24">
+  <div class="max-w-[500px] w-full">
+
+    <!-- Title: Syncs with HomeApproach (mb-12 + 0.1s delay) -->
+    <h2 class="text-white mb-12">
+      {text.split('||').map((l, i) => (
+        <span class="brands-line-mask">
+          <span class="brands-line-inner" style={`transition-delay: ${i * 0.1}s`}>
+            {l.trim()}
+          </span>
+        </span>
+      ))}
+    </h2>
+
+    <!-- Description: Syncs with HomeApproach (mb-10 + 0.4s delay) -->
+    <div class="max-w-[500px] mb-10">
+        <div class="brands-line-mask">
+            <p class="brands-line-inner text-white/80" style="transition-delay: 0.4s;">
+              {text2}
+            </p>
+        </div>
+    </div>
+
+    <!-- CTA: Syncs with HomeApproach (0.6s delay)
+    <div class="brands-line-mask inline-block">
+        <div class="brands-line-inner" style="transition-delay: 0.6s">
+          <a href="/services" class="cta-link inverted-cta">
+            Our approach
+          </a>
+        </div>
+    </div>
+  </div>
+</section> -->
+
+<style is:global>
+  /* 1. MASK ENGINE SYNC (0.2em Padding) */
+  .brand-statement .brands-line-mask {
+    display: block;
+    overflow: hidden;
+    perspective: 1200px;
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
+    margin-top: -0.2em;
+    margin-bottom: -0.2em;
+  }
+
+  .brand-statement .brands-line-inner {
+    display: block;
+    transform: translateY(115%) rotateX(-60deg);
+    transform-origin: top center;
+    opacity: 0;
+    transition: transform 1.3s var(--ease-mechanical), opacity 0.9s var(--ease-mechanical);
+    will-change: transform, opacity;
+  }
+
+  .brand-statement.is-active .brands-line-inner {
+    transform: translateY(0) rotateX(0deg) !important;
+    opacity: 1 !important;
+  }
+
+  /* 2. TYPOGRAPHY SYSTEM SYNC */
+  .brand-statement h1 {
+    font-size: var(--font-h1);
+    font-weight: 600;
+    line-height: 1.0 !important;
+    letter-spacing: var(--track-tighter);
+  }
+
+  .brand-statement p {
+    font-size: clamp(18px, 3vw, 16px);
+    font-weight: 400;
+    line-height: var(--lh-body);
+    letter-spacing: var(--track-tight);
+  }
+
+  .brand-statement .cta-link.inverted-cta {
+    color: #FFFFFF !important;
+    font-size: var(--font-label);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: var(--track-wide);
+  }
+
+  .brand-statement .cta-link.inverted-cta::after {
+    background-color: #FFFFFF !important;
+  }
+</style>

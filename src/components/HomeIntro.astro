@@ -1,0 +1,84 @@
+---
+// HomeIntro.astro
+const text = "Every project begins with context. What matters is defined early, then refined until it holds.";
+---
+
+<section class="home-intro reveal-trigger relative w-full min-h-[140dvh] px-[var(--page-padding)] flex flex-col items-center justify-center text-center bg-black py-40 md:py-60">
+  <div class="max-w-[850px] w-full">
+
+    <!-- Headline: Multi-line flip -->
+    <h2 class="text-white">
+      {text.split('||').map((l, i) => (
+        <span class="brands-line-mask">
+          <span class="brands-line-inner" style={`transition-delay: ${i * 0.1}s`}>
+            {l.trim()}
+          </span>
+        </span>
+      ))}
+    </h2>
+
+    <!-- CTA Area: Now explicitly sized to 12px label -->
+    <div class="mt-12">
+      <div class="brands-line-mask inline-block">
+        <div class="brands-line-inner" style="transition-delay: 0.5s">
+          <a href="/info" class="cta-link inverted-cta">
+            Read more
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<style is:global>
+  /* 1. MECHANICAL TRANSITION SYNC */
+  .home-intro .brands-line-mask {
+    display: block;
+    overflow: hidden;
+    perspective: 1200px;
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
+    margin-top: -0.2em;
+    margin-bottom: -0.2em;
+  }
+
+  .home-intro .brands-line-inner {
+    display: block;
+    transform: translateY(115%) rotateX(-60deg);
+    transform-origin: top center;
+    opacity: 0;
+    transition: transform 1.3s var(--ease-mechanical), opacity 0.9s var(--ease-mechanical);
+    will-change: transform, opacity;
+  }
+
+  /* 2. REVEAL TRIGGER */
+  .home-intro.is-active .brands-line-inner {
+    transform: translateY(0) rotateX(0deg) !important;
+    opacity: 1 !important;
+  }
+
+  /* 3. TYPOGRAPHY SYNC */
+  .home-intro h1 {
+    font-size: var(--font-h1);
+    font-weight: 600;
+    line-height: 1.0 !important;
+    letter-spacing: var(--track-tighter);
+  }
+
+  /* 4. CTA CONSISTENCY FIX */
+  .home-intro .cta-link.inverted-cta {
+    color: #FFFFFF !important;
+    /* This ensures it matches HomeStudio/HomeApproach exactly */
+    font-size: var(--font-label) !important; /* Forces 12px */
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: var(--track-wide);
+    display: inline-block;
+  }
+
+  .home-intro .cta-link.inverted-cta::after {
+    background-color: #FFFFFF !important;
+    height: 1.5px;
+  }
+</style>
