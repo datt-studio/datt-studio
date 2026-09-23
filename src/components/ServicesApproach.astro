@@ -2,7 +2,10 @@
 // ServicesApproach.astro
 const mainLabel = "APPROACH";
 
-const headline = "Work shaped with intent. Context defines every decision.";
+
+const lineOne = "Work shaped with intent.";
+const lineTwo = "Context defines every decision.";
+
 
 const process = [
   {
@@ -24,8 +27,10 @@ const process = [
 ];
 ---
 
+
 <section id="services-approach" class="relative min-h-screen w-full bg-black px-[var(--page-padding)] py-24 md:py-40 flex items-center overflow-hidden">
   <div class="w-full max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-[38%_1fr] items-start">
+
 
     <!-- Column 1: Main Section Label -->
     <div class="mb-10 md:mb-0">
@@ -36,19 +41,22 @@ const process = [
       </div>
     </div>
 
+
     <!-- Column 2: Content -->
     <div class="flex flex-col items-start w-full">
 
-      <!-- Part A: The Large Headline (One Block) -->
-      <div class="mb-10 md:mb-20 max-w-[900px]">
+
+      <!-- Part A: The Large Headline (Two Lines) -->
+      <div class="mb-10 md:mb-20 max-w-[700px]">
         <h2 class="approach-title text-white">
           <span class="brands-line-mask">
             <span class="brands-line-inner" style="transition-delay: 0.1s">
-              {headline}
+              {lineOne}<br />{lineTwo}
             </span>
           </span>
         </h2>
       </div>
+
 
       <!-- Part B: The 4-Step Process List (Labels above Body) -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-x-20 gap-y-16 md:gap-y-10 w-full">
@@ -63,6 +71,7 @@ const process = [
               </div>
             </div>
 
+
             <!-- Step Body (Below) -->
             <div class="w-full">
               <div class="brands-line-mask">
@@ -75,9 +84,11 @@ const process = [
         ))}
       </div>
 
+
     </div>
   </div>
 </section>
+
 
 <style is:global>
   /* 1. TYPOGRAPHY SYSTEM SYNC */
@@ -88,12 +99,14 @@ const process = [
     letter-spacing: var(--track-tighter);
   }
 
+
   #services-approach p {
     font-size: clamp(18px, 3vw, 16px);
     line-height: var(--lh-body); /* 1.4 */
     letter-spacing: var(--track-tight);
     font-weight: 400;
   }
+
 
   /* 2. MECHANICAL REVEAL ENGINE SYNC */
   #services-approach .brands-line-mask {
@@ -106,6 +119,7 @@ const process = [
     margin-bottom: -0.2em;
   }
 
+
   #services-approach .brands-line-inner {
     display: block;
     transform: translateY(115%) rotateX(-60deg);
@@ -116,6 +130,7 @@ const process = [
     backface-visibility: hidden;
   }
 
+
   /* Reveal Activation Logic */
   #services-approach.is-active .brands-line-inner {
     transform: translateY(0) rotateX(0deg);
@@ -123,10 +138,12 @@ const process = [
   }
 </style>
 
+
 <script is:inline>
   function setupServicesApproach() {
     const section = document.getElementById('services-approach');
     if (!section) return;
+
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
@@ -136,6 +153,7 @@ const process = [
         }
       });
     }, { threshold: 0.1 });
+
 
     observer.observe(section);
   }
