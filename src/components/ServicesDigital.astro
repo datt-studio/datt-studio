@@ -1,39 +1,147 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://dattstudio.com/</loc>
-    <lastmod>2026-09-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://dattstudio.com/services/</loc>
-    <lastmod>2026-09-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://dattstudio.com/contact/</loc>
-    <lastmod>2026-09-23</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://dattstudio.com/info/</loc>
-    <lastmod>2026-09-23</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://dattstudio.com/accessibility/</loc>
-    <lastmod>2026-09-23</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
-  </url>
-  <url>
-    <loc>https://dattstudio.com/data-processing/</loc>
-    <lastmod>2026-09-23</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
-  </url>
-</urlset>
+---
+// src/components/ServicesDigital.astro
+const items = ["Website design", "Web development", "Interaction & motion", "E-commerce", "Digital guidelines"];
+---
+
+
+<section id="services-digital" class="relative w-full bg-black px-[var(--page-padding)] py-24 md:py-40 flex items-center overflow-hidden">
+  <div class="w-full max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-[38%_1fr] items-start">
+
+    <!-- Section Label -->
+    <div class="mb-12 md:mb-0">
+      <div class="brands-line-mask">
+        <span class="brands-line-inner text-label text-white">DIGITAL</span>
+      </div>
+    </div>
+
+    <!-- Right Column -->
+    <div class="flex flex-col items-start w-full">
+
+      <!-- Main Title -->
+      <h2 class="digital-title text-white mb-12 max-w-[800px]">
+        <span class="brands-line-mask block">
+          <span class="brands-line-inner block">Digital is where a brand holds.</span>
+        </span>
+      </h2>
+
+      <!-- Description -->
+      <div class="max-w-[600px] mb-12">
+        <div class="brands-line-mask">
+          <p class="brands-line-inner text-white/80" style="transition-delay: 0.1s;">
+            We design and build digital experiences that keep the brand sharp on every screen — fast, considered, and built to last.
+          </p>
+        </div>
+      </div>
+
+      <!-- Subsection Label -->
+      <div class="mb-8">
+        <div class="brands-line-mask">
+          <p class="brands-line-inner text-label text-white/40" style="transition-delay: 0.2s;">Areas of work</p>
+        </div>
+      </div>
+
+      <!-- Service Tiles Grid -->
+      <div class="w-full max-w-[700px] flex flex-col gap-y-[1px] mb-20">
+        {items.map((item, i) => (
+          <div class="brands-line-mask w-full">
+            <div class="brands-line-inner w-full service-tile group" style={`transition-delay: ${0.3 + (i * 0.05)}s`}>
+              <div class="py-5 px-6 transition-colors duration-300">
+                <span class="text-white font-semibold group-hover:text-black transition-colors duration-300 uppercase text-[11px] tracking-[0.08em]">
+                  {item}
+                </span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <!-- INVERTED CTA BLOCK -->
+      <div class="brands-line-mask">
+        <div class="brands-line-inner" style="transition-delay: 0.8s;">
+          <a href="/contact" class="cta-link inverted-cta">
+            Tell us about your project
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<style is:global>
+  #services-digital .digital-title {
+    font-size: var(--font-h2);
+    font-weight: 600;
+    line-height: var(--lh-xtight);
+    letter-spacing: var(--track-tighter);
+  }
+
+  /* FORCING CTA TO WHITE */
+  #services-digital .cta-link.inverted-cta {
+    color: #FFFFFF !important;
+  }
+
+  #services-digital .cta-link.inverted-cta::after {
+    background-color: #FFFFFF !important;
+  }
+
+  /* GLOBAL TRANSITIONS (-60deg, 1.3s) */
+  #services-digital .brands-line-mask {
+    display: block;
+    overflow: hidden;
+    perspective: 1200px;
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
+    margin-top: -0.2em;
+    margin-bottom: -0.2em;
+  }
+
+  #services-digital .brands-line-inner {
+    display: block;
+    transform: translateY(115%) rotateX(-60deg);
+    transform-origin: top center;
+    opacity: 0;
+    transition:
+      transform 1.3s var(--ease-mechanical),
+      opacity 0.9s var(--ease-mechanical),
+      background-color 0.4s var(--ease-mechanical) !important;
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+  }
+
+  #services-digital.is-active .brands-line-inner {
+    transform: translateY(0) rotateX(0deg) !important;
+    opacity: 1 !important;
+  }
+
+  /* SERVICE TILE HOVER */
+  #services-digital .service-tile {
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+  #services-digital .service-tile:hover {
+    background-color: #FFFFFF !important;
+    transform: none !important;
+  }
+</style>
+
+
+<script is:inline>
+  function setupServicesDigital() {
+    const section = document.getElementById('services-digital');
+    if (!section) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          section.classList.add('is-active');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    observer.observe(section);
+  }
+  setupServicesDigital();
+  document.addEventListener('astro:after-swap', setupServicesDigital);
+</script>

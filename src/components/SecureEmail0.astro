@@ -1,0 +1,79 @@
+---
+interface Props {
+  email: string;
+  className?: string;
+  isInverted?: boolean; // 1. Added isInverted prop
+}
+const { email, className = "", isInverted = false } = Astro.props;
+---
+
+<a
+  href={`mailto:${email}`}
+  data-copy-email={email}
+  class:list={[
+    "secure-email-copy font-black transition-colors cursor-pointer",
+    // 2. Conditional colors based on inversion
+    isInverted ? "text-[#B4B4B4] hover:text-white" : "text-[#5F5F5F] hover:text-black",
+    isInverted ? "is-inverted-theme" : "",
+    className
+  ]}
+>
+  {email}
+</a>
+
+<script>
+  function initEmailCopy() {
+    const emailLinks = document.querySelectorAll('.secure-email-copy');
+
+    emailLinks.forEach(link => {
+      let timeoutId: number | null = null;
+
+      link.addEventListener('click', async (e) => {
+        e.preventDefault();
+
+        const email = link.getAttribute('data-copy-email');
+        if (!email) return;
+
+        try {
+          await navigator.clipboard.writeText(email);
+
+          const originalText = email;
+          link.textContent = 'Copied';
+          link.classList.add('is-copied');
+
+          if (timeoutId) clearTimeout(timeoutId);
+
+          timeoutId = window.setTimeout(() => {
+            link.textContent = originalText;
+            link.classList.remove('is-copied');
+            timeoutId = null;
+          }, 3500);
+
+        } catch (err) {
+          console.error('Failed to copy email: ', err);
+        }
+      });
+    });
+  }
+
+  initEmailCopy();
+  document.addEventListener('astro:after-swap', initEmailCopy);
+</script>
+
+<style>
+  .secure-email-copy {
+    display: inline-block;
+    transition: all 0.3s ease;
+  }
+
+  /* FEEDBACK COLORS */
+  /* Normal theme: turns black when copied */
+  .secure-email-copy.is-copied {
+    color: #000 !important;
+  }
+
+  /* Inverted theme: turns white when copied */
+  .secure-email-copy.is-inverted-theme.is-copied {
+    color: #fff !important;
+  }
+</style>
