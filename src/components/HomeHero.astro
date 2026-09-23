@@ -146,6 +146,15 @@ const posterSrc = "/assets/video-poster-retina.jpg";
 
 
 
+  /* --- REST STATE: underline present at rest, same as page CTAs --- */
+  .trigger-line::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+
+
+
   /* --- ACTIVATION STATES --- */
   body.video-active .trigger-line::after {
     transform: scaleX(1);
