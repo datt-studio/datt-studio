@@ -4,22 +4,54 @@ import { ViewTransitions } from 'astro:transitions';
 import CookieBanner from '../components/CookieBanner.astro';
 import GoogleAnalytics from '../components/GoogleAnalytics.astro';
 
+
 interface Props {
   title?: string;
+  description?: string;
   isDark?: boolean;
 }
 
-const { title = "DATT STUDIO", isDark = false } = Astro.props;
+
+const {
+  title = "DATT STUDIO",
+  description = "DATT STUDIO is a creative studio for brands built to last. Identity, systems, and digital work made to hold.",
+  isDark = false,
+} = Astro.props;
+
+const canonicalPath = Astro.url.pathname.endsWith('/') ? Astro.url.pathname : `${Astro.url.pathname}/`;
+const canonicalUrl = `https://dattstudio.com${canonicalPath}`;
+const ogImage = "https://dattstudio.com/assets/video-poster-retina.jpg";
 ---
 <!doctype html>
 <html lang="en" class:list={[{ "page-dark": isDark }]}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#000000" />
     <title>{title}</title>
+    <link rel="canonical" href={canonicalUrl} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="DATT STUDIO" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:alt" content="DATT STUDIO" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <link rel="icon" href="/favicon.ico" />
+
 
     <GoogleAnalytics id="G-MC1VNLCG74" />
     <ViewTransitions />
+
 
     <!-- MOTION PREFERENCE -->
     <script is:inline>
@@ -35,15 +67,18 @@ const { title = "DATT STUDIO", isDark = false } = Astro.props;
       document.addEventListener('astro:after-swap', applyMotionSettings);
     </script>
 
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+
 
     <style is:global>
       :root {
         --ease-mechanical: cubic-bezier(0.8, 0, 0.1, 1);
         --page-padding: clamp(16px, 5vw, 24px);
         --studio-grey: #B4B4B4;
+
 
         /* TYPE SYSTEM */
         --font-h1: clamp(38px, 9vw, 72px);
@@ -53,6 +88,7 @@ const { title = "DATT STUDIO", isDark = false } = Astro.props;
         --font-body: 16px;
         --font-label: clamp(12px, 2vw, 14px);
 
+
         --track-tighter: -0.03em;
         --track-tight: -0.015em;
         --track-wide: 0.08em;
@@ -61,6 +97,7 @@ const { title = "DATT STUDIO", isDark = false } = Astro.props;
         --lh-body: 1.4;
       }
 
+
       /* --- GLOBAL SELECTION COLOURS --- */
       ::selection {
         background-color: #FAFAFA;
@@ -68,11 +105,13 @@ const { title = "DATT STUDIO", isDark = false } = Astro.props;
         -webkit-text-fill-color: #131313; /* Ensures override on some mobile browsers */
       }
 
+
       /* Firefox support */
       ::-moz-selection {
         background-color: var(--studio-grey);
         color: #131313;
       }
+
 
       /* --- ATOMIC MOTION KILL-SWITCH --- */
       html.user-reduced-motion,
@@ -85,6 +124,7 @@ const { title = "DATT STUDIO", isDark = false } = Astro.props;
         scroll-behavior: auto !important;
       }
 
+
       * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
       html { background: #FAFAFA; overflow-anchor: none; }
       body {
@@ -94,12 +134,14 @@ const { title = "DATT STUDIO", isDark = false } = Astro.props;
       }
       html.page-dark, body.page-dark { background-color: #000000 !important; color-scheme: dark; }
 
+
       /* GLOBAL TYPOGRAPHY */
       h1, h2 { font-weight: 600; line-height: var(--lh-xtight); letter-spacing: var(--track-tighter); }
       h1 { font-size: var(--font-h1); } h2 { font-size: var(--font-h2); }
       h3, h4 { font-weight: 500; line-height: var(--lh-tight); letter-spacing: var(--track-tight); }
       p { font-size: clamp(18px, 3vw, 16px); font-weight: 400; line-height: var(--lh-body); letter-spacing: var(--track-tight); }
       .text-label { font-size: var(--font-label); font-weight: 600; text-transform: uppercase; letter-spacing: var(--track-wide); line-height: var(--lh-body); }
+
 
       /* GLOBAL REVEAL ENGINE */
       .brands-line-mask {
@@ -115,6 +157,7 @@ const { title = "DATT STUDIO", isDark = false } = Astro.props;
         transform: translateY(0) rotateX(0deg) !important; opacity: 1 !important;
       }
 
+
       /* GLOBAL CTA SYSTEM */
       .cta-link {
         display: inline-block; position: relative; text-decoration: none !important;
@@ -129,12 +172,14 @@ const { title = "DATT STUDIO", isDark = false } = Astro.props;
       }
       .cta-link:hover::after { animation: global-underline-flow 0.8s var(--ease-mechanical) forwards; }
 
+
       @keyframes global-underline-flow {
         0% { transform: scaleX(1); transform-origin: right; }
         45% { transform: scaleX(0); transform-origin: right; }
         50% { transform: scaleX(0); transform-origin: left; }
         100% { transform: scaleX(1); transform-origin: left; }
       }
+
 
       /* Header Coloring Logic */
       body:not([data-page-type="immersive"]):not(.page-dark) #main-header .nav-logo,
@@ -145,6 +190,7 @@ const { title = "DATT STUDIO", isDark = false } = Astro.props;
   <body class:list={[{ "page-dark": isDark }]}>
     <slot />
     <CookieBanner />
+
 
     <script is:inline>
       function initUniversalReveal() {
@@ -159,11 +205,13 @@ const { title = "DATT STUDIO", isDark = false } = Astro.props;
         document.querySelectorAll('section, footer, .reveal-trigger').forEach(el => observer.observe(el));
       }
 
+
       function initLayout() {
         if ('scrollRestoration' in history) { history.scrollRestoration = 'auto'; }
         document.body.classList.remove('video-active');
         initUniversalReveal();
       }
+
 
       initLayout();
       document.addEventListener('astro:after-swap', initLayout);
