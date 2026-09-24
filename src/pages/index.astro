@@ -10,10 +10,17 @@ import HomeStudio from '../components/HomeStudio.astro'; // New Import
 import Footer from '../components/Footer.astro';
 ---
 
-<Layout title="DATT STUDIO — Made to hold." isDark={true}>
+
+<Layout
+  title="DATT STUDIO — Brand Identity & Digital Studio"
+  description="DATT STUDIO is a creative studio for brands built to last — brand identity, visual systems, and digital experiences made to hold."
+  isDark={true}
+>
   <script is:inline>document.body.setAttribute('data-page-type', 'immersive');</script>
 
+
   <Header isInverted={true} />
+
 
   <main class="bg-black">
     <HomeHero />
@@ -23,6 +30,7 @@ import Footer from '../components/Footer.astro';
     <HomeApproach />
     <HomeStudio /> <!-- Added below HomeApproach -->
   </main>
+
 
   <Footer isInverted={true} />
 </Layout>

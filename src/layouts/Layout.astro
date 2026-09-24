@@ -5,11 +5,15 @@ import CookieBanner from '../components/CookieBanner.astro';
 import GoogleAnalytics from '../components/GoogleAnalytics.astro';
 
 
+
+
 interface Props {
   title?: string;
   description?: string;
   isDark?: boolean;
 }
+
+
 
 
 const {
@@ -18,9 +22,35 @@ const {
   isDark = false,
 } = Astro.props;
 
+
 const canonicalPath = Astro.url.pathname.endsWith('/') ? Astro.url.pathname : `${Astro.url.pathname}/`;
 const canonicalUrl = `https://dattstudio.com${canonicalPath}`;
 const ogImage = "https://dattstudio.com/assets/video-poster-retina.jpg";
+
+
+
+
+// === JSON-LD: ORGANIZATION SCHEMA ===
+// Add your real profile URLs below (one per line, quoted). Leave empty to omit sameAs.
+const socialLinks = [
+  // "https://www.instagram.com/YOUR_HANDLE",
+  // "https://www.linkedin.com/company/YOUR_COMPANY",
+  // "https://www.behance.net/YOUR_STUDIO",
+  // "https://www.awwwards.com/YOUR_PROFILE",
+].filter(Boolean);
+
+
+
+
+const organizationLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "DATT STUDIO",
+  "url": "https://dattstudio.com/",
+  "logo": "https://dattstudio.com/assets/datt_logo_s.svg",
+  "description": "A creative studio for brands built to last. Identity, systems, and digital work made to hold.",
+  ...(socialLinks.length ? { "sameAs": socialLinks } : {}),
+};
 ---
 <!doctype html>
 <html lang="en" class:list={[{ "page-dark": isDark }]}>
@@ -30,8 +60,10 @@ const ogImage = "https://dattstudio.com/assets/video-poster-retina.jpg";
     <meta name="description" content={description} />
     <meta name="robots" content="index, follow" />
     <meta name="theme-color" content="#000000" />
+    <meta name="author" content="DATT STUDIO" />
     <title>{title}</title>
     <link rel="canonical" href={canonicalUrl} />
+
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="DATT STUDIO" />
@@ -41,16 +73,27 @@ const ogImage = "https://dattstudio.com/assets/video-poster-retina.jpg";
     <meta property="og:image" content={ogImage} />
     <meta property="og:image:alt" content="DATT STUDIO" />
 
+
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
 
+
     <link rel="icon" href="/favicon.ico" />
+
+
+
+
+    <script type="application/ld+json" set:html={JSON.stringify(organizationLd)} />
+
+
 
 
     <GoogleAnalytics id="G-MC1VNLCG74" />
     <ViewTransitions />
+
+
 
 
     <!-- MOTION PREFERENCE -->
@@ -68,9 +111,13 @@ const ogImage = "https://dattstudio.com/assets/video-poster-retina.jpg";
     </script>
 
 
+
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+
+
 
 
     <style is:global>
@@ -78,6 +125,8 @@ const ogImage = "https://dattstudio.com/assets/video-poster-retina.jpg";
         --ease-mechanical: cubic-bezier(0.8, 0, 0.1, 1);
         --page-padding: clamp(16px, 5vw, 24px);
         --studio-grey: #B4B4B4;
+
+
 
 
         /* TYPE SYSTEM */
@@ -89,6 +138,8 @@ const ogImage = "https://dattstudio.com/assets/video-poster-retina.jpg";
         --font-label: clamp(12px, 2vw, 14px);
 
 
+
+
         --track-tighter: -0.03em;
         --track-tight: -0.015em;
         --track-wide: 0.08em;
@@ -96,6 +147,8 @@ const ogImage = "https://dattstudio.com/assets/video-poster-retina.jpg";
         --lh-tight: 1.2;
         --lh-body: 1.4;
       }
+
+
 
 
       /* --- GLOBAL SELECTION COLOURS --- */
@@ -106,11 +159,15 @@ const ogImage = "https://dattstudio.com/assets/video-poster-retina.jpg";
       }
 
 
+
+
       /* Firefox support */
       ::-moz-selection {
         background-color: var(--studio-grey);
         color: #131313;
       }
+
+
 
 
       /* --- ATOMIC MOTION KILL-SWITCH --- */
@@ -125,6 +182,8 @@ const ogImage = "https://dattstudio.com/assets/video-poster-retina.jpg";
       }
 
 
+
+
       * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
       html { background: #FAFAFA; overflow-anchor: none; }
       body {
@@ -135,12 +194,16 @@ const ogImage = "https://dattstudio.com/assets/video-poster-retina.jpg";
       html.page-dark, body.page-dark { background-color: #000000 !important; color-scheme: dark; }
 
 
+
+
       /* GLOBAL TYPOGRAPHY */
       h1, h2 { font-weight: 600; line-height: var(--lh-xtight); letter-spacing: var(--track-tighter); }
       h1 { font-size: var(--font-h1); } h2 { font-size: var(--font-h2); }
       h3, h4 { font-weight: 500; line-height: var(--lh-tight); letter-spacing: var(--track-tight); }
       p { font-size: clamp(18px, 3vw, 16px); font-weight: 400; line-height: var(--lh-body); letter-spacing: var(--track-tight); }
       .text-label { font-size: var(--font-label); font-weight: 600; text-transform: uppercase; letter-spacing: var(--track-wide); line-height: var(--lh-body); }
+
+
 
 
       /* GLOBAL REVEAL ENGINE */
@@ -158,6 +221,8 @@ const ogImage = "https://dattstudio.com/assets/video-poster-retina.jpg";
       }
 
 
+
+
       /* GLOBAL CTA SYSTEM */
       .cta-link {
         display: inline-block; position: relative; text-decoration: none !important;
@@ -173,12 +238,16 @@ const ogImage = "https://dattstudio.com/assets/video-poster-retina.jpg";
       .cta-link:hover::after { animation: global-underline-flow 0.8s var(--ease-mechanical) forwards; }
 
 
+
+
       @keyframes global-underline-flow {
         0% { transform: scaleX(1); transform-origin: right; }
         45% { transform: scaleX(0); transform-origin: right; }
         50% { transform: scaleX(0); transform-origin: left; }
         100% { transform: scaleX(1); transform-origin: left; }
       }
+
+
 
 
       /* Header Coloring Logic */
@@ -190,6 +259,8 @@ const ogImage = "https://dattstudio.com/assets/video-poster-retina.jpg";
   <body class:list={[{ "page-dark": isDark }]}>
     <slot />
     <CookieBanner />
+
+
 
 
     <script is:inline>
@@ -206,11 +277,15 @@ const ogImage = "https://dattstudio.com/assets/video-poster-retina.jpg";
       }
 
 
+
+
       function initLayout() {
         if ('scrollRestoration' in history) { history.scrollRestoration = 'auto'; }
         document.body.classList.remove('video-active');
         initUniversalReveal();
       }
+
+
 
 
       initLayout();

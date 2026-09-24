@@ -9,8 +9,14 @@ import ServicesDigital from '../components/ServicesDigital.astro';
 import ServicesApproach from '../components/ServicesApproach.astro'; // Added Import
 ---
 
-<Layout title="DATT STUDIO - Services" isDark={true}>
+
+<Layout
+  title="Brand Identity, Systems & Website Design — DATT STUDIO"
+  description="Brand identity, visual systems, and digital experiences from DATT STUDIO — strategy, identity, web design, and creative direction for brands built to last."
+  isDark={true}
+>
   <Header isInverted={true} />
+
 
   <main class="bg-black">
     <ServicesHero />
@@ -21,8 +27,10 @@ import ServicesApproach from '../components/ServicesApproach.astro'; // Added Im
     <ServicesApproach />
   </main>
 
+
   <Footer isInverted={true} disableMagnet={true} />
 </Layout>
+
 
 <style>
   /*

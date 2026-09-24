@@ -4,9 +4,11 @@ import Footer from '../components/Footer.astro';
 import Layout from '../layouts/Layout.astro';
 import SecureEmail from '../components/SecureEmail.astro';
 
+
 const { pathname } = Astro.url;
 const normalizedPath = pathname.replace(/\/$/, "");
 const isActive = (path: string) => normalizedPath === path;
+
 
 const sidebarLinks = [
   { href: '/privacy-cookies-policy', label: 'Privacy & Cookie Policy' },
@@ -15,151 +17,150 @@ const sidebarLinks = [
   { href: '/data-processing', label: 'Data Processing Agreement' },
 ];
 
+
 const lastUpdated = "16 June 2026";
 ---
 
-<Layout title="DATT STUDIO - Privacy & Cookie Policy" isDark={true}>
+
+<Layout
+  title="Data Processing — DATT STUDIO"
+  description="How DATT STUDIO processes personal data — the data processing agreement, sub-processors, security, and your rights."
+  isDark={true}
+>
   <Header isInverted={true} />
+
 
   <style is:global>
     html, body { background-color: #000000 !important; }
-    /* Table Styling for Cookie IDs */
-    .policy-table { width: 100%; border-collapse: collapse; margin-top: 1.5rem; font-size: 13px; }
-    .policy-table th { text-align: left; padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); color: #727272; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
-    .policy-table td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #b4b4b4; }
   </style>
+
 
   <main id="main-content" class="reveal-trigger w-full max-w-[1440px] pt-[120px] px-[var(--page-padding)] pb-32 bg-black text-white">
     <div class="flex flex-col md:flex-row w-full gap-y-16 md:gap-x-24">
 
+
       <article class="w-full md:w-[65%] flex flex-col">
+        <!-- SPACE BELOW H1: 120px -->
         <div class="mb-[120px]">
             <div class="brands-line-mask">
-                <h1 class="brands-line-inner text-white">Privacy & Cookie Policy</h1>
+                <h1 class="brands-line-inner text-white">Data Processing Agreement</h1>
             </div>
         </div>
 
+
         <div class="flex flex-col gap-y-32">
-            <section id="privacy-policy" class="flex flex-col">
+            <section id="data-processing" class="flex flex-col">
+              <!-- Metadata Space: 48px -->
               <div class="mb-[48px]">
                 <div class="brands-line-mask">
                     <p class="brands-line-inner text-label !text-[#727272]">Last Updated — {lastUpdated}</p>
                 </div>
               </div>
 
+
+              <!-- Section Head Space: 64px -->
               <div class="mb-[64px]">
                 <div class="brands-line-mask">
-                    <h2 class="brands-line-inner text-label !text-white">Privacy Policy</h2>
+                  <h2 class="brands-line-inner text-label !text-white">DPA Terms</h2>
                 </div>
               </div>
+
 
               <div class="flex flex-col gap-y-12">
-                <!-- 1. Controller -->
+                <!-- 1. Scope -->
                 <div class="brands-line-mask">
                   <div class="brands-line-inner flex flex-col">
-                    <h4 class="text-white">1. Data Controller & ICO</h4>
-                    <div class="mt-4"><p>DATT STUDIO LTD is a data controller registered in England (No. 16695845). We process personal data in accordance with the UK GDPR and the Data Protection Act 2018. We maintain active registration with the Information Commissioner’s Office (ICO).</p></div>
-                  </div>
-                </div>
-
-                <!-- 2. Lawful Basis -->
-                <div class="brands-line-mask">
-                  <div class="brands-line-inner flex flex-col">
-                    <h4 class="text-white">2. Lawful Basis for Processing</h4>
-                    <div class="mt-4"><p>We process data under the following legal bases: <strong>Consent</strong> for analytical cookies; <strong>Contractual Necessity</strong> for service delivery; and <strong>Legitimate Interests</strong> for responding to enquiries and maintaining site security.</p></div>
-                  </div>
-                </div>
-
-                <!-- 3. AI Protection -->
-                <div class="brands-line-mask">
-                  <div class="brands-line-inner flex flex-col">
-                    <h4 class="text-white">3. Usage & AI Protection</h4>
-                    <div class="mt-4"><p>Personal data is processed solely for service delivery and site analytics. DATT STUDIO LTD guarantees that no personal data collected via this Site - including enquiry info and tracking identifiers - is utilized for automated profiling, machine learning optimization, or the training of third-party AI models.</p></div>
-                  </div>
-                </div>
-
-                <!-- 4. Transfers -->
-                <div class="brands-line-mask">
-                  <div class="brands-line-inner flex flex-col">
-                    <h4 class="text-white">4. Third-Party Disclosures & Transfers</h4>
-                    <div class="mt-4"><p>We do not sell your data. We share information only with essential service providers (e.g., Google Analytics, Vercel). Data may be processed outside the UK/EEA (e.g., on US-based servers). We ensure standard contractual clauses or equivalent safeguards are in place to protect your information.</p></div>
-                  </div>
-                </div>
-
-                <!-- 5. Retention -->
-                <div class="brands-line-mask">
-                  <div class="brands-line-inner flex flex-col">
-                    <h4 class="text-white">5. Data Retention</h4>
-                    <div class="mt-4"><p>General enquiry data is held for two years. Contractual and financial records are held for six years in accordance with English statutory limitation periods and HMRC requirements.</p></div>
-                  </div>
-                </div>
-
-                <!-- 6. Rights -->
-                <div class="brands-line-mask">
-                  <div class="brands-line-inner flex flex-col">
-                    <h4 class="text-white">6. Your Rights</h4>
+                    <h4 class="text-white">1. Applicability & Scope</h4>
                     <div class="mt-4">
-                        <p>You have the right to access, rectify, or erase your data, and to object to processing. Contact our Data Protection Officer:
-                        <SecureEmail email="hello@dattstudio.com" className="cta-link !lowercase !text-[16px] !tracking-tight" isInverted={true} />. You also have the right to lodge a complaint with the ICO (ico.org.uk).</p>
+                      <p>This DPA applies where DATT STUDIO LTD (<strong>“Processor”</strong>) processes Personal Data on behalf of a client (<strong>“Controller”</strong>). This agreement ensures such processing meets the requirements of Article 28 of the UK GDPR for creative and digital services provided by the studio.</p>
+                    </div>
+                  </div>
+                </div>
+
+
+                <!-- 2. Instructions -->
+                <div class="brands-line-mask">
+                  <div class="brands-line-inner flex flex-col">
+                    <h4 class="text-white">2. Instructions & Confidentiality</h4>
+                    <div class="mt-4">
+                      <p>The Processor shall process data only on documented instructions from the Controller. DATT STUDIO LTD ensures that all persons authorised to process the Personal Data have committed themselves to <strong>confidentiality</strong> or are under an appropriate statutory obligation of confidentiality.</p>
+                    </div>
+                  </div>
+                </div>
+
+
+                <!-- 3. AI Safeguards -->
+                <div class="brands-line-mask">
+                  <div class="brands-line-inner flex flex-col">
+                    <h4 class="text-white">3. Security & AI Safeguards</h4>
+                    <div class="mt-4">
+                      <p>DATT STUDIO LTD expressly covenants that it will not subject Controller Personal Data to any form of Machine Learning analysis or Artificial Intelligence training without the Controller’s prior written authorization. We implement appropriate technical and organisational measures to ensure security appropriate to the risk.</p>
+                    </div>
+                  </div>
+                </div>
+
+
+                <!-- 4. Sub-processors -->
+                <div class="brands-line-mask">
+                  <div class="brands-line-inner flex flex-col">
+                    <h4 class="text-white">4. Sub-Processors</h4>
+                    <div class="mt-4">
+                      <p>The Controller provides general authorisation for DATT STUDIO LTD to engage sub-processors (e.g. AWS, Vercel). The Processor shall inform the Controller of any intended changes concerning the addition or replacement of sub-processors, giving the Controller the opportunity to object. We remain fully liable for the data protection performance of any sub-processor engaged.</p>
+                    </div>
+                  </div>
+                </div>
+
+
+                <!-- 5. Assistance -->
+                <div class="brands-line-mask">
+                    <div class="brands-line-inner flex flex-col">
+                      <h4 class="text-white">5. Assistance & Data Rights</h4>
+                      <div class="mt-4">
+                        <p>The Processor shall assist the Controller by appropriate technical and organisational measures for the fulfilment of the Controller's obligation to respond to requests for exercising <strong>Data Subject rights</strong> (e.g. access, rectification, erasure) and ensuring compliance with UK GDPR security obligations.</p>
+                      </div>
+                    </div>
+                  </div>
+
+
+                <!-- 6. Breach -->
+                <div class="brands-line-mask">
+                  <div class="brands-line-inner flex flex-col">
+                    <h4 class="text-white">6. Breach Notification</h4>
+                    <div class="mt-4">
+                      <p>In the event of a personal data breach, the Processor shall notify the Controller without undue delay (and no later than 72 hours) after becoming aware of the breach, providing necessary info to allow the Controller to meet its own reporting obligations.</p>
+                    </div>
+                  </div>
+                </div>
+
+
+                <!-- 7. Deletion -->
+                <div class="brands-line-mask">
+                  <div class="brands-line-inner flex flex-col">
+                    <h4 class="text-white">7. Deletion & Audit</h4>
+                    <div class="mt-4">
+                      <p>Upon completion of the services, the Processor shall, at the choice of the Controller, delete or return all personal data. We shall make available all information necessary to demonstrate compliance and allow for/contribute to audits or inspections.</p>
+                    </div>
+                  </div>
+                </div>
+
+
+                <!-- 8. Inquiries -->
+                <div class="brands-line-mask">
+                  <div class="brands-line-inner flex flex-col">
+                    <h4 class="text-white">8. Inquiries</h4>
+                    <div class="mt-4">
+                        <p>Legal inquiries regarding data processing should be directed to:
+                          <SecureEmail email="hello@dattstudio.com" className="cta-link !lowercase !text-[16px] !tracking-tight" isInverted={true} />.</p>
                     </div>
                   </div>
                 </div>
               </div>
-            </section>
-
-            <section id="cookie-policy" class="flex flex-col pt-24 border-t border-white/10">
-                <div class="mb-[64px]">
-                    <div class="brands-line-mask">
-                        <h2 class="brands-line-inner text-label !text-white">Cookie Policy</h2>
-                    </div>
-                </div>
-
-                <div class="flex flex-col gap-y-12">
-                  <div class="brands-line-mask">
-                    <div class="brands-line-inner flex flex-col">
-                      <h4 class="text-white">1. Analysis & Function</h4>
-                      <div class="mt-4"><p>We use cookies to ensure site stability and to analyse traffic via Google Analytics (GA4). Strictly necessary cookies are deployed by default; analytics cookies require your explicit consent.</p></div>
-                    </div>
-                  </div>
-
-                  <div class="brands-line-mask">
-                    <div class="brands-line-inner flex flex-col">
-                      <h4 class="text-white">2. Specific Identifiers</h4>
-                      <div class="mt-4">
-                        <table class="policy-table">
-                          <thead>
-                            <tr><th>Name</th><th>Provider</th><th>Purpose</th><th>Expiry</th></tr>
-                          </thead>
-                          <tbody>
-                            <tr><td>_ga</td><td>Google</td><td>GA4 Site Analytics</td><td>2 Years</td></tr>
-                            <tr><td>_ga_*</td><td>Google</td><td>Session Persistence</td><td>2 Years</td></tr>
-                            <tr><td>datt_consent_v10</td><td>DATT</td><td>Stores privacy choice</td><td>1 Year</td></tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="brands-line-mask">
-                      <div class="brands-line-inner flex flex-col pt-12">
-                          <h3 class="font-semibold mb-3 text-white">Data Sovereignty & Status</h3>
-                          <div class="mt-2"><p>Full transparency over your local identifiers and current choice status.</p></div>
-
-                          <div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 bg-white/5 p-8 border border-white/10 rounded-sm mb-12">
-                              <div><p class="text-label !text-[10px] opacity-40 mb-2">Current Choice</p><div id="log-decision" class="font-semibold text-[13px] uppercase tracking-wider text-white">NO DATA</div></div>
-                              <div><p class="text-label !text-[10px] opacity-40 mb-2">Local ID</p><div id="log-id" class="font-semibold text-[13px] break-all text-white">NOT ASSIGNED</div></div>
-                              <div><p class="text-label !text-[10px] opacity-40 mb-2">Timestamp</p><div id="log-time" class="font-semibold text-[13px] text-white">N/A</div></div>
-                              <div><p class="text-label !text-[10px] opacity-40 mb-2">Global Status</p><div id="nuclear-status" class="font-semibold text-[13px] text-white uppercase tracking-wider">PENDING</div></div>
-                          </div>
-
-                          <button id="nuclear-erase" class="erase-btn w-fit">Erase All Consent Data</button>
-                      </div>
-                  </div>
-                </div>
             </section>
         </div>
       </article>
 
+
+      <!-- Sidebar -->
       <aside class="w-full md:w-[35%] lg:sticky lg:top-[132px] h-fit md:pl-20 border-l border-white/5">
         <nav class="flex flex-col items-start gap-y-3">
           {sidebarLinks.map((link, i) => (
@@ -174,59 +175,11 @@ const lastUpdated = "16 June 2026";
   <Footer isInverted={true} />
 </Layout>
 
+
 <style is:global>
   #main-content h4 { font-size: var(--font-h4); font-weight: 600; }
   #main-content p { color: #b4b4b4; font-weight: 400; line-height: var(--lh-body); }
   .cta-link:hover { color: #727272 !important; }
   .sidebar-link { color: #727272 !important; text-decoration: none; transition: color 0.4s var(--ease-mechanical); }
   .sidebar-link:hover, .sidebar-link.active { color: #ffffff !important; }
-  .erase-btn { appearance: none; border-radius: 2px; background: #FAFAFA; color: #000; padding: 14px 24px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: all 0.5s var(--ease-mechanical); border: none; }
-  .erase-btn:hover { background: #727272; color: #fff; }
 </style>
-
-<script is:inline>
-  function initPolicyPage() {
-    const CONSENT_KEY = 'datt_studio_consent_v10';
-    const btn = document.getElementById('nuclear-erase');
-    const updateDisplay = () => {
-      const data = localStorage.getItem(CONSENT_KEY);
-      const decEl = document.getElementById('log-decision');
-      const idEl = document.getElementById('log-id');
-      const timeEl = document.getElementById('log-time');
-      const statEl = document.getElementById('nuclear-status');
-      if (!data) {
-        if (decEl) decEl.innerText = "NO DATA";
-        if (idEl) idEl.innerText = "NOT ASSIGNED";
-        if (timeEl) timeEl.innerText = "N/A";
-        if (statEl) statEl.innerText = "PENDING";
-        return;
-      }
-      try {
-        const parsed = JSON.parse(data);
-        if (decEl) decEl.innerText = parsed.decision.toUpperCase();
-        if (idEl) idEl.innerText = parsed.localId || parsed.id || "PRIVACY MODE";
-        if (timeEl) timeEl.innerText = new Date(parsed.timestamp).toLocaleString('en-GB');
-        if (statEl) {
-            statEl.innerText = (parsed.decision === 'accepted') ? "ACTIVE / GRANTED" : "REVOKED / DENIED";
-            statEl.style.color = (parsed.decision === 'accepted') ? "#B4B4B4" : "#FF4B4B";
-        }
-      } catch(e) {}
-    };
-    if (btn) {
-      btn.onclick = (e) => {
-        e.preventDefault();
-        localStorage.removeItem(CONSENT_KEY);
-        sessionStorage.clear();
-        btn.innerText = "PURGED";
-        updateDisplay();
-        window.dispatchEvent(new CustomEvent('datt-consent-updated'));
-        setTimeout(() => window.location.reload(), 600);
-      };
-    }
-    const syncInterval = setInterval(updateDisplay, 1000);
-    document.addEventListener('astro:before-swap', () => clearInterval(syncInterval), { once: true });
-    updateDisplay();
-  }
-  initPolicyPage();
-  document.addEventListener('astro:after-swap', initPolicyPage);
-</script>

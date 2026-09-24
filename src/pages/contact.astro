@@ -4,21 +4,30 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 ---
 
-<Layout isDark={true} title="DATT STUDIO - Contact">
+
+<Layout
+  isDark={true}
+  title="Contact — Start a Project | DATT STUDIO"
+  description="Tell us about your project. DATT STUDIO takes on a select number of brand identity and website projects each year."
+>
   <!-- 1. IDENTIFY AS IMMERSIVE TO ALLOW WHITE NAV -->
   <script is:inline>document.body.setAttribute('data-page-type', 'immersive');</script>
+
 
   <div class="flex flex-col bg-black">
     <!-- 2. Header stays inverted (white) -->
     <Header isInverted={true} />
 
+
     <main class="flex-none">
        <!-- Empty or specific contact content -->
     </main>
 
+
     <Footer isInverted={true} disableMagnet={true} />
   </div>
 </Layout>
+
 
 <style>
   .reveal-mask { overflow: hidden; }
