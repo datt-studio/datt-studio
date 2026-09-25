@@ -5,9 +5,8 @@
 > The studio site for DATT STUDIO: identity, systems, and digital work made to hold.
 > Built with a strict focus on clarity, architectural restraint, and raw performance.
 
-[![Awwwards Nominee](https://img.shields.io/badge/Awwwards-Nominee-black?style=flat-square)](YOUR_AWWWARDS_URL)
-[![CSSDA Nominee](https://img.shields.io/badge/CSSDA-Nominee-black?style=flat-square)](YOUR_CSSDA_URL)
-[![CSS Winner](https://img.shields.io/badge/CSS%20Winner-Nominee-black?style=flat-square)](YOUR_CSS_WINNER_URL)
+[![CSSDA Nominee](https://img.shields.io/badge/CSSDA-Nominee-black?style=flat-square)](https://www.cssdesignawards.com/sites/datt-studio/50228/)
+[![CSS Winner Nominee](https://img.shields.io/badge/CSS%20Winner-Nominee-black?style=flat-square)](https://www.csswinner.com/details/datt-studio/19434)
 
 ---
 
@@ -38,22 +37,3 @@ npm run build
 
 # 5. Preview the build locally
 npm run preview
-```
-
-## Deploy
-
-Push to `main` → Cloudflare Pages builds and deploys automatically.
-
-## Structure
-
-```
-public/assets/    # video, poster, logos
-src/components/   # sections & UI components
-src/pages/        # routes (/, /services, /contact, /info, /accessibility, /data-processing)
-src/layouts/      # Layout.astro (SEO, schema, motion system)
-```
-
-## Notes
-
-- Video assets are CRF 26 H.264 encodes for fast first paint.
-- Reduced-motion is user-controllable on the Accessibility page.
