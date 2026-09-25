@@ -1,14 +1,59 @@
-# Datt Studio — Astro + Sanity Starter
+# DATT STUDIO
 
-[![Awwwards Nominee](https://shields.io)](YOUR_AWWWARDS_NOMINATION_URL)
-[![CSSDA Nominee](https://shields.io)](YOUR_CSSDA_NOMINATION_URL)
+> **Nominated** — Awwwards · CSS Design Awards · CSS Winner
+>
+> The studio site for DATT STUDIO: identity, systems, and digital work made to hold.
+> Built with a strict focus on clarity, architectural restraint, and raw performance.
 
-> **We're Nominated!** We built this portfolio with a strict focus on clarity, architectural restraint, and raw performance optimization. 
-> 
-> If you appreciate clean, unbloated layout engineering, a quick click to support our dev team on the evaluation boards would mean the world to us. A sincere thank you to everyone who took the time to vote and support us throughout this launch.
+[![Awwwards Nominee](https://img.shields.io/badge/Awwwards-Nominee-black?style=flat-square)](YOUR_AWWWARDS_URL)
+[![CSSDA Nominee](https://img.shields.io/badge/CSSDA-Nominee-black?style=flat-square)](YOUR_CSSDA_URL)
+[![CSS Winner](https://img.shields.io/badge/CSS%20Winner-Nominee-black?style=flat-square)](YOUR_CSS_WINNER_URL)
 
 ---
 
+## Stack
+
+- **Astro** — static output, zero client framework overhead
+- **Tailwind CSS** — utility styling
+- **Cloudflare Pages** — edge deployment (auto-build on push to `main`)
+
+No CMS. Content lives in the repo (see `public/` assets + `src/pages/`).
+
 ## Quick start
 
-1. Install dependencies:
+```bash
+# 1. Clone
+git clone https://github.com/datt-studio/datt-studio.git
+cd datt-studio
+
+# 2. Install
+npm install
+
+# 3. Dev server
+npm run dev
+# → http://localhost:4321
+
+# 4. Production build (outputs to dist/)
+npm run build
+
+# 5. Preview the build locally
+npm run preview
+```
+
+## Deploy
+
+Push to `main` → Cloudflare Pages builds and deploys automatically.
+
+## Structure
+
+```
+public/assets/    # video, poster, logos
+src/components/   # sections & UI components
+src/pages/        # routes (/, /services, /contact, /info, /accessibility, /data-processing)
+src/layouts/      # Layout.astro (SEO, schema, motion system)
+```
+
+## Notes
+
+- Video assets are CRF 26 H.264 encodes for fast first paint.
+- Reduced-motion is user-controllable on the Accessibility page.
