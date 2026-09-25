@@ -23,6 +23,8 @@ const {
 } = Astro.props;
 
 
+
+
 const canonicalPath = Astro.url.pathname.endsWith('/') ? Astro.url.pathname : `${Astro.url.pathname}/`;
 const canonicalUrl = `https://dattstudio.com${canonicalPath}`;
 const ogImage = "https://dattstudio.com/assets/video-poster-retina.jpg";
@@ -31,7 +33,7 @@ const ogImage = "https://dattstudio.com/assets/video-poster-retina.jpg";
 
 
 // === JSON-LD: ORGANIZATION SCHEMA ===
-// Add your real profile URLs below (one per line, quoted). Leave empty to omit sameAs.
+// Update these with your real profile URLs (one per line, quoted). Leave empty to omit sameAs.
 const socialLinks = [
   // "https://www.instagram.com/YOUR_HANDLE",
   // "https://www.linkedin.com/company/YOUR_COMPANY",
@@ -47,7 +49,7 @@ const organizationLd = {
   "@type": "Organization",
   "name": "DATT STUDIO",
   "url": "https://dattstudio.com/",
-  "logo": "https://dattstudio.com/assets/datt_logo_s.svg",
+  "logo": "https://dattstudio.com/assets/datt-logo-512.png",
   "description": "A creative studio for brands built to last. Identity, systems, and digital work made to hold.",
   ...(socialLinks.length ? { "sameAs": socialLinks } : {}),
 };
@@ -65,6 +67,8 @@ const organizationLd = {
     <link rel="canonical" href={canonicalUrl} />
 
 
+
+
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="DATT STUDIO" />
     <meta property="og:title" content={title} />
@@ -74,10 +78,14 @@ const organizationLd = {
     <meta property="og:image:alt" content="DATT STUDIO" />
 
 
+
+
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
+
+
 
 
     <link rel="icon" href="/favicon.ico" />
