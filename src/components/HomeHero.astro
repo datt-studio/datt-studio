@@ -13,6 +13,10 @@ const posterSrc = "/assets/video-poster-retina.jpg";
 
 
 
+
+
+
+
 <!-- 1. BACKGROUND HOVER VIDEO -->
 <div id="hero-bg-video-container" class="fixed inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-1000 ease-[var(--ease-mechanical)]">
   <video
@@ -20,13 +24,17 @@ const posterSrc = "/assets/video-poster-retina.jpg";
     muted
     loop
     playsinline
-    preload="auto"
+    preload="none"
     class="w-full h-full object-cover grayscale-[20%]"
   >
     <source src={videoSrc} type="video/mp4" />
   </video>
   <div class="absolute inset-0 bg-black/10"></div>
 </div>
+
+
+
+
 
 
 
@@ -45,15 +53,23 @@ const posterSrc = "/assets/video-poster-retina.jpg";
 
 
 
+
+
+
+
     <div id="hero-portal-flip" class="relative w-full h-full overflow-hidden bg-neutral-900 shadow-2xl z-[10] touch-none">
         <!-- CENTERED 16:9 FRAME -->
         <div id="portal-video-frame" class="portal-video-frame">
-            <video id="portal-video" muted loop playsinline preload="auto" class="portal-video-el" poster={posterSrc}>
+            <video id="portal-video" muted loop playsinline preload="none" class="portal-video-el" poster={posterSrc}>
                 <source src={videoSrc} type="video/mp4" />
             </video>
         </div>
     </div>
 </div>
+
+
+
+
 
 
 
@@ -68,6 +84,10 @@ const posterSrc = "/assets/video-poster-retina.jpg";
 
 
 
+
+
+
+
   <div class="grid grid-cols-1 md:grid-cols-[90%_1fr] items-start md:items-end">
     <div id="headline-wrapper" class="w-full">
       <h1 id="brands-text" class="hero-headline text-white" data-text={headlineText} aria-label={cleanHeadline}></h1>
@@ -78,8 +98,16 @@ const posterSrc = "/assets/video-poster-retina.jpg";
 
 
 
+
+
+
+
 <style is:global>
   :root { --ease-mechanical: cubic-bezier(0.19, 1, 0.22, 1); }
+
+
+
+
 
 
 
@@ -96,12 +124,20 @@ const posterSrc = "/assets/video-poster-retina.jpg";
 
 
 
+
+
+
+
   .headline-line {
     display: block !important;
     white-space: nowrap;
     width: fit-content;
     transition: opacity 0.8s var(--ease-mechanical), transform 0.8s var(--ease-mechanical);
   }
+
+
+
+
 
 
 
@@ -113,6 +149,10 @@ const posterSrc = "/assets/video-poster-retina.jpg";
     cursor: pointer;
     color: white !important;
   }
+
+
+
+
 
 
 
@@ -132,6 +172,10 @@ const posterSrc = "/assets/video-poster-retina.jpg";
 
 
 
+
+
+
+
   /* 1. Made to Hold: 5px weight */
   .trigger-line { padding-bottom: 5px; }
   .trigger-line::after { height: 5px; }
@@ -139,9 +183,17 @@ const posterSrc = "/assets/video-poster-retina.jpg";
 
 
 
+
+
+
+
   /* 2. Video Control Buttons: 2px weight & Very Close */
   .link-underline { padding-bottom: 0.2px; }
   .link-underline::after { height: 0.2px; }
+
+
+
+
 
 
 
@@ -155,6 +207,10 @@ const posterSrc = "/assets/video-poster-retina.jpg";
 
 
 
+
+
+
+
   /* --- ACTIVATION STATES --- */
   body.video-active .trigger-line::after {
     transform: scaleX(1);
@@ -164,10 +220,18 @@ const posterSrc = "/assets/video-poster-retina.jpg";
 
 
 
+
+
+
+
   /* --- MADE TO HOLD CTA: same left-to-right underline flow as CTAs on hover --- */
   .trigger-line:hover::after {
     animation: global-underline-flow 0.8s var(--ease-mechanical) forwards;
   }
+
+
+
+
 
 
 
@@ -183,10 +247,18 @@ const posterSrc = "/assets/video-poster-retina.jpg";
 
 
 
+
+
+
+
   .link-underline:hover::after {
     transform: scaleX(1) !important;
     transform-origin: left !important;
   }
+
+
+
+
 
 
 
@@ -204,8 +276,16 @@ const posterSrc = "/assets/video-poster-retina.jpg";
 
 
 
+
+
+
+
   /* --- PORTAL LOGIC (FADE IN/OUT) --- */
   html.is-video-locked { overflow: hidden !important; height: 100% !important; touch-action: none; }
+
+
+
+
 
 
 
@@ -224,6 +304,10 @@ const posterSrc = "/assets/video-poster-retina.jpg";
     opacity: 1 !important;
     pointer-events: auto !important;
   }
+
+
+
+
 
 
 
@@ -256,6 +340,10 @@ const posterSrc = "/assets/video-poster-retina.jpg";
 
 
 
+
+
+
+
   /* --- CENTERED 16:9 VIDEO FRAME (all screens) --- */
   .portal-video-frame {
   position: absolute;
@@ -273,6 +361,8 @@ const posterSrc = "/assets/video-poster-retina.jpg";
   }
 
 
+
+
   .portal-video-el {
     width: 100%;
     height: 100%;
@@ -282,6 +372,10 @@ const posterSrc = "/assets/video-poster-retina.jpg";
     transform: translateZ(0);
   }
 </style>
+
+
+
+
 
 
 
@@ -296,7 +390,15 @@ const posterSrc = "/assets/video-poster-retina.jpg";
 
 
 
+
+
+
+
     if (!headline || !portal || !portalVideo || !bgVideo) return;
+
+
+
+
 
 
 
@@ -308,11 +410,25 @@ const posterSrc = "/assets/video-poster-retina.jpg";
 
 
 
-    // Warm-start the hover video while the page is idle so it's already
-    // buffered by the time the user hovers (no load delay on first hover)
+
+
+
+
+    // Warm-start AFTER first paint (window load) so the video never
+    // competes with the headline/fonts/poster for bandwidth
     if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
-      bgVideo.play().catch(() => {});
+      const warmStart = () => {
+        bgVideo.preload = 'auto';
+        bgVideo.load();
+        bgVideo.play().catch(() => {});
+      };
+      if (document.readyState === 'complete') { warmStart(); }
+      else { window.addEventListener('load', warmStart, { once: true }); }
     }
+
+
+
+
 
 
 
@@ -328,8 +444,16 @@ const posterSrc = "/assets/video-poster-retina.jpg";
 
 
 
+
+
+
+
     const trigger = headline.querySelector('.trigger-line');
     let isFullscreen = false;
+
+
+
+
 
 
 
@@ -354,9 +478,17 @@ const posterSrc = "/assets/video-poster-retina.jpg";
 
 
 
+
+
+
+
             portalVideo.muted = false;
             document.getElementById('hero-mute').innerText = "MUTE";
             portal.classList.add('is-open');
+
+
+
+
 
 
 
@@ -367,6 +499,10 @@ const posterSrc = "/assets/video-poster-retina.jpg";
             portalVideo.play().catch(() => {});
         };
     }
+
+
+
+
 
 
 
@@ -384,10 +520,18 @@ const posterSrc = "/assets/video-poster-retina.jpg";
 
 
 
+
+
+
+
     document.getElementById('hero-pause').onclick = (e) => {
         if (portalVideo.paused) { portalVideo.play().catch(() => {}); e.currentTarget.innerText = "PAUSE"; }
         else { portalVideo.pause(); e.currentTarget.innerText = "PLAY"; }
     };
+
+
+
+
 
 
 
@@ -397,6 +541,10 @@ const posterSrc = "/assets/video-poster-retina.jpg";
         e.currentTarget.innerText = portalVideo.muted ? "UNMUTE" : "MUTE";
     };
   }
+
+
+
+
 
 
 
