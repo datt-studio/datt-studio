@@ -43,6 +43,31 @@ const organizationLd = {
   "description": "A creative studio for brands built to last. Identity, systems, and digital work made to hold.",
   ...(socialLinks.length ? { "sameAs": socialLinks } : {}),
 };
+
+// === JSON-LD: VIDEO SCHEMA ===
+// Homepage only: it is the sole page that embeds the reel, and the schema must
+// describe the video on the page that plays it. width/height omitted rather than guessed.
+const showVideoLd = Astro.url.pathname === '/';
+
+const videoLd = {
+  "@context": "https://schema.org",
+  "@type": "VideoObject",
+  "name": "DATT Studio — 2026 Showreel",
+  "description": "Showreel from DATT STUDIO, a creative studio for brands built to last. Identity, systems, and digital work made to hold.",
+  "thumbnailUrl": "https://dattstudio.com/assets/video-poster-retina.jpg",
+  "uploadDate": "2026-09-22",
+  "duration": "PT1M0S",
+  "contentUrl": "https://dattstudio.com/assets/DATT_STUDIO_REEL_2026.mp4",
+  "embedUrl": "https://dattstudio.com/",
+  "publisher": {
+    "@type": "Organization",
+    "name": "DATT STUDIO",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://dattstudio.com/assets/datt-logo-512.png",
+    },
+  },
+};
 ---
 <!doctype html>
 <html lang="en" class:list={[{ "page-dark": isDark }]}>
@@ -77,6 +102,7 @@ const organizationLd = {
 
 
     <script type="application/ld+json" set:html={JSON.stringify(organizationLd)} />
+    {showVideoLd && <script type="application/ld+json" set:html={JSON.stringify(videoLd)} />}
 
 
     <GoogleAnalytics id="G-MC1VNLCG74" />
