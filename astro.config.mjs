@@ -3,13 +3,18 @@ import tailwind from '@astrojs/tailwind';
 import sanity from '@sanity/astro';
 import { loadEnv } from "vite";
 
+
 const env = loadEnv(process.env.NODE_ENV || "development", process.cwd(), "");
+
 
 export default defineConfig({
   site: 'https://dattstudio.com',
   server: {
     host: '0.0.0.0',
     port: 4321,
+  },
+  build: {
+    inlineStylesheets: 'always'
   },
   integrations: [
     tailwind(),
