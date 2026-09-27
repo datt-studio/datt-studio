@@ -4,11 +4,13 @@ import { ViewTransitions } from 'astro:transitions';
 import CookieBanner from '../components/CookieBanner.astro';
 import GoogleAnalytics from '../components/GoogleAnalytics.astro';
 
+
 interface Props {
   title?: string;
   description?: string;
   isDark?: boolean;
 }
+
 
 const {
   title = "DATT STUDIO",
@@ -16,9 +18,11 @@ const {
   isDark = false,
 } = Astro.props;
 
+
 const canonicalPath = Astro.url.pathname.endsWith('/') ? Astro.url.pathname : `${Astro.url.pathname}/`;
 const canonicalUrl = `https://dattstudio.com${canonicalPath}`;
 const ogImage = "https://dattstudio.com/assets/video-poster-retina.jpg";
+
 
 // === JSON-LD: ORGANIZATION SCHEMA ===
 // Update these with your real profile URLs (one per line, quoted). Leave empty to omit sameAs.
@@ -28,6 +32,7 @@ const socialLinks = [
   // "https://www.behance.net/YOUR_STUDIO",
   // "https://www.awwwards.com/YOUR_PROFILE",
 ].filter(Boolean);
+
 
 const organizationLd = {
   "@context": "https://schema.org",
@@ -51,6 +56,7 @@ const organizationLd = {
     <title>{title}</title>
     <link rel="canonical" href={canonicalUrl} />
 
+
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="DATT STUDIO" />
     <meta property="og:title" content={title} />
@@ -59,17 +65,23 @@ const organizationLd = {
     <meta property="og:image" content={ogImage} />
     <meta property="og:image:alt" content="DATT STUDIO" />
 
+
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
 
+
     <link rel="icon" href="/favicon.ico" />
+    <link rel="preload" href="/fonts/inter-latin-normal.woff2" as="font" type="font/woff2" crossorigin />
+
 
     <script type="application/ld+json" set:html={JSON.stringify(organizationLd)} />
 
+
     <GoogleAnalytics id="G-MC1VNLCG74" />
     <ViewTransitions />
+
 
     <!-- MOTION PREFERENCE -->
     <script is:inline>
@@ -85,15 +97,36 @@ const organizationLd = {
       document.addEventListener('astro:after-swap', applyMotionSettings);
     </script>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
 
     <style is:global>
+      /* SELF-HOSTED INTER (VARIABLE) */
+      @font-face {
+        font-family: 'Inter';
+        font-style: normal;
+        font-weight: 100 900;
+        font-display: swap;
+        src: url('/fonts/inter-latin-normal.woff2') format('woff2');
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+          U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+          U+2212, U+2215, U+FEFF, U+FFFD;
+      }
+      @font-face {
+        font-family: 'Inter';
+        font-style: normal;
+        font-weight: 100 900;
+        font-display: swap;
+        src: url('/fonts/inter-latin-ext-normal.woff2') format('woff2');
+        unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+          U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB,
+          U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+      }
+
+
       :root {
         --ease-mechanical: cubic-bezier(0.8, 0, 0.1, 1);
         --page-padding: clamp(16px, 5vw, 24px);
         --studio-grey: #B4B4B4;
+
 
         /* TYPE SYSTEM */
         --font-h1: clamp(38px, 9vw, 72px);
@@ -103,6 +136,7 @@ const organizationLd = {
         --font-body: 16px;
         --font-label: clamp(12px, 2vw, 14px);
 
+
         --track-tighter: -0.03em;
         --track-tight: -0.015em;
         --track-wide: 0.08em;
@@ -111,6 +145,7 @@ const organizationLd = {
         --lh-body: 1.4;
       }
 
+
       /* --- GLOBAL SELECTION COLOURS --- */
       ::selection {
         background-color: #FAFAFA;
@@ -118,11 +153,13 @@ const organizationLd = {
         -webkit-text-fill-color: #131313; /* Ensures override on some mobile browsers */
       }
 
+
       /* Firefox support */
       ::-moz-selection {
         background-color: var(--studio-grey);
         color: #131313;
       }
+
 
       /* --- ATOMIC MOTION KILL-SWITCH --- */
       html.user-reduced-motion,
@@ -135,6 +172,7 @@ const organizationLd = {
         scroll-behavior: auto !important;
       }
 
+
       * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
       html { background: #FAFAFA; overflow-anchor: none; }
       body {
@@ -144,12 +182,14 @@ const organizationLd = {
       }
       html.page-dark, body.page-dark { background-color: #000000 !important; color-scheme: dark; }
 
+
       /* GLOBAL TYPOGRAPHY */
       h1, h2 { font-weight: 600; line-height: var(--lh-xtight); letter-spacing: var(--track-tighter); }
       h1 { font-size: var(--font-h1); } h2 { font-size: var(--font-h2); }
       h3, h4 { font-weight: 500; line-height: var(--lh-tight); letter-spacing: var(--track-tight); }
       p { font-size: clamp(18px, 3vw, 16px); font-weight: 400; line-height: var(--lh-body); letter-spacing: var(--track-tight); }
       .text-label { font-size: var(--font-label); font-weight: 600; text-transform: uppercase; letter-spacing: var(--track-wide); line-height: var(--lh-body); }
+
 
       /* GLOBAL REVEAL ENGINE */
       .brands-line-mask {
@@ -165,6 +205,7 @@ const organizationLd = {
         transform: translateY(0) rotateX(0deg) !important; opacity: 1 !important;
       }
 
+
       /* GLOBAL CTA SYSTEM */
       .cta-link {
         display: inline-block; position: relative; text-decoration: none !important;
@@ -179,12 +220,14 @@ const organizationLd = {
       }
       .cta-link:hover::after { animation: global-underline-flow 0.8s var(--ease-mechanical) forwards; }
 
+
       @keyframes global-underline-flow {
         0% { transform: scaleX(1); transform-origin: right; }
         45% { transform: scaleX(0); transform-origin: right; }
         50% { transform: scaleX(0); transform-origin: left; }
         100% { transform: scaleX(1); transform-origin: left; }
       }
+
 
       /* Header Coloring Logic */
       body:not([data-page-type="immersive"]):not(.page-dark) #main-header .nav-logo,
@@ -195,6 +238,7 @@ const organizationLd = {
   <body class:list={[{ "page-dark": isDark }]}>
     <slot />
     <CookieBanner />
+
 
     <script is:inline>
       function initUniversalReveal() {
@@ -209,11 +253,13 @@ const organizationLd = {
         document.querySelectorAll('section, footer, .reveal-trigger').forEach(el => observer.observe(el));
       }
 
+
       function initLayout() {
         if ('scrollRestoration' in history) { history.scrollRestoration = 'auto'; }
         document.body.classList.remove('video-active');
         initUniversalReveal();
       }
+
 
       initLayout();
       document.addEventListener('astro:after-swap', initLayout);
