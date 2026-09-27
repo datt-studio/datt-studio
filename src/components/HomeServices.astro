@@ -7,8 +7,10 @@ const items = [
 ];
 ---
 
+
 <section id="services-interactive-node" class="relative min-h-[100dvh] w-full bg-black flex flex-col justify-between px-[var(--page-padding)] py-12 md:py-20 overflow-hidden">
   <div class="h-12"></div>
+
 
   <!-- 1. Interaction Nav -->
   <div id="nav-container-node" class="relative z-20 flex-grow flex items-center justify-center transition-opacity duration-500">
@@ -28,8 +30,10 @@ const items = [
     </nav>
   </div>
 
+
   <!-- 2. THE VIDEO PORTAL -->
   <div id="cursor-video-node" class="pointer-events-none fixed top-0 left-0 z-[1200] w-[600px] aspect-[16/9] opacity-0 transition-opacity duration-500">
+
 
     <!-- MOBILE CONTROLS (Top Layer) -->
     <div id="mobile-video-controls" class="md:hidden absolute inset-0 w-full px-[var(--page-padding)] pb-12 grid grid-cols-3 items-end z-[200] opacity-0 pointer-events-none mix-blend-difference">
@@ -50,17 +54,19 @@ const items = [
         </div>
     </div>
 
+
     <!-- Draggable Video Wrapper -->
     <div id="video-flip-node" class="relative w-full h-full overflow-hidden bg-neutral-900 shadow-2xl z-[10] touch-none">
         {items.map((item, index) => (
           <div class="layer-node absolute inset-0 opacity-0 transition-opacity duration-500" data-index={index}>
-            <video muted loop playsinline class="h-full w-full object-cover">
+            <video muted loop playsinline preload="none" class="h-full w-full object-cover">
                 <source src={item.video} type="video/mp4" />
             </video>
           </div>
         ))}
     </div>
   </div>
+
 
   <!-- 3. BOTTOM CTA AREA -->
   <div id="cta-wrap-node" class="relative z-30 flex justify-center w-full pb-4 transition-opacity duration-500 mix-blend-difference">
@@ -72,6 +78,7 @@ const items = [
   </div>
 </section>
 
+
 <style is:global>
   /* 1. TYPOGRAPHY & THICK UNDERLINES */
   .link-underline { position: relative; display: inline-block; }
@@ -81,6 +88,7 @@ const items = [
     transition: transform 0.6s var(--ease-mechanical);
   }
   .link-underline.animate-flow::after { animation: global-underline-flow 0.8s var(--ease-mechanical) forwards; }
+
 
   /* 2. REVEAL ENGINE */
   .hs-cube-reveal-mask, .brands-line-mask { display: block; overflow: hidden; perspective: 1200px; }
@@ -95,6 +103,7 @@ const items = [
     opacity: 1 !important; transform: translateY(0) rotateX(0deg) !important;
   }
 
+
   /* 3. NAV STYLING */
   .service-nav-item-node {
     font-size: clamp(72px, 12vw, 140px); font-weight: 600; line-height: 0.8 !important;
@@ -102,6 +111,7 @@ const items = [
     transition: color 0.5s var(--ease-mechanical); background: transparent; border: none; cursor: pointer; padding: 0.1em 0; width: 100%;
   }
   .service-nav-item-node.is-active-hover { color: #fff !important; mix-blend-mode: difference; }
+
 
   /* 4. VIDEO & DRAG LOGIC */
   .layer-node.is-active { opacity: 1 !important; z-index: 10; }
@@ -113,6 +123,7 @@ const items = [
   #cursor-video-node.is-visible #video-flip-node:not(.is-dragging) {
     transform: translateY(0) rotateX(0deg) !important;
   }
+
 
   /* 5. FULLSCREEN STATE (MOBILE) — 16:9 centered, controls pinned to viewport bottom */
   #services-interactive-node.is-video-open { z-index: 1200; perspective: none !important; }
@@ -143,15 +154,19 @@ const items = [
     bottom: 0 !important;
   }
 
+
   #services-interactive-node.is-video-open #nav-container-node,
   #services-interactive-node.is-video-open #cta-wrap-node { opacity: 0 !important; }
+
 
   /* 6. CTA INVERTED STYLE */
   #services-interactive-node .cta-link.inverted-cta { color: #FFFFFF !important; }
   #services-interactive-node .cta-link.inverted-cta::after { background-color: #FFFFFF !important; }
 
+
   html.is-video-locked { overflow: hidden !important; overscroll-behavior: none; }
 </style>
+
 
 <script is:inline>
   function setupInteractiveServices() {
@@ -164,10 +179,13 @@ const items = [
     const mobilePause = document.getElementById('mobile-pause-node');
     const mobileMute = document.getElementById('mobile-mute-node');
 
+
     if (!section || !cursorVideo) return;
+
 
     let isFullscreen = false;
     let dStartX = 0, dStartY = 0, isDragging = false;
+
 
     // --- VIDEO CONTROL FUNCTIONS ---
     const openVideo = (index) => {
@@ -175,7 +193,9 @@ const items = [
       cursorVideo.style.opacity = "1";
       if (mobilePause) mobilePause.textContent = "PAUSE";
 
+
       navItems.forEach((n, i) => n.classList.toggle('is-active-hover', i === index));
+
 
       layers.forEach((l, i) => {
         const v = l.querySelector('video');
@@ -183,6 +203,7 @@ const items = [
             l.classList.add('is-active');
             v.muted = !isFullscreen; // Muted on desktop follow, unmuted on mobile fullscreen
             if (mobileMute) mobileMute.textContent = v.muted ? "UNMUTE" : "MUTE";
+            if (v.preload === 'none') { v.preload = 'auto'; v.load(); }
             v.play().catch(() => {});
         } else {
             l.classList.remove('is-active');
@@ -190,6 +211,7 @@ const items = [
         }
       });
     };
+
 
     const closeVideo = (e) => {
       if (e) { e.preventDefault(); e.stopPropagation(); }
@@ -203,6 +225,7 @@ const items = [
       layers.forEach(l => l.querySelector('video').pause());
     };
 
+
     // --- NAVIGATION EVENTS ---
     navItems.forEach((item, index) => {
       // 1. DESKTOP HOVER: This is what triggers the video to appear
@@ -212,10 +235,12 @@ const items = [
         }
       });
 
+
       // 2. CLICK: Mobile Fullscreen OR Desktop Anchor
       item.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
+
 
         if (window.innerWidth < 768) {
           isFullscreen = true;
@@ -230,6 +255,7 @@ const items = [
       });
     });
 
+
     // Hide video when leaving the nav area on Desktop
     document.getElementById('nav-container-node').addEventListener('mouseleave', () => {
       if (!isFullscreen && window.innerWidth >= 768) {
@@ -239,6 +265,7 @@ const items = [
       }
     });
 
+
     // --- MOBILE DRAG & CONTROLS ---
     if (mobilePause) mobilePause.onclick = (e) => {
         e.stopPropagation();
@@ -247,13 +274,16 @@ const items = [
         else if (v) { v.pause(); mobilePause.textContent = "PLAY"; }
     };
 
+
     if (mobileMute) mobileMute.onclick = (e) => {
         e.stopPropagation();
         const v = Array.from(layers).find(l => l.classList.contains('is-active'))?.querySelector('video');
         if (v) { v.muted = !v.muted; mobileMute.textContent = v.muted ? "UNMUTE" : "MUTE"; }
     };
 
+
     if (mobileX) mobileX.onclick = (e) => closeVideo();
+
 
     videoFlip.addEventListener('touchstart', (e) => {
       if (!isFullscreen) return;
@@ -262,12 +292,14 @@ const items = [
       videoFlip.classList.add('is-dragging');
     }, { passive: true });
 
+
     videoFlip.addEventListener('touchmove', (e) => {
       if (!isDragging) return;
       const dx = e.touches[0].clientX - dStartX;
       const dy = e.touches[0].clientY - dStartY;
       videoFlip.style.transform = `translate3d(${dx}px, ${dy}px, 0)`;
     }, { passive: false });
+
 
     videoFlip.addEventListener('touchend', (e) => {
       if (!isDragging) return;
@@ -277,6 +309,7 @@ const items = [
       if (Math.abs(dy) > 80) closeVideo();
       else videoFlip.style.transform = '';
     });
+
 
     // --- RENDER ENGINE (Follow Cursor) ---
     let tX = window.innerWidth/2, tY = window.innerHeight/2, cX = tX, cY = tY;
@@ -291,6 +324,7 @@ const items = [
     render();
     window.addEventListener('mousemove', (e) => { if(!isFullscreen) { tX = e.clientX; tY = e.clientY; } });
 
+
     // --- REVEAL TRIGGER ---
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
@@ -299,6 +333,7 @@ const items = [
     }, { threshold: 0.1 });
     observer.observe(section);
   }
+
 
   setupInteractiveServices();
   document.addEventListener('astro:after-swap', setupInteractiveServices);
