@@ -4,11 +4,9 @@ import Footer from '../components/Footer.astro';
 import Layout from '../layouts/Layout.astro';
 import SecureEmail from '../components/SecureEmail.astro';
 
-
 const { pathname } = Astro.url;
 const normalizedPath = pathname.replace(/\/$/, "");
 const isActive = (path: string) => normalizedPath === path;
-
 
 const sidebarLinks = [
   { href: '/privacy-cookies-policy', label: 'Privacy & Cookie Policy' },
@@ -17,10 +15,8 @@ const sidebarLinks = [
   { href: '/data-processing', label: 'Data Processing Agreement' },
 ];
 
-
 const lastUpdated = "16 June 2026";
 ---
-
 
 <Layout
   title="Accessibility — DATT STUDIO"
@@ -29,15 +25,12 @@ const lastUpdated = "16 June 2026";
 >
   <Header isInverted={true} />
 
-
   <style is:global>
     html, body { background-color: #000000 !important; }
   </style>
 
-
   <main id="main-content" class="reveal-trigger w-full max-w-[1440px] pt-[120px] px-[var(--page-padding)] pb-32 bg-black text-white">
     <div class="flex flex-col md:flex-row w-full gap-y-16 md:gap-x-24">
-
 
       <article class="w-full md:w-[65%] flex flex-col">
         <div class="mb-[120px]">
@@ -46,24 +39,20 @@ const lastUpdated = "16 June 2026";
             </div>
         </div>
 
-
         <div class="flex flex-col gap-y-32">
             <section id="accessibility-commitment" class="flex flex-col">
 
-
               <div class="mb-[48px]">
                 <div class="brands-line-mask">
-                    <p class="brands-line-inner text-label !text-[#727272]">Updated — {lastUpdated}</p>
+                    <p class="brands-line-inner text-label !text-[#7e7e7e]">Updated — {lastUpdated}</p>
                 </div>
               </div>
-
 
               <div class="mb-[64px]">
                 <div class="brands-line-mask">
                     <h2 class="brands-line-inner text-label !text-white">Legal Conformance</h2>
                 </div>
               </div>
-
 
               <div class="flex flex-col gap-y-12">
                 <!-- 1. Commitment -->
@@ -73,7 +62,6 @@ const lastUpdated = "16 June 2026";
                     <div class="mt-4"><p>DATT STUDIO LTD is committed to providing a digital environment accessible to the widest possible audience. We acknowledge our legal obligations under the <strong>Equality Act 2010</strong> and strive to ensure our Site remains perceivable, operable, and understandable for all users, regardless of ability or assistive technology.</p></div>
                   </div>
                 </div>
-
 
                 <!-- 2. Motion Control -->
                 <div class="brands-line-mask">
@@ -90,7 +78,6 @@ const lastUpdated = "16 June 2026";
                     </div>
                 </div>
 
-
                 <!-- 3. Technical Standards -->
                 <div class="brands-line-mask">
                   <div class="brands-line-inner flex flex-col">
@@ -100,7 +87,6 @@ const lastUpdated = "16 June 2026";
                     </div>
                   </div>
                 </div>
-
 
                 <!-- 4. Feedback -->
                 <div class="brands-line-mask">
@@ -112,7 +98,6 @@ const lastUpdated = "16 June 2026";
                     </div>
                   </div>
                 </div>
-
 
                 <!-- 5. Enforcement -->
                 <div class="brands-line-mask">
@@ -128,7 +113,6 @@ const lastUpdated = "16 June 2026";
         </div>
       </article>
 
-
       <aside class="w-full md:w-[35%] lg:sticky lg:top-[132px] h-fit md:pl-20 border-l border-white/5">
         <nav class="flex flex-col items-start gap-y-3">
           {sidebarLinks.map((link, i) => (
@@ -143,24 +127,21 @@ const lastUpdated = "16 June 2026";
   <Footer isInverted={true} />
 </Layout>
 
-
 <style is:global>
   #main-content h4 { font-size: var(--font-h4); font-weight: 600; }
   #main-content p { color: #b4b4b4; font-weight: 400; line-height: var(--lh-body); }
-  .cta-link:hover { color: #727272 !important; }
-  .sidebar-link { color: #727272 !important; text-decoration: none; transition: color 0.4s var(--ease-mechanical); }
+  .cta-link:hover { color: #7e7e7e !important; }
+  .sidebar-link { color: #7e7e7e !important; text-decoration: none; transition: color 0.4s var(--ease-mechanical); }
   .sidebar-link:hover, .sidebar-link.active { color: #ffffff !important; }
   .erase-btn { appearance: none; border-radius: 2px; background: #FAFAFA; color: #000; padding: 14px 24px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: all 0.5s var(--ease-mechanical); border: none; }
-  .erase-btn:hover { background: #727272; color: #fff; }
+  .erase-btn:hover { background: #7e7e7e; color: #fff; }
 </style>
-
 
 <script is:inline>
   function initA11yPage() {
     const btn = document.getElementById('reduced-motion-toggle');
     const statusSpan = document.getElementById('motion-status');
     const key = 'datt_studio_reduced_motion';
-
 
     const updateUI = () => {
       const isReduced = document.documentElement.classList.contains('user-reduced-motion');
@@ -170,7 +151,6 @@ const lastUpdated = "16 June 2026";
           btn.style.color = isReduced ? '#b4b4b4' : '#000';
       }
     };
-
 
     if (btn) {
       btn.onclick = (e) => {

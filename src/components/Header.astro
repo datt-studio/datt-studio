@@ -3,7 +3,6 @@
 const { isInverted = false } = Astro.props;
 ---
 
-
 <header id="main-header" class="fixed top-0 left-0 w-full z-[1000] px-[var(--page-padding)] pt-4 h-20">
   <div class="flex justify-between items-start w-full">
     <!-- LOGO: Uses Label weight/track but unique size -->
@@ -13,7 +12,6 @@ const { isInverted = false } = Astro.props;
     ]}>
       DATT STUDIO
     </a>
-
 
     <!-- DESKTOP NAV: Hooked into global .text-label -->
     <nav class:list={[
@@ -25,7 +23,6 @@ const { isInverted = false } = Astro.props;
       <a href="/contact" class="desktop-nav-link">Contact</a>
     </nav>
 
-
     <!-- MOBILE TOGGLE: Hooked into global .cta-link -->
     <button id="menu-toggle" class:list={[
       "md:hidden cta-link border-none bg-transparent cursor-pointer transition-colors duration-700 !text-[18px]",
@@ -36,14 +33,12 @@ const { isInverted = false } = Astro.props;
   </div>
 </header>
 
-
 <!-- MOBILE OVERLAY -->
 <div id="mobile-overlay" class="fixed inset-0 z-[1100] hidden bg-black/95 backdrop-blur-[40px] flex-col px-[var(--page-padding)] pt-4">
   <div class="flex justify-between items-start w-full h-20 text-white">
     <a href="/" class="font-bold uppercase text-[18px] md:text-[14px] tracking-[0.05em]">DATT STUDIO</a>
     <button id="menu-close" class="cta-link text-white border-none bg-transparent cursor-pointer !text-[18px]">CLOSE</button>
   </div>
-
 
   <nav class="flex flex-col items-start mt-12">
     {[
@@ -64,7 +59,6 @@ const { isInverted = false } = Astro.props;
     ))}
   </nav>
 
-
   <div class="mt-auto pb-12 flex flex-col gap-5 items-start">
     <div class="brands-line-mask">
       <a href="https://www.instagram.com/datt__studio/" class="brands-line-inner social-link" style="transition-delay: 0.5s;">instagram</a>
@@ -75,12 +69,10 @@ const { isInverted = false } = Astro.props;
   </div>
 </div>
 
-
 <style>
   /* Local color overrides only - transitions are handled by global classes */
   .desktop-nav-link { transition: color 0.4s var(--ease-mechanical); }
   .desktop-nav-link:hover { color: var(--studio-grey) !important; }
-
 
   /* MOBILE MENU TYPOGRAPHY: Uses H1 values */
   .menu-link {
@@ -94,7 +86,6 @@ const { isInverted = false } = Astro.props;
   }
   .menu-link:hover { color: var(--studio-grey); }
 
-
   .social-link {
     font-size: var(--font-label);
     font-weight: 600;
@@ -105,7 +96,6 @@ const { isInverted = false } = Astro.props;
     transition: color 0.3s ease;
   }
   .social-link:hover { color: #ffffff !important; }
-
 
   /* OVERLAY FADE */
   #mobile-overlay {
@@ -118,7 +108,6 @@ const { isInverted = false } = Astro.props;
     pointer-events: auto;
   }
 
-
   /* INVERSION LOGIC */
   :global(body.video-active) .nav-logo,
   :global(body.page-dark) .nav-logo,
@@ -129,10 +118,8 @@ const { isInverted = false } = Astro.props;
     color: #ffffff !important;
   }
 
-
   @media (min-width: 768px) { #menu-toggle { display: none !important; } }
 </style>
-
 
 <script is:inline>
   function initMobileMenu() {
@@ -141,14 +128,12 @@ const { isInverted = false } = Astro.props;
     const closeBtn = document.getElementById('menu-close');
     if (!overlay || !toggle || !closeBtn) return;
 
-
     function toggleMenu(show) {
       if (show) {
         document.body.style.overflow = 'hidden';
         overlay.style.display = 'flex';
         void overlay.offsetWidth; // Force reflow
         overlay.classList.add('is-active');
-
 
         // Trigger the global flip animation by adding .is-active to the children
         overlay.querySelectorAll('.brands-line-inner').forEach(el => {
@@ -161,7 +146,6 @@ const { isInverted = false } = Astro.props;
           el.classList.remove('is-active');
         });
 
-
         setTimeout(() => {
           if (!overlay.classList.contains('is-active')) {
             overlay.style.display = 'none';
@@ -171,16 +155,13 @@ const { isInverted = false } = Astro.props;
       }
     }
 
-
     toggle.onclick = () => toggleMenu(true);
     closeBtn.onclick = () => toggleMenu(false);
-
 
     overlay.querySelectorAll('a').forEach(link => {
       link.onclick = () => toggleMenu(false);
     });
   }
-
 
   // Initialize
   initMobileMenu();
