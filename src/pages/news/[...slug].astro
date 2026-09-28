@@ -51,20 +51,42 @@ const articleLd = {
     <main class="flex-none w-full">
       <section class="news-hero reveal-trigger w-full px-[var(--page-padding)] pt-[120px] pb-20 md:pb-40 bg-black">
       <article class="max-w-[720px] w-full">
-        <a href="/news/" class="cta-link text-white/60 inline-block mb-12">&larr; All news</a>
+        <div class="brands-line-mask block">
+          <div class="brands-line-inner block" style="transition-delay: 0s">
+            <a href="/news/" class="cta-link inverted-cta inline-block mb-12">&larr; All news</a>
+          </div>
+        </div>
 
-        <p class="text-label text-white/50 mb-4">
-          <time datetime={post.data.date.toISOString()}>{fmt(post.data.date)}</time>
-        </p>
+        <div class="brands-line-mask block">
+          <div class="brands-line-inner block" style="transition-delay: 0.1s">
+            <p class="text-label text-white/50 mb-4">
+              <time datetime={post.data.date.toISOString()}>{fmt(post.data.date)}</time>
+            </p>
+          </div>
+        </div>
 
-        <h1 class="text-white mb-10">{post.data.title}</h1>
+        <div class="brands-line-mask block">
+          <h1 class="brands-line-inner block text-white mb-10" style="transition-delay: 0.2s">
+            {post.data.title}
+          </h1>
+        </div>
 
-        <p class="text-white/70 mb-14 text-[20px] md:text-[22px]">{post.data.summary}</p>
+        <div class="brands-line-mask block">
+          <div class="brands-line-inner block" style="transition-delay: 0.3s">
+            <p class="text-white/70 mb-14 text-[20px] md:text-[22px]">{post.data.summary}</p>
+          </div>
+        </div>
 
-        <NewsCover src={post.data.cover} alt={post.data.coverAlt ?? ''} />
+        <div class="brands-line-mask block">
+          <div class="brands-line-inner block" style="transition-delay: 0.35s">
+            <NewsCover src={post.data.cover} alt={post.data.coverAlt ?? ''} />
+          </div>
+        </div>
 
-        <div class="news-prose">
-          <Content />
+        <div class="brands-line-mask block">
+          <div class="brands-line-inner block news-prose" style="transition-delay: 0.4s">
+            <Content />
+          </div>
         </div>
       </article>
       </section>
