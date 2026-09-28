@@ -1,8 +1,6 @@
-/**
- * Renders a post's cover image if the post defines one.
- * Covers live in /public/news/ so they get immutable caching from /assets/*-style rules
- * and are served without a build step.
- */
+---
+// Renders a post's cover image if the post defines one.
+// Covers live in /public/news so they are served as-is with no build step.
 const { src, alt = '' } = Astro.props;
 const coverSrc = typeof src === 'string' ? src : src?.src;
 ---
