@@ -52,7 +52,9 @@ const posterSrc = "/assets/video-poster-retina.webp";
 
   <div class="grid grid-cols-1 md:grid-cols-[90%_1fr] items-start md:items-end">
     <div id="headline-wrapper" class="w-full">
-      <h1 id="brands-text" class="hero-headline text-white" data-text={headlineText} aria-label={cleanHeadline}></h1>
+      <h1 id="brands-text" class="hero-headline text-white" data-text={headlineText} aria-label={cleanHeadline}>
+        {cleanHeadline}
+      </h1>
     </div>
   </div>
 </section>
