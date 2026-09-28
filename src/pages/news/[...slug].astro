@@ -43,8 +43,6 @@ const articleLd = {
   title={`${post.data.title} — DATT STUDIO`}
   description={post.data.summary}
 >
-  <script is:inline>document.body.setAttribute('data-page-type', 'immersive');</script>
-
   <div class="flex flex-col bg-black">
     <Header isInverted={true} />
 
@@ -83,10 +81,8 @@ const articleLd = {
           </div>
         </div>
 
-        <div class="brands-line-mask block">
-          <div class="brands-line-inner block news-prose" style="transition-delay: 0.4s">
-            <Content />
-          </div>
+        <div class="news-prose" data-prose>
+          <Content />
         </div>
       </article>
       </section>
@@ -144,4 +140,66 @@ const articleLd = {
     border-top: 1px solid rgba(255, 255, 255, 0.15);
     margin: 2.4em 0;
   }
+
+  /* Each top-level block reveals on its own as it scrolls in, so it must not be
+     caught by the section-level observer that opens every other mask at once.
+     Both declarations are !important and outrank the global .is-active rule. */
+  .news-prose .prose-block > .brands-line-inner {
+    transform: translateY(115%) rotateX(-60deg) !important;
+    opacity: 0 !important;
+  }
+  .news-prose .prose-block.is-active > .brands-line-inner {
+    transform: translateY(0) rotateX(0deg) !important;
+    opacity: 1 !important;
+  }
+
+  /* Space lives on the mask, not inside it, or the clipped top edge shifts the
+     text down as it slides in. */
+  .news-prose .prose-block > * { margin-top: 0; margin-bottom: 0; }
+  .news-prose .prose-block:has(> h2) { margin-top: 2.6em; }
+  .news-prose .prose-block:has(> h3) { margin-top: 2.2em; }
+  .news-prose .prose-block:has(> p + p),
+  .news-prose .prose-block:has(> ul),
+  .news-prose .prose-block:has(> ol) { margin-bottom: 1.4em; }
+  .news-prose .prose-block:has(> hr) { margin-top: 2.4em; margin-bottom: 2.4em; }
 </style>
+
+<script is:inline>
+  // Wrap every top-level block of the article body in the global mask/inner pair
+  // so each one reveals on its own as it scrolls in. This needs its own observer:
+  // the global one in Layout.astro opens every mask inside the section at once,
+  // and it is wired up at parse time, before these nodes exist.
+  function maskProse() {
+    document.querySelectorAll('[data-prose]').forEach((prose) => {
+      if (prose.dataset.masked === 'true') return;
+      const blocks = Array.from(prose.children);
+      if (!blocks.length) return;
+      prose.dataset.masked = 'true';
+
+      blocks.forEach((el, i) => {
+        const mask = document.createElement('span');
+        mask.className = 'brands-line-mask prose-block';
+        el.replaceWith(mask);
+        const inner = document.createElement('span');
+        inner.className = 'brands-line-inner';
+        inner.style.transitionDelay = `${Math.min(i, 6) * 0.05}s`;
+        mask.appendChild(inner);
+        inner.appendChild(el);
+      });
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-active');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.15, rootMargin: '0px 0px -8% 0px' });
+
+      prose.querySelectorAll('.prose-block').forEach((el) => observer.observe(el));
+    });
+  }
+
+  maskProse();
+  document.addEventListener('astro:after-swap', maskProse);
+</script>
