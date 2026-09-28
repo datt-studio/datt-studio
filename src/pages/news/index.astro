@@ -43,6 +43,15 @@ const description =
                 <p class="text-label text-white/50 mb-3">
                   <time datetime={post.data.date.toISOString()}>{fmt(post.data.date)}</time>
                 </p>
+                {post.data.cover && (
+                  <img
+                    class="news-thumb mb-4"
+                    src={post.data.cover}
+                    alt={post.data.coverAlt ?? ''}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                )}
                 <h2 class="text-white mb-3 transition-opacity duration-300 group-hover:opacity-70">
                   {post.data.title}
                 </h2>
@@ -63,5 +72,11 @@ const description =
   .news-card {
     text-decoration: none;
     color: inherit;
+  }
+  .news-thumb {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid rgba(255, 255, 255, 0.12);
   }
 </style>

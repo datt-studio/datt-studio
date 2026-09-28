@@ -1,0 +1,29 @@
+/**
+ * Renders a post's cover image if the post defines one.
+ * Covers live in /public/news/ so they get immutable caching from /assets/*-style rules
+ * and are served without a build step.
+ */
+const { src, alt = '' } = Astro.props;
+const coverSrc = typeof src === 'string' ? src : src?.src;
+---
+
+{
+  coverSrc && (
+    <figure class="news-cover">
+      <img src={coverSrc} alt={alt} loading="eager" decoding="async" />
+    </figure>
+  )
+}
+
+<style>
+  .news-cover {
+    margin: 0 0 3.2rem;
+    width: 100%;
+  }
+  .news-cover img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+</style>

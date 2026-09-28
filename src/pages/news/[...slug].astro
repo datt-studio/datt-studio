@@ -2,6 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
+import NewsCover from '../../components/NewsCover.astro';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -13,10 +14,28 @@ export async function getStaticPaths() {
 }
 
 const { post } = Astro.props;
-const { Content, headings } = await render(post);
+const { Content } = await render(post);
 
 const fmt = (d: Date) =>
   d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+
+const articleLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: post.data.title,
+  description: post.data.summary,
+  datePublished: post.data.date.toISOString(),
+  dateModified: post.data.date.toISOString(),
+  inLanguage: 'en-GB',
+  isPartOf: { '@type': 'WebSite', name: 'DATT STUDIO', url: 'https://dattstudio.com/' },
+  author: { '@type': 'Organization', name: 'DATT STUDIO' },
+  publisher: {
+    '@type': 'Organization',
+    name: 'DATT STUDIO',
+    logo: { '@type': 'ImageObject', url: 'https://dattstudio.com/assets/datt-logo-512.png' },
+  },
+  ...(post.data.cover ? { image: `https://dattstudio.com${post.data.cover}` } : {}),
+};
 ---
 
 <Layout
@@ -41,6 +60,8 @@ const fmt = (d: Date) =>
 
         <p class="text-white/70 mb-14 text-[20px] md:text-[22px]">{post.data.summary}</p>
 
+        <NewsCover src={post.data.cover} alt={post.data.coverAlt ?? ''} />
+
         <div class="news-prose">
           <Content />
         </div>
@@ -49,6 +70,8 @@ const fmt = (d: Date) =>
 
     <Footer isInverted={true} disableMagnet={true} />
   </div>
+
+  <script type="application/ld+json" set:html={JSON.stringify(articleLd)} />
 </Layout>
 
 <style is:global>
