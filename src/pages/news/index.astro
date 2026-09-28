@@ -24,7 +24,8 @@ const description =
   <div class="flex flex-col bg-black">
     <Header isInverted={true} />
 
-    <main class="flex-none w-full px-[var(--page-padding)] pt-32 md:pt-40 pb-24">
+    <main class="flex-none w-full">
+      <section class="news-hero reveal-trigger w-full px-[var(--page-padding)] pt-[120px] pb-20 md:pb-40 bg-black">
       <div class="max-w-[720px] w-full">
         <h1 class="text-white mb-16">
           <span class="brands-line-mask">
@@ -62,6 +63,7 @@ const description =
           ))}
         </ul>
       </div>
+      </section>
     </main>
 
     <Footer isInverted={true} disableMagnet={true} />

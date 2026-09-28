@@ -48,7 +48,8 @@ const articleLd = {
   <div class="flex flex-col bg-black">
     <Header isInverted={true} />
 
-    <main class="flex-none w-full px-[var(--page-padding)] pt-32 md:pt-40 pb-24">
+    <main class="flex-none w-full">
+      <section class="news-hero reveal-trigger w-full px-[var(--page-padding)] pt-[120px] pb-20 md:pb-40 bg-black">
       <article class="max-w-[720px] w-full">
         <a href="/news/" class="cta-link text-white/60 inline-block mb-12">&larr; All notes</a>
 
@@ -66,6 +67,7 @@ const articleLd = {
           <Content />
         </div>
       </article>
+      </section>
     </main>
 
     <Footer isInverted={true} disableMagnet={true} />

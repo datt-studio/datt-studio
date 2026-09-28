@@ -1,35 +1,35 @@
 ---
 title: "We are in the running for three design awards"
 date: 2026-09-28
-summary: "DATT STUDIO has been nominated at CSS Design Awards, The FWA, and CSS Winner. Here is what that means and how to follow it."
+summary: "Nominated at CSS Design Awards, The FWA and CSS Winner. Where we stand, and how judging works."
 cover: "/news/in-the-running.webp"
 coverAlt: "Still from the DATT Studio showreel."
 ---
 
-We have just been nominated at three international design awards, and we wanted to tell you ourselves rather than let it be a quiet line in a footer.
+We have been nominated at three design awards. Saying so here rather than leaving it to a footer.
 
-## Where we are in the running
+## Where we are
 
-**CSS Design Awards** — nominated in the *Agency* category, tagged *animated*, *fullscreen* and *typographic*. Judging runs on a panel score, with Website of the Day going to the highest average over the nomination window.
+**CSS Design Awards.** Nominated in the Agency category. Judged on a panel score. Website of the Day goes to the highest average across the nomination window.
 
-**The FWA** — nominated in *Of the Day*, where judges score each submission out of 100 across a 14-day window. It needs 70 points from at least 20 judges to take the daily award.
+**The FWA.** Nominated in Of the Day. Judges score each submission out of one hundred over fourteen days. Seventy points from twenty judges takes the daily award.
 
-**CSS Winner** — nominated in their *Winners* category, which is decided by both jury scores and public votes.
+**CSS Winner.** Nominated in Winners. Decided on jury scores and public votes combined.
 
-## Why we are writing this now
+## What this does not say
 
-Two reasons. The first is obvious: being nominated is worth mentioning, and these are the sort of things that quietly happen and then get forgotten.
+We are early. We work with a small number of clients at a time, and we are still landing them.
 
-The second is that we are a studio that has been in the market for a short time, working with a deliberately small number of clients at a time. We would rather be straightforward about where we are than let an awards page imply a body of finished work that isn't there yet. The work speaks for itself when it is ready to speak.
+That is worth stating plainly rather than letting an awards page imply a body of finished work that is not there yet. The work speaks when it is ready to speak.
 
-## A note on the site itself
+## The site itself
 
-The technical build is part of what we were judged on, so it is worth mentioning what the site is made of. It runs on Astro, self-hosted variable fonts subset to the 81 characters the site actually uses, and a total homepage payload of roughly 95 KB with no third-party requests. The hero video only loads when someone interacts with it. It scores 100 on Lighthouse for both mobile and desktop.
+A studio that values clarity should have a site that is fast, weighs nothing, and stays out of the way.
 
-That was deliberate. A studio that says it values clarity should have a site that is fast, weighs almost nothing, and gets out of the way of the work.
+This one runs on Astro. Fonts are self-hosted and subset to the eighty-one characters the site actually uses. The whole homepage weighs about ninety-five kilobytes with no third-party requests. The hero video loads only on interaction. It scores one hundred on Lighthouse, mobile and desktop.
 
 ## Following along
 
-Judging is still open on all three, and scores move daily. If you want to see the live standings, the entry pages are linked below, and we will update this note when there is a result to report — win or otherwise.
+Judging is open on all three and scores move daily. We will update this note when there is a result worth reporting.
 
-Thank you to the judges who took the time, and to anyone who votes.
+Thank you to the judges, and to anyone voting.
