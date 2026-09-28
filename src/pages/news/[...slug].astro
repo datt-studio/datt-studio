@@ -1,0 +1,100 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('news', ({ data }) => !data.draft);
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content, headings } = await render(post);
+
+const fmt = (d: Date) =>
+  d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+---
+
+<Layout
+  isDark={true}
+  title={`${post.data.title} — DATT STUDIO`}
+  description={post.data.summary}
+>
+  <script is:inline>document.body.setAttribute('data-page-type', 'immersive');</script>
+
+  <div class="flex flex-col bg-black">
+    <Header isInverted={true} />
+
+    <main class="flex-none w-full px-[var(--page-padding)] pt-32 md:pt-40 pb-24">
+      <article class="max-w-[720px] w-full">
+        <a href="/news/" class="cta-link text-white/60 inline-block mb-12">&larr; All notes</a>
+
+        <p class="text-label text-white/50 mb-4">
+          <time datetime={post.data.date.toISOString()}>{fmt(post.data.date)}</time>
+        </p>
+
+        <h1 class="text-white mb-10">{post.data.title}</h1>
+
+        <p class="text-white/70 mb-14 text-[20px] md:text-[22px]">{post.data.summary}</p>
+
+        <div class="news-prose">
+          <Content />
+        </div>
+      </article>
+    </main>
+
+    <Footer isInverted={true} disableMagnet={true} />
+  </div>
+</Layout>
+
+<style is:global>
+  .news-prose p {
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 1.4em;
+  }
+  .news-prose h2 {
+    color: #ffffff;
+    margin: 2.2em 0 0.8em;
+  }
+  .news-prose h3 {
+    color: #ffffff;
+    margin: 1.8em 0 0.7em;
+  }
+  .news-prose a {
+    color: #ffffff;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .news-prose strong {
+    color: #ffffff;
+    font-weight: 600;
+  }
+  .news-prose ul,
+  .news-prose ol {
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0 0 1.4em 1.2em;
+  }
+  .news-prose li {
+    margin-bottom: 0.5em;
+  }
+  .news-prose blockquote {
+    border-left: 2px solid rgba(255, 255, 255, 0.3);
+    padding-left: 1.2em;
+    margin: 1.6em 0;
+    color: rgba(255, 255, 255, 0.65);
+  }
+  .news-prose code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.9em;
+    color: rgba(255, 255, 255, 0.9);
+  }
+  .news-prose hr {
+    border: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    margin: 2.4em 0;
+  }
+</style>
