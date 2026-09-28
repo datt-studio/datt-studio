@@ -141,34 +141,36 @@ const articleLd = {
     margin: 2.4em 0;
   }
 
-  /* Each top-level block reveals on its own as it scrolls in, so it must not be
-     caught by the section-level observer that opens every other mask at once.
-     Both declarations are !important and outrank the global .is-active rule. */
+  /* Each top-level block reveals on its own as it scrolls in.
+     The global observer in Layout.astro adds .is-active to every .brands-line-mask
+     inside the section at once, so the closed state must outrank .is-active
+     (0,3,0 > 0,2,0) and the open state must key off .prose-in, a class that
+     observer never touches. */
   .news-prose .prose-block > .brands-line-inner {
     transform: translateY(115%) rotateX(-60deg) !important;
     opacity: 0 !important;
   }
-  .news-prose .prose-block.is-active > .brands-line-inner {
+  .news-prose .prose-block.prose-in > .brands-line-inner {
     transform: translateY(0) rotateX(0deg) !important;
     opacity: 1 !important;
   }
 
-  /* Space lives on the mask, not inside it, or the clipped top edge shifts the
-     text down as it slides in. */
-  .news-prose .prose-block > * { margin-top: 0; margin-bottom: 0; }
-  .news-prose .prose-block:has(> h2) { margin-top: 2.6em; }
-  .news-prose .prose-block:has(> h3) { margin-top: 2.2em; }
-  .news-prose .prose-block:has(> p + p),
-  .news-prose .prose-block:has(> ul),
-  .news-prose .prose-block:has(> ol) { margin-bottom: 1.4em; }
-  .news-prose .prose-block:has(> hr) { margin-top: 2.4em; margin-bottom: 2.4em; }
+  /* Spacing lives on the mask, not inside it: the mask clips its top edge, so a
+     top margin on the inner would offset the text as it slides in. */
+  .news-prose .prose-block > .brands-line-inner > * { margin-top: 0; margin-bottom: 0; }
+  .news-prose .prose-block-h2 { margin-top: 2.6em; }
+  .news-prose .prose-block-h3 { margin-top: 2.2em; }
+  .news-prose .prose-block-p,
+  .news-prose .prose-block-ul,
+  .news-prose .prose-block-ol { margin-bottom: 1.4em; }
+  .news-prose .prose-block-hr { margin-top: 2.4em; margin-bottom: 2.4em; }
 </style>
 
 <script is:inline>
-  // Wrap every top-level block of the article body in the global mask/inner pair
-  // so each one reveals on its own as it scrolls in. This needs its own observer:
-  // the global one in Layout.astro opens every mask inside the section at once,
-  // and it is wired up at parse time, before these nodes exist.
+  // Wrap every top-level block of the article body in the global mask/inner pair so
+  // each one reveals on its own as it scrolls in. Two reasons this cannot reuse the
+  // global observer: it is wired up at parse time before these nodes exist, and it
+  // opens every .brands-line-mask inside the section in one pass.
   function maskProse() {
     document.querySelectorAll('[data-prose]').forEach((prose) => {
       if (prose.dataset.masked === 'true') return;
@@ -178,8 +180,9 @@ const articleLd = {
 
       blocks.forEach((el, i) => {
         const mask = document.createElement('span');
-        mask.className = 'brands-line-mask prose-block';
+        mask.className = 'brands-line-mask prose-block prose-block-' + el.tagName.toLowerCase();
         el.replaceWith(mask);
+
         const inner = document.createElement('span');
         inner.className = 'brands-line-inner';
         inner.style.transitionDelay = `${Math.min(i, 6) * 0.05}s`;
@@ -189,10 +192,9 @@ const articleLd = {
 
       const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('is-active');
-            observer.unobserve(entry.target);
-          }
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('prose-in');
+          observer.unobserve(entry.target);
         });
       }, { threshold: 0.15, rootMargin: '0px 0px -8% 0px' });
 
