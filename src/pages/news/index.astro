@@ -69,7 +69,7 @@ const description =
                 </div>
                 <div class="brands-line-mask block">
                   <div class="brands-line-inner block" style="transition-delay: 0.3s">
-                  <span class="cta-link inverted-cta text-white mt-4 inline-block">Read more</span>
+                  <span class="cta-link inverted-cta mt-4 inline-block">Read more</span>
                   </div>
                 </div>
               </a>
@@ -94,5 +94,15 @@ const description =
     width: 100%;
     height: auto;
     border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+</style>
+
+<style is:global>
+  /* .cta-link sets color: currentColor and sits after .text-white in the cascade,
+     so at equal specificity it wins and the CTA falls back to the body's #131313
+     on this black page. .inverted-cta needs !important to beat it. The underline
+     needs no rule of its own: .cta-link::after is background: currentColor. */
+  .inverted-cta {
+    color: #ffffff !important;
   }
 </style>
