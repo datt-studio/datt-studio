@@ -155,6 +155,32 @@ const articleLd = {
     opacity: 1 !important;
   }
 
+  .news-prose table {
+    color: #ffffff;
+    width: 100%;
+    border-collapse: collapse;
+    margin: 2.4em 0;
+    font-size: 0.95em;
+  }
+  .news-prose th,
+  .news-prose td {
+    text-align: left;
+    padding: 0.85em 1em 0.85em 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+    vertical-align: top;
+  }
+  .news-prose th {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.78em;
+    color: rgba(255, 255, 255, 0.62);
+  }
+
+  .news-prose td:last-child,
+  .news-prose th:last-child { padding-right: 0; }
+  .news-prose .prose-block-table { margin-bottom: 2.4em; }
+
   /* Spacing lives on the mask, not inside it: the mask clips its top edge, so a
      top margin on the inner would offset the text as it slides in. */
   .news-prose .prose-block > .brands-line-inner > * { margin-top: 0; margin-bottom: 0; }
