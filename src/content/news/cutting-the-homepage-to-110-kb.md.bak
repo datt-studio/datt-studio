@@ -35,7 +35,7 @@ This part was wrong when we first wrote it, so it is worth being exact about wha
 
 The site was not self-hosting fonts at the start. It loaded Inter from Google's CDN. That was 73,053 bytes of woff2 and 1,170 bytes of stylesheet, 74,223 bytes in total, and it was a third-party request on the critical path.
 
-The font is no longer a third-party request. Inter ships as two self-hosted subsets: a Latin core file at 52,972 bytes, and a Latin Extended file at 12,492 bytes. Most pages never trigger the second one, because the browser fetches it only when a character needs it. The article on the wordmark does need it, since it contains Đ and ạ. The third-party payload cost 74,223 bytes, the self-hosted pair costs 53,495, and the request leaves a third party entirely.
+It is now a single self-hosted subset, inter-core.woff2, at 52,972 bytes, covering the characters the copy actually uses. The saving is 28% and the third-party request is gone.
 
 It is not two full variable files replaced by two small ones. That is what we believed had happened and what we wrote down, and the network log does not support it.
 
