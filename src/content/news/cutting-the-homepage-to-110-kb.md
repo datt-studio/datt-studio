@@ -27,7 +27,7 @@ It is 3,368,618 bytes now, a reduction of 61.5%, and the three service videos we
 
 We did not take it further, and that was a decision rather than an oversight. The reel is the work, and the quality of the work is the thing the rest of this site exists to make visible. Compression has a floor and we stopped above it instead of crossing it. A site that is fast and shows worse work is not a better studio.
 
-The poster frame is a WebP now. The same still as a JPEG was 104,147 bytes. It is 10,323 bytes now, a reduction of 90.1%, and the hero paints a real image rather than an empty box.
+The poster frame is a WebP now. The same still as a JPEG was 103,857 bytes. It is 9,806 bytes now, a reduction of 90.6%, and the hero paints a real image rather than an empty box.
 
 ## The fonts
 
@@ -35,7 +35,7 @@ This part was wrong when we first wrote it, so it is worth being exact about wha
 
 The site was not self-hosting fonts at the start. It loaded Inter from Google's CDN. That was 73,053 bytes of woff2 and 1,170 bytes of stylesheet, 74,223 bytes in total, and it was a third-party request on the critical path.
 
-It is now a single self-hosted subset, inter-core.woff2, at 53,499 bytes, covering the characters the copy actually uses. The saving is 28% and the third-party request is gone.
+It is now a single self-hosted subset, inter-core.woff2, at 52,972 bytes, covering the characters the copy actually uses. The saving is 28% and the third-party request is gone.
 
 It is not two full variable files replaced by two small ones. That is what we believed had happened and what we wrote down, and the network log does not support it.
 
