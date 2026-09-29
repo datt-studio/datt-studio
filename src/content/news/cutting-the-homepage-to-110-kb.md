@@ -1,0 +1,126 @@
+---
+title: "Cutting the homepage to 110 KB"
+date: 2026-09-29
+summary: "What changed, what it cost, and what the numbers look like afterwards."
+draft: false
+cover: /assets/news/performance-cover.webp
+coverAlt: "Performance measurements taken while the homepage was being rebuilt."
+---
+
+The homepage used to transfer 6.66 MB on a phone. It now transfers about 110 KB. This is what happened in between, what we left in place on purpose, and what we would do differently.
+
+## Where it started
+
+The first version of this site was a portfolio with a full-screen video hero, a page of case studies and a header that floated above the work. It looked right and it was heavy.
+
+Most of the weight sat in three places. An unoptimised hero video that loaded on page view, fonts pulled from a third-party CDN covering every glyph the font designer shipped, and the hero poster as a large JPEG. Every one of those was a decision someone made and nobody revisited.
+
+Two numbers frame the rest of this, and they are not the same number. The video files on disk totalled 18.71 MB. A Lighthouse mobile run transferred 6,658,776 bytes of it, because two video elements pulled the reel in parallel and the browser stopped when the audit ended.
+
+The scores were not a mystery. They were the arithmetic of those files.
+
+## The video
+
+The reel was 8,749,237 bytes and it loaded immediately, competing with the headline, the fonts and the poster for bandwidth. A visitor on a poor connection was waiting for a file they had not asked for yet.
+
+It is 3,368,618 bytes now, a reduction of 61.5%, and the three service videos were compressed alongside it. All four files together came down from 18,709,677 bytes to 9,529,891.
+
+We did not take it further, and that was a decision rather than an oversight. The reel is the work, and the quality of the work is the thing the rest of this site exists to make visible. Compression has a floor and we stopped above it instead of crossing it. A site that is fast and shows worse work is not a better studio.
+
+The poster frame is a WebP now. The same still as a JPEG was 104,147 bytes. It is 10,323 bytes now, a reduction of 90.1%, and the hero paints a real image rather than an empty box.
+
+## The fonts
+
+This part was wrong when we first wrote it, so it is worth being exact about what actually changed.
+
+The site was not self-hosting fonts at the start. It loaded Inter from Google's CDN. That was 73,053 bytes of woff2 and 1,170 bytes of stylesheet, 74,223 bytes in total, and it was a third-party request on the critical path.
+
+It is now a single self-hosted subset, inter-core.woff2, at 53,499 bytes, covering the characters the copy actually uses. The saving is 28% and the third-party request is gone.
+
+It is not two full variable files replaced by two small ones. That is what we believed had happened and what we wrote down, and the network log does not support it.
+
+## Rendering
+
+The headline was being built in JavaScript from a data attribute. The words existed on the page, but not in the document until a script ran, which meant nothing to render until that script parsed, and nothing for a crawler to read at all.
+
+The text is now in the markup. The animation still runs, and the hero still looks the same, but the page has its words before a single script executes.
+
+## The motion was changed twice
+
+The text on this site did not arrive the way it looks now.
+
+The first version blurred each line in and rotated it up at an angle. It looked considered in a still. In use it was slow, and on a long page the cost compounded with every section. A reader scrolling the page waited on the animation more than they read.
+
+The second version dropped the angle and simplified to a straight rise from a clipped mask. That is what is here now, and it exists because the first two were wrong for the job rather than because the third was prettier.
+
+Reduced motion is respected. The accessibility statement on this site sets out a motion preference, and the whole reveal system is disabled under it. That was a requirement from the start rather than something added after the first complaint.
+
+## The navigation was made smaller on purpose
+
+The header started with a blurred background and a heavier treatment. It was the current idiom and it looked right in isolation.
+
+It was wrong for a studio whose position is clarity. A translucent, floating navigation carries more visual weight than the work it sits above, and on scroll it competes with content. It went back to a flat header, stripped to the essentials, with the hover states doing only the minimum.
+
+## What it weighs now
+
+| | Before | After |
+|---|---|---|
+| Transferred, mobile | 6.66 MB | about 110 KB |
+| Performance, mobile | 94 | 99 |
+| Performance, desktop | 100 | 100 |
+| Best practices | 100 | 100 |
+| Accessibility | 96 | 100 |
+| SEO | 92 | 100 |
+| Third-party requests | 2 | 0 |
+| Video files on disk | 18.71 MB | 9.53 MB |
+| Hero reel on disk | 8.75 MB | 3.37 MB |
+
+The before column is a Lighthouse 13.5.0 run against commit 7b20a84, built locally, served on localhost and measured on mobile. The after column is a Lighthouse 13.5.0 mobile run against the rebuilt site, taken on the live site on 29 September 2026.
+
+The two were not taken at the same address. The before run was served from localhost. The after run was taken from the public edge, so it carries assets the local run never saw. About 11.5 KB of the after figure is Cloudflare challenge script and favicon. The site's own files account for about 99 KB. We quote the larger number because it is the one a reader will reproduce in their own network panel.
+
+We say about 110 KB rather than an exact figure because the number moves by a kilobyte or two between runs. Repeated measurements gave 110, 111 and 112.
+
+The Best Practices row is the one number that moves depending on where the run happens. Our own origin reports 100. The public edge reports 81, because the edge injects the challenge script and a redirect that the origin does not serve. The page did not change between the two.
+
+## Desktop, and what we left on the table
+
+There is no desktop payload row in that table, and the reason is a decision rather than a measurement problem.
+
+Desktop still fetches the hero reel. The most recent desktop run transferred 3,338,134 bytes of it, which is 99.1% of the file. That run scored 100 while doing it, because the video begins after the metrics the score is built from have already been recorded. The score was never going to show this. Only the byte count did.
+
+Strip the reel and the edge scripts and the desktop page transfers 101,423 bytes, against 101,629 on mobile. Desktop is not heavier. It has one large file attached to it.
+
+The cause is three lines of script. On any device reporting a fine pointer, the video's preload attribute is set to auto on page load. The markup says preload none. The script overrides it.
+
+We have left it there. Gating it on first interaction would remove 3.37 MB from every desktop page load, and it would also mean a visitor who never touches the page never sees the reel. That is a trade we have not made, because the reel is the work.
+
+It is a defensible position and it is a real cost. Both are true at once.
+
+## The two scores that did not move
+
+Accessibility sat at 96 and SEO at 92 through every byte we removed, because neither had anything to do with weight. We spent the exercise on the category that responded and left the other two untouched, which is the wrong allocation of effort and was the most useful thing the table showed us.
+
+Rebuilding the old build is what made them nameable. SEO failed on one thing, link text. A single link read READ MORE and pointed at a page called info. Nothing else failed. There was no missing meta description, which is what we assumed for most of this work.
+
+Accessibility failed on one thing too, and not the one we expected. The failing element was a link in the site-wide banner, rendering #686868 on #090909, a contrast ratio of 3.57. The three service labels on the homepage, which are 72 pixels and sit at twenty percent white, were never in that failing list. We changed them anyway, because the number was wrong for the size of the type, and they turned out to be failing on the current build once the banner was fixed.
+
+The policy link in the cookie banner was the same class of problem. We lightened the colour and the audit still failed. The banner fades in over a second, and an audit that samples during that fade reads a darker composite than the stylesheet declares. Shortening the fade to a fraction of a second is what fixed it, not the colour.
+
+## What we would do differently
+
+Build the budget first. We had no target before we started optimising, which meant deciding what fast meant after the work was mostly done.
+
+Measure the files, not only the page. Lighthouse reports what the browser transferred during the run. Some of our video files are larger on disk than anything the audit recorded, because the browser stopped before it finished them. We wrote a figure for the page and a different figure for the assets and did not notice that they disagreed.
+
+Check the network log before writing about the fonts. We believed we had replaced two full variable files with two small subsets. The log shows one third-party woff2 replaced by one self-hosted file. The saving is 28%, not the order of magnitude we had been describing.
+
+Quote the number a reader will reproduce. We first wrote this article at 95 KB from a hand measurement. We then wrote it at 4.6 MB, also by hand, and called that a measurement. Both were wrong. The transferred figure is 6,658,776 bytes, which is 31% more than the number we were about to publish.
+
+Rebuild the before state before writing about it. An earlier draft recorded 6.3 MB from memory. The real figure was 6.66 MB, so the memory was nearly right and the corrected number we were about to publish was 31% out. We found out by checking out the old commit and running the audit again.
+
+## Where this is written down
+
+Every figure here came from a Lighthouse 13.5.0 run or from a byte count taken on the file. The before column is commit 7b20a84, built locally and served on localhost. The after column is a Lighthouse 13.5.0 mobile run against the live site on 29 September 2026. Where the two were taken at different addresses, this note says so.
+
+Lighthouse reports transfer sizes in KiB, which is 1,024 bytes rather than 1,000. The 110 in the table is 110 KiB by that measure. The 6.66 MB before figure is decimal, which is the same measurement as 6.35 MiB.

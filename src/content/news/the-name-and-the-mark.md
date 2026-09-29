@@ -40,7 +40,7 @@ It clicked. Both how it looked and what it meant, arriving at the same time, whi
 
 ## What we would tell ourselves at the start
 
-Register the first mark. Not because it is the mark, but because a trademark protects a name you intend to use, and a name you intend to use is worth protecting before anyone else decides what it looks like. The first registration is still live. The name stayed protected while the mark moved on, which was the point of registering something we were not finished with.
+Register the first mark. Not because it is the mark, but because a trademark stops anyone else taking the thing you have already built, and a thing you have already built is worth holding before someone else decides what it looks like. That first registration is still live, and it held while the mark moved on, which was the point of registering something we were not finished with.
 
 Do not confuse having a decision with having the decision. We had a registered mark, a live site and a business name, and the honest position was that the identity was unfinished.
 
