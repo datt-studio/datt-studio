@@ -7,7 +7,7 @@ cover: /assets/news/performance-cover.webp
 coverAlt: "Performance measurements taken while the homepage was being rebuilt."
 ---
 
-The homepage used to transfer 6.66 MB on a phone. It now transfers 113,397 B (110.7 KiB). This is what happened in between, what we left in place on purpose, and what we would do differently.
+The homepage used to transfer 6.66 MB on a phone. It now transfers about 110 KB. This is what happened in between, what we left in place on purpose, and what we would do differently.
 
 ## Where it started
 
@@ -65,7 +65,7 @@ It was wrong for a studio whose position is clarity. A translucent, floating nav
 
 | | Before | After |
 |---|---|---|
-| Transferred, mobile | 6.66 MB | 113,397 B (110.7 KiB) |
+| Transferred, mobile | 6.66 MB | about 110 KB |
 | Performance, mobile | 94 | 99 |
 | Performance, desktop | 100 | 100 |
 | Best practices | 100 | 100 |
@@ -79,7 +79,7 @@ The before column is a Lighthouse 13.5.0 run against commit 7b20a84, built local
 
 The two were not taken at the same address. The before run was served from localhost. The after run was taken from the public edge, so it carries assets the local run never saw. About 11.5 KB of the after figure is Cloudflare challenge script and favicon. The site's own files account for about 99 KB. We quote the larger number because it is the one a reader will reproduce in their own network panel.
 
-The figure comes from a single measured run. The number moves by a kilobyte or two between runs, and repeated measurements gave 110, 111 and 112 KiB, so treat the last digit as noise.
+We say about 110 KB rather than an exact figure because the number moves by a kilobyte or two between runs. Repeated measurements gave 110, 111 and 112.
 
 The Best Practices row is the one number that moves depending on where the run happens. Our own origin reports 100. The public edge reports 81, because the edge injects the challenge script and a redirect that the origin does not serve. The page did not change between the two.
 
