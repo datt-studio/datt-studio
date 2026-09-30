@@ -2,7 +2,7 @@ import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 import sanity from '@sanity/astro';
 import { loadEnv } from "vite";
-
+import sitemap from '@astrojs/sitemap';
 
 const env = loadEnv(process.env.NODE_ENV || "development", process.cwd(), "");
 
@@ -18,6 +18,9 @@ export default defineConfig({
   },
   integrations: [
     tailwind(),
+    sitemap({
+      filter: (page) => !/\/(?:404|500|502|503|504)\/?$/.test(page),
+    }),
     sanity({
       projectId: env.PUBLIC_SANITY_PROJECT_ID,
       dataset: env.PUBLIC_SANITY_DATASET || 'production',
