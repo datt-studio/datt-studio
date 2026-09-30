@@ -27,21 +27,28 @@ const ogImage = "https://dattstudio.com/assets/video-poster-retina.jpg";
 // === JSON-LD: ORGANIZATION SCHEMA ===
 // Update these with your real profile URLs (one per line, quoted). Leave empty to omit sameAs.
 const socialLinks = [
-  // "https://www.instagram.com/YOUR_HANDLE",
-  // "https://www.linkedin.com/company/YOUR_COMPANY",
-  // "https://www.behance.net/YOUR_STUDIO",
-  // "https://www.awwwards.com/YOUR_PROFILE",
+  "https://uk.linkedin.com/company/dattstudio",
+  "https://find-and-update.company-information.service.gov.uk/company/16695845",
+  "https://www.csswinner.com/details/datt-studio/19434",
 ].filter(Boolean);
-
 
 const organizationLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
   "name": "DATT STUDIO",
+  "legalName": "DATT STUDIO LTD",
   "url": "https://dattstudio.com/",
   "logo": "https://dattstudio.com/assets/datt-logo-512.png",
   "description": "A creative studio for brands built to last. Identity, systems, and digital work made to hold.",
-  ...(socialLinks.length ? { "sameAs": socialLinks } : {}),
+  "foundingDate": "2025-09-04",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "94 Repton Close",
+    "addressLocality": "Luton",
+    "postalCode": "LU3 3UP",
+    "addressCountry": "GB",
+  },
+  "sameAs": socialLinks,
 };
 
 // === JSON-LD: VIDEO SCHEMA ===

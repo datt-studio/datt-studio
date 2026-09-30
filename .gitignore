@@ -4,3 +4,7 @@ dist/
 .DS_Store
 astro.config.mjs.bak
 dattstudio/
+
+*.bak
+*.bak2
+*.md.bak*
