@@ -181,6 +181,42 @@ const articleLd = {
   .news-prose th:last-child { padding-right: 0; }
   .news-prose .prose-block-table { margin-bottom: 2.4em; }
 
+  /* Video is excluded from the mask system. A mask is overflow: hidden with only a
+     0.2em bleed, which clips the native control bar, and rotateX on a fixed-ratio
+     element looks wrong. These fade in as one piece instead. */
+  .news-prose video {
+    display: block;
+    width: 100%;
+    height: auto;
+    background: #000000;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  /* Article videos autoplay muted and loop. They only start once scrolled into
+     view, so nothing is fetched or played before the reader reaches them. */
+  .news-prose video.is-playing { border-color: rgba(255, 255, 255, 0.2); }
+  .news-prose figure { margin: 0; }
+  .news-prose figure img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  .news-prose figcaption {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.9em;
+    margin-top: 0.8em;
+  }
+  .news-prose .prose-media {
+    margin: 2.4em 0;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.9s var(--ease-mechanical), transform 0.9s var(--ease-mechanical);
+  }
+  .news-prose .prose-media.prose-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
   /* Spacing lives on the mask, not inside it: the mask clips its top edge, so a
      top margin on the inner would offset the text as it slides in. */
   .news-prose .prose-block > .brands-line-inner > * { margin-top: 0; margin-bottom: 0; }
@@ -205,6 +241,11 @@ const articleLd = {
   // each one reveals on its own as it scrolls in. Two reasons this cannot reuse the
   // global observer: it is wired up at parse time before these nodes exist, and it
   // opens every .brands-line-mask inside the section in one pass.
+  //
+  // Blocks holding video are skipped and given .prose-media instead: a mask is
+  // overflow: hidden with a 0.2em bleed, which clips the native controls.
+  const MEDIA_TAGS = ['VIDEO', 'FIGURE', 'IFRAME', 'AUDIO'];
+
   function maskProse() {
     document.querySelectorAll('[data-prose]').forEach((prose) => {
       if (prose.dataset.masked === 'true') return;
@@ -212,7 +253,19 @@ const articleLd = {
       if (!blocks.length) return;
       prose.dataset.masked = 'true';
 
+      const fade = [];
+
       blocks.forEach((el, i) => {
+        const holdsMedia =
+          MEDIA_TAGS.includes(el.tagName) || el.querySelector('video, iframe, audio');
+
+        if (holdsMedia) {
+          el.classList.add('prose-media');
+          el.style.transitionDelay = `${Math.min(i, 6) * 0.05}s`;
+          fade.push(el);
+          return;
+        }
+
         const mask = document.createElement('span');
         mask.className = 'brands-line-mask prose-block prose-block-' + el.tagName.toLowerCase();
         el.replaceWith(mask);
@@ -232,10 +285,71 @@ const articleLd = {
         });
       }, { threshold: 0.15, rootMargin: '0px 0px -8% 0px' });
 
-      prose.querySelectorAll('.prose-block').forEach((el) => observer.observe(el));
+      prose.querySelectorAll('.prose-block, .prose-media').forEach((el) => observer.observe(el));
     });
   }
 
   maskProse();
   document.addEventListener('astro:after-swap', maskProse);
+
+  // Article videos play muted and loop, and they start when they scroll into view
+  // rather than on page load. The native autoplay attribute is deliberately absent:
+  // it would pull 2.8 MB of video the moment the page opens, before the reader has
+  // reached the paragraph that introduces it. The controls are present from the
+  // start, so the reader can pause, scrub or unmute at any point.
+  //
+  // Autoplay is muted-only in every current browser, and a later un-mute by the
+  // reader is preserved: once they have touched the controls we stop managing
+  // playback, so scrolling past a video never yanks it out mid-watch.
+  function wireVideo(v) {
+    if (v.dataset.wired === 'true') return;
+    v.dataset.wired = 'true';
+    v.muted = true;
+    v.defaultMuted = true;
+    v.loop = true;
+
+    // preload="none" in the markup, upgraded only at the point we intend to play.
+    // Safari in particular will not start fetching a preload="none" source on
+    // play() alone.
+    v.addEventListener('pointerdown', () => { v.dataset.touched = 'true'; });
+    v.addEventListener('keydown', () => { v.dataset.touched = 'true'; });
+
+    // Removes the download control where the browser honours it. The file is still
+    // reachable, so this is a discouragement and not protection.
+    if (v.hasAttribute('controls')) {
+      v.setAttribute('controlslist', 'nodownload');
+    }
+
+    // Scoped to the video itself rather than the page, so right-click still works
+    // for selecting and copying the surrounding text.
+    v.addEventListener('contextmenu', (e) => e.preventDefault());
+
+    v.preload = 'none';
+
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        const inView = entry.isIntersecting;
+        if (inView) {
+          v.preload = 'auto';
+          v.play().then(() => {
+            v.classList.add('is-playing');
+          }).catch(() => {
+            // Autoplay refused. The poster and the control bar are still there.
+          });
+        } else if (v.dataset.touched !== 'true') {
+          v.pause();
+          v.classList.remove('is-playing');
+        }
+      });
+    }, { threshold: 0.6 });
+
+    io.observe(v);
+  }
+
+  function wireVideos() {
+    document.querySelectorAll('[data-prose] video').forEach(wireVideo);
+  }
+
+  wireVideos();
+  document.addEventListener('astro:after-swap', wireVideos);
 </script>

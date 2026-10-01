@@ -30,6 +30,8 @@ This one runs on Astro. Fonts are self-hosted and subset to the characters the s
 
 ## Following along
 
-Judging is open on all three and scores move daily. We will update this note when there is a result worth reporting.
+Judging is open on all three and scores move daily.
+
+**Update.** Two of the three have resolved. The site received Special Kudos at CSS Design Awards, and Site of the Day at CSS Winner. The FWA is still being judged. Both results are written up: [CSS Design Awards](/news/recognised-for-quality/) and [CSS Winner](/news/site-of-the-day-css-winner/).
 
 Thank you to the judges, and to anyone voting.
