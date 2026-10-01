@@ -40,7 +40,7 @@ Nothing was submitted to earn it. No case study, no metrics, no process notes. T
 
 ## Site of the Month
 
-Site of the Day qualifies the site for the Site of the Month contest, which runs on the same four criteria and closes at the end of the month. It is still open. We will say so here if it goes further.
+CSS Winner wrote to tell us the win qualifies the site for their Site of the Month contest. We do not yet know how it is decided or when it closes. We will say so here if it goes further.
 
 ## Thank you
 
