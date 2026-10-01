@@ -30,7 +30,7 @@ Four recognitions, two entirely different processes. An international panel and 
   <figcaption>Special Kudos, and the three categories won by public vote.</figcaption>
 </figure>
 
-CSS Design Awards also sent certificates, monograms and an official promotional short. We have used our own footage here instead, cut for this site.
+The clip above is built from the official promotional shorts CSS Design Awards supplied with each award, combined into one so the four recognitions play together.
 
 ## What was submitted
 
