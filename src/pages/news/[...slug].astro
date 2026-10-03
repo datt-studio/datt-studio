@@ -141,16 +141,28 @@ const articleLd = {
     margin: 2.4em 0;
   }
 
-  /* Each top-level block reveals on its own as it scrolls in.
-     The global observer in Layout.astro adds .is-active to every .brands-line-mask
-     inside the section at once, so the closed state must outrank .is-active
-     (0,3,0 > 0,2,0) and the open state must key off .prose-in, a class that
-     observer never touches. */
+  /* Each top-level block reveals on its own as it scrolls in, line by line,
+     through the same split engine as the rest of the site. The engine turns a
+     block into one mask per rendered line, but it is triggered by .is-active,
+     which the section-wide observer in Layout.astro applies all at once: the
+     article body sits in one tall section, so .is-active would open the whole
+     piece on load. These rules keep the generated line masks closed until their
+     own block scrolls in (.prose-in), then flip them with the stagger the engine
+     already set on each line. The first two selectors are the unsplit fallback
+     when motion is off and no line masks exist. */
   .news-prose .prose-block > .brands-line-inner {
     transform: translateY(115%) rotateX(-60deg) !important;
     opacity: 0 !important;
   }
   .news-prose .prose-block.prose-in > .brands-line-inner {
+    transform: translateY(0) rotateX(0deg) !important;
+    opacity: 1 !important;
+  }
+  .news-prose .prose-block .ls-mask > .brands-line-inner {
+    transform: translateY(115%) rotateX(-60deg) !important;
+    opacity: 0 !important;
+  }
+  .news-prose .prose-block.prose-in .ls-mask > .brands-line-inner {
     transform: translateY(0) rotateX(0deg) !important;
     opacity: 1 !important;
   }
@@ -286,6 +298,10 @@ const articleLd = {
       }, { threshold: 0.15, rootMargin: '0px 0px -8% 0px' });
 
       prose.querySelectorAll('.prose-block, .prose-media').forEach((el) => observer.observe(el));
+
+      // On client-side navigations the global splitter already exists; on the
+      // first load it is defined just after this runs and splits these in turn.
+      if (window.dattSplitLines) window.dattSplitLines(prose);
     });
   }
 

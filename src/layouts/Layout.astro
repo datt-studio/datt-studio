@@ -458,10 +458,10 @@ const videoLd = {
         if (el.closest('.ls-mask')) return true;
         if (el.querySelector('img, video, iframe, svg, canvas, table, .brands-line-mask, .clock-instance')) return true;
 
-        // Article prose runs its own per-block reveal, keyed on .prose-in rather
-        // than .is-active. Splitting inside it would nest new masks that never
-        // receive is-active, leaving the text permanently hidden. Leave it.
-        if (el.closest('[data-prose]')) return true;
+        // Article prose is split like the rest of the site. Its blocks reveal on
+        // their own scroll trigger (.prose-in), not the section-wide .is-active,
+        // and the article stylesheet keeps the generated line masks closed until
+        // their block enters. See news/[...slug].astro.
 
         // The hero manages its own cascade from data-text and binds a mouseenter
         // handler to .trigger-line. It is already one segment per line, so
