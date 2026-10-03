@@ -21,11 +21,11 @@ const {
 
 const canonicalPath = Astro.url.pathname.endsWith('/') ? Astro.url.pathname : `${Astro.url.pathname}/`;
 
-/* Per-line reveal preview. Enabled on every page in dev so it can be tested
-   before it ships, and absent from production builds until the flag is set.
-   The localStorage override in the script below still wins over this, so a
-   single page can be turned off while comparing against the live behaviour. */
-const lineSplitDev = import.meta.env.DEV;
+/* Per-line reveal. Now enabled on every page in every build: each hand-authored
+   mask is split into its real rendered lines and the lines stagger, instead of
+   the whole block arriving as one piece. The localStorage override in the
+   script below still wins, so a single page can be turned off while comparing. */
+const lineSplit = true;
 const canonicalUrl = `https://dattstudio.com${canonicalPath}`;
 const ogImage = "https://dattstudio.com/assets/video-poster-retina.jpg";
 
@@ -392,7 +392,7 @@ const videoLd = {
       }
     </style>
   </head>
-  <body class:list={[{ "page-dark": isDark }]} data-linesplit={lineSplitDev ? 'on' : undefined}>
+  <body class:list={[{ "page-dark": isDark }]} data-linesplit={lineSplit ? 'on' : undefined}>
     <slot />
     <CookieBanner />
 
