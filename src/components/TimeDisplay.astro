@@ -3,10 +3,12 @@
 const { className } = Astro.props;
 ---
 <div class:list={[
-    "flex items-center gap-4 font-semibold uppercase text-label tracking-[0.05em] opacity-80",
+    "flex items-center font-semibold uppercase text-label tracking-[0.05em] opacity-80",
     className
 ]}>
-    <span>UK (GMT+1)</span>
+    <!-- The non-breaking space keeps the label and the clock together with a
+         single word-space, rather than the wide flex gap. -->
+    <span>UK (GMT+1)&nbsp;</span>
     <!-- Use tabular-nums to prevent the clock from "jumping" as numbers change -->
     <span class="clock-instance tabular-nums">00:00:00</span>
 </div>

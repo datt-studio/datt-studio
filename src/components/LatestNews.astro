@@ -1,0 +1,187 @@
+---
+// LatestNews.astro
+// The newest published articles, one card each, sitting side by side. Nothing
+// is authored here: the poster, headline and link all come from the news
+// collection, so this can never drift from what is published.
+const { posts = [] } = Astro.props;
+const fmt = (d) =>
+  d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+---
+
+<section class="latest-news reveal-trigger w-full px-[var(--page-padding)] pt-20 md:pt-32 pb-24 md:pb-40 bg-black">
+  <div class="w-full">
+
+    <!-- Same heading block as the footer, reading Recent News. -->
+    <div class="mb-12 md:mb-12">
+      <div class="brands-line-mask !py-[0.8em] !-my-[0.8em]">
+        <h2 class="brands-line-inner text-white max-w-[1100px]">Latest</h2>
+      </div>
+    </div>
+
+    {posts.length > 0 && (
+      <ul class="latest-news-grid">
+        {posts.map((post, i) => {
+          const base = i * 0.12;
+          return (
+            <li class="latest-news-card">
+              <a href={`/news/${post.id}/`} class="latest-news-link">
+                <!-- Cover: a plain fade, not a mask. The reveal engine skips any
+                     inner that contains an image, and a rotateX on a fixed-ratio
+                     frame reads as a wobble rather than a flip. -->
+                <div class="latest-news-cover" style={`transition-delay: ${base}s`}>
+                  {post.data.cover && (
+                    <img src={post.data.cover} alt="" loading="lazy" decoding="async" />
+                  )}
+                </div>
+
+                <!-- Date sits directly under the cover, matching the news index. -->
+                <div class="brands-line-mask block">
+                  <div
+                    class="brands-line-inner block"
+                    style={`--ls-base: ${base}s; transition-delay: ${base}s`}
+                  >
+                    <time class="text-label text-white/50" datetime={post.data.date.toISOString()}>
+                      {fmt(post.data.date)}
+                    </time>
+                  </div>
+                </div>
+
+                <!-- Headline + CTA share one mask, so the line index runs through
+                     both and the CTA never fades in between the headline's
+                     wrapped lines. -->
+                <div class="brands-line-mask block latest-news-mask">
+                  <div
+                    class="brands-line-inner block latest-news-copy"
+                    style={`--ls-base: ${base + 0.1}s; transition-delay: ${base + 0.1}s`}
+                  >
+                    <h3 class="latest-news-title">{post.data.title}</h3>
+                    <span class="cta-link inverted-cta">Read more</span>
+                  </div>
+                </div>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    )}
+
+    <div class="brands-line-mask block latest-news-read-all">
+      <div class="brands-line-inner block" style="--ls-base: 0.5s; transition-delay: 0.5s">
+        <a href="/news" class="cta-link inverted-cta">All news</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<style>
+  .latest-news-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    /* 64px between rows of cards, 8px between columns, matching the News index. */
+    row-gap: 4rem;
+    column-gap: 0.5rem;
+  }
+
+  @media (min-width: 640px) {
+    .latest-news-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  @media (min-width: 1024px) {
+    .latest-news-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); row-gap: 4rem; column-gap: 0.5rem; }
+  }
+
+  .latest-news-card { margin: 0; display: flex; }
+
+  .latest-news-link {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    flex: 1;
+    min-width: 0;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  /* The cover fades up on the section reveal. It is not a .brands-line-mask, so
+     the global observer does not touch it and this owns the transition. */
+  .latest-news-cover {
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.9s var(--ease-mechanical), transform 0.9s var(--ease-mechanical);
+  }
+  .latest-news.is-active .latest-news-cover {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .latest-news-cover img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    transition: transform 0.6s var(--ease-mechanical), opacity 0.3s var(--ease-mechanical);
+  }
+
+  .latest-news-link:hover .latest-news-cover img {
+    transform: scale(1.04);
+    opacity: 0.85;
+  }
+
+  /* The single mask under a card holds the headline and the CTA. It takes the
+     space left below the cover and the copy fills it, so the title absorbs any
+     spare height and every READ MORE lands on the same line however many lines
+     a headline runs to. */
+  .latest-news-mask {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .latest-news-copy {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .latest-news-title {
+    flex: 1 0 auto;
+    color: #ffffff;
+    margin: 0;
+    /* Keep the headline off the next card in the four-up row. */
+    padding-right: 4px;
+    font-size: clamp(17px, 1.6vw, 20px);
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: var(--track-tight);
+    transition: opacity 0.3s var(--ease-mechanical);
+  }
+  .latest-news-link:hover .latest-news-title { opacity: 0.75; }
+
+  /* Keep the CTA on one line. Without this a long headline squeezes it and
+     "Read more" splits across two lines. */
+  .latest-news-link :global(.cta-link) {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  /* .cta-link sets color: currentColor, which resolves to the body black on
+     this dark page, so the inverted CTA needs to win outright. */
+  .latest-news :global(.cta-link.inverted-cta) {
+    color: #ffffff !important;
+  }
+
+  /* Clear space above the READ ALL NEWS CTA. The mask carries its own 0.2em of
+     top padding inside the box, so subtracting it from the margin makes the
+     visible gap from the last article card to the CTA exactly 80px. */
+  .latest-news-read-all {
+    margin-top: calc(5rem - 0.2em);
+  }
+</style>

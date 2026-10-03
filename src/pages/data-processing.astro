@@ -68,7 +68,7 @@ const lastUpdated = "16 June 2026";
                   <div class="brands-line-inner flex flex-col">
                     <h4 class="text-white">2. Instructions & Confidentiality</h4>
                     <div class="mt-4">
-                      <p>The Processor shall process data only on documented instructions from the Controller. DATT STUDIO LTD ensures that all persons authorised to process the Personal Data have committed themselves to <strong>confidentiality</strong> or are under an appropriate statutory obligation of confidentiality.</p>
+                      <p>The Processor shall process data only on documented instructions from the Controller. DATT STUDIO LTD ensures that all persons authorised to process the Personal Data have committed themselves to <strong>confidentiality</strong> or are under an appropriate statutory obligation of&nbsp;confidentiality.</p>
                     </div>
                   </div>
                 </div>
@@ -88,7 +88,7 @@ const lastUpdated = "16 June 2026";
                   <div class="brands-line-inner flex flex-col">
                     <h4 class="text-white">4. Sub-Processors</h4>
                     <div class="mt-4">
-                      <p>The Controller provides general authorisation for DATT STUDIO LTD to engage sub-processors (e.g. AWS, Vercel). The Processor shall inform the Controller of any intended changes concerning the addition or replacement of sub-processors, giving the Controller the opportunity to object. We remain fully liable for the data protection performance of any sub-processor engaged.</p>
+                      <p>The Controller provides general authorisation for DATT STUDIO LTD to engage sub-processors (e.g. AWS, Vercel). The Processor shall inform the Controller of any intended changes concerning the addition or replacement of sub-processors, giving the Controller the opportunity to object. We remain fully liable for the data protection performance of any sub-processor&nbsp;engaged.</p>
                     </div>
                   </div>
                 </div>
@@ -139,7 +139,7 @@ const lastUpdated = "16 June 2026";
       </article>
 
       <!-- Sidebar -->
-      <aside class="w-full md:w-[35%] lg:sticky lg:top-[132px] h-fit md:pl-20 border-l border-white/5">
+      <aside class="legal-sidebar w-full md:w-[35%] lg:sticky lg:top-[132px] h-fit md:pl-20 border-l border-white/5">
         <nav class="flex flex-col items-start gap-y-3">
           {sidebarLinks.map((link, i) => (
             <div class="brands-line-mask">
@@ -155,7 +155,8 @@ const lastUpdated = "16 June 2026";
 
 <style is:global>
   #main-content h4 { font-size: var(--font-h4); font-weight: 600; }
-  #main-content p { color: #b4b4b4; font-weight: 400; line-height: var(--lh-body); }
+  #main-content p { color: #b4b4b4; font-weight: 400; line-height: var(--lh-body); text-wrap: pretty; }
+  #main-content h1, #main-content h2, #main-content h3, #main-content h4 { text-wrap: balance; }
   .cta-link:hover { color: #7e7e7e !important; }
   .sidebar-link { color: #7e7e7e !important; text-decoration: none; transition: color 0.4s var(--ease-mechanical); }
   .sidebar-link:hover, .sidebar-link.active { color: #ffffff !important; }

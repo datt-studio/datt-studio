@@ -1,21 +1,19 @@
 ---
 // HomeApproach.astro
-const title = "A considered approach. Every project begins with context.";
+const title = "A considered approach.<br />Every project begins with context.";
 const body = "Direction before execution. Structure before expression. Reduced to what matters. Refined until it holds.";
 ---
 
 <section class="home-approach reveal-trigger relative w-full min-h-[100dvh] px-[var(--page-padding)] flex flex-col items-start justify-center text-left bg-black py-24">
-  <div class="max-w-[580px] w-full">
+  <div class="max-w-[850px] w-full">
 
-    <!-- Title with mechanical reveal -->
+    <!-- Title: the two sentences sit on their own lines so the statement reads
+         in two beats. The per-line split and stagger are still measured at
+         runtime from the real rendered line boxes. -->
     <h2 class="text-white mb-12">
-      {title.split('||').map((l, i) => (
-        <span class="brands-line-mask">
-          <span class="brands-line-inner" style={`transition-delay: ${i * 0.1}s`}>
-            {l.trim()}
-          </span>
-        </span>
-      ))}
+      <span class="brands-line-mask">
+        <span class="brands-line-inner" set:html={title}></span>
+      </span>
     </h2>
 
     <!-- Description -->
@@ -70,6 +68,12 @@ const body = "Direction before execution. Structure before expression. Reduced t
     font-weight: 600;
     line-height: 1.0 !important;
     letter-spacing: var(--track-tighter);
+  }
+
+  /* The title is one sentence per line; balancing keeps each sentence from
+     stranding a word if it has to wrap at a narrow width. */
+  .home-approach h2 {
+    text-wrap: balance;
   }
 
   .home-approach p {

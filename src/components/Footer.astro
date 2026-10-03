@@ -1,6 +1,7 @@
 ---
 import SecureEmail from './SecureEmail.astro';
 import TimeDisplay from './TimeDisplay.astro';
+import { socialLinks } from '../data/social';
 const currentYear = new Date().getFullYear();
 const { isInverted = false, disableMagnet = false } = Astro.props;
 ---
@@ -17,58 +18,63 @@ const { isInverted = false, disableMagnet = false } = Astro.props;
 
   <div id="footer-reveal-trigger" class="flex flex-col min-h-[100dvh] pt-[120px]">
 
-    <!-- Headline: Safe-zone padding added to prevent clipping -->
+    <!-- Headline: Safe-zone padding added to prevent clipping. -->
     <div class="mb-12 md:mb-12">
-      <div class="brands-line-mask !py-[0.8em] !-my-[0.8em]">
-        <h2 class="brands-line-inner max-w-[1100px]">
-          Let’s talk.
-        </h2>
-      </div>
-    </div>
-
-    <!-- Mobile Time -->
-    <div class="md:hidden mb-12">
-      <div class="brands-line-mask">
-        <div class="brands-line-inner" style="transition-delay: 0.1s;">
-           <TimeDisplay isInverted={isInverted} />
+      <div class="flex items-baseline justify-between gap-x-6">
+        <div class="brands-line-mask !py-[0.8em] !-my-[0.8em]">
+          <h2 class="brands-line-inner max-w-[1100px]">
+            Let’s talk.
+          </h2>
         </div>
       </div>
     </div>
 
-    <!-- Info Grid -->
-    <div class="flex flex-col md:flex-row w-full gap-y-12 md:gap-y-0 mb-10 md:mb-24">
-      <div class="w-full md:w-[35%] flex flex-col gap-y-8 md:gap-y-10">
-        <div class="brands-line-mask">
-          <div class="brands-line-inner" style="transition-delay: 0.15s;">
-            <p class="text-label mb-2">General enquiries</p>
-            <SecureEmail email="hello@dattstudio.com" className="cta-link !text-[18px] !lowercase !tracking-tight" isInverted={isInverted} />
-          </div>
+    <!-- Info Grid
+         The clock sits at the top of the first column, with the enquiries and
+         the legal / social columns on the row beneath it. Below lg this is a
+         two-column grid: the two enquiries sit side by side on the first row and
+         Legal / Follow us on the second. From lg it is split on the About,
+         Services and News links in the top nav, so New business starts under
+         About, Legal under Services and Follow us under News. Those offsets are
+         measured in the footer script because the nav gaps are fluid. -->
+    <div class="footer-info w-full mb-10 lg:mb-24">
+      <div class="brands-line-mask footer-time">
+        <div class="brands-line-inner" style="transition-delay: 0.15s;">
+          <TimeDisplay isInverted={isInverted} />
         </div>
-        <div class="brands-line-mask">
-          <div class="brands-line-inner" style="transition-delay: 0.2s;">
-            <p class="text-label mb-2">New business</p>
-            <SecureEmail email="info@dattstudio.com" className="cta-link !text-[18px] !lowercase !tracking-tight" isInverted={isInverted} />
+      </div>
+      <div class="brands-line-mask footer-enquiries footer-general">
+        <div class="brands-line-inner" style="transition-delay: 0.2s;">
+          <p class="text-label mb-2">General enquiries</p>
+          <SecureEmail email="hello@dattstudio.com" className="cta-link !text-[clamp(13px,3.9vw,18px)] !lowercase !tracking-tight" isInverted={isInverted} />
+        </div>
+      </div>
+      <div class="brands-line-mask footer-enquiries footer-business">
+        <div class="brands-line-inner" style="transition-delay: 0.25s;">
+          <p class="text-label mb-2">New business</p>
+          <SecureEmail email="info@dattstudio.com" className="cta-link !text-[clamp(13px,3.9vw,18px)] !lowercase !tracking-tight" isInverted={isInverted} />
+        </div>
+      </div>
+
+      <div class="brands-line-mask footer-legal">
+        <div class="brands-line-inner" style="transition-delay: 0.3s;">
+          <p class="text-label text-transform: uppercase mb-2">Legal</p>
+          <div class="flex flex-col gap-y-2">
+            <a href="/privacy-cookies-policy" class="text-label !text-clamp(14px, 3vw, 12px) opacity-60 hover:opacity-100 transition-opacity">Privacy & cookies</a>
+            <a href="/terms-of-use" class="text-label !text-clamp(14px, 3vw, 12px) opacity-60 hover:opacity-100 transition-opacity">Terms of use</a>
+            <a href="/accessibility" class="text-label !text-clamp(14px, 3vw, 12px) opacity-60 hover:opacity-100 transition-opacity">Accessibility</a>
+            <a href="/data-processing" class="text-label !text-clamp(14px, 3vw, 12px) opacity-60 hover:opacity-100 transition-opacity">Data processing</a>
           </div>
         </div>
       </div>
 
-      <div class="w-full md:w-[65%] flex flex-col md:flex-row justify-between items-start">
-        <div class="brands-line-mask">
-          <div class="brands-line-inner" style="transition-delay: 0.3s;">
-            <p class="text-label text-transform: uppercase mb-2">Legal</p>
-            <div class="flex flex-col gap-y-2">
-              <a href="/privacy-cookies-policy" class="text-label !text-clamp(14px, 3vw, 12px) opacity-60 hover:opacity-100 transition-opacity">Privacy & cookies</a>
-              <a href="/terms-of-use" class="text-label !text-clamp(14px, 3vw, 12px) opacity-60 hover:opacity-100 transition-opacity">Terms of use</a>
-              <a href="/accessibility" class="text-label !text-clamp(14px, 3vw, 12px) opacity-60 hover:opacity-100 transition-opacity">Accessibility</a>
-              <a href="/data-processing" class="text-label !text-clamp(14px, 3vw, 12px) opacity-60 hover:opacity-100 transition-opacity">Data processing</a>
-            </div>
-          </div>
-        </div>
-        <div class="hidden md:block">
-          <div class="brands-line-mask">
-            <div class="brands-line-inner" style="transition-delay: 0.4s;">
-              <TimeDisplay isInverted={isInverted} />
-            </div>
+      <div class="brands-line-mask footer-follow">
+        <div class="brands-line-inner" style="transition-delay: 0.35s;">
+          <p class="text-label text-transform: uppercase mb-2">Follow us</p>
+          <div class="flex flex-col gap-y-2">
+            {socialLinks.map((social) => (
+              <a href={social.href} class="text-label !text-clamp(14px, 3vw, 12px) opacity-60 hover:opacity-100 transition-opacity whitespace-nowrap">{social.label}</a>
+            ))}
           </div>
         </div>
       </div>
@@ -123,6 +129,84 @@ const { isInverted = false, disableMagnet = false } = Astro.props;
     transform: translateY(0) rotateX(0deg) !important;
     opacity: 1 !important;
   }
+
+  /* The email underlines arrive after the words. Each is held undrawn
+     (scaleX(0)) while its address flips in, then draws itself one beat later,
+     so the rule follows the copy instead of arriving with it. This is tied to
+     the trigger's .is-active class rather than a transitionend event, so it
+     cannot be left undrawn if that event never fires. */
+  #footer-reveal-trigger .secure-email-copy.cta-link::after {
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: none;
+  }
+  #footer-reveal-trigger.is-active .secure-email-copy.cta-link::after {
+    transform: scaleX(1);
+    transition: transform 0.6s var(--ease-mechanical) 1.6s;
+  }
+
+  /* With motion off the line is simply drawn, as it is everywhere else. */
+  html.user-reduced-motion #footer-reveal-trigger .secure-email-copy.cta-link::after {
+    transform: scaleX(1) !important;
+    transition: none !important;
+  }
+
+  /* Info grid. Two even columns below lg; from lg it is split on the About,
+     Services and News links in the top nav, so New business starts under About,
+     Legal under Services and Follow us under News. The offsets are measured in
+     the footer script because the nav gaps are fluid, with percentage throwbacks
+     before it runs. */
+  #site-footer .footer-info {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 2rem;
+    row-gap: 3rem;
+  }
+  /* The clock spans the full width above the grid below lg. */
+  #site-footer .footer-time { grid-column: 1 / -1; }
+  @media (min-width: 1024px) {
+    #site-footer .footer-info {
+      grid-template-columns:
+        var(--about-left, 26%)
+        calc(var(--legal-left, 48%) - var(--about-left, 26%))
+        calc(var(--follow-left, 72%) - var(--legal-left, 48%))
+        1fr;
+      column-gap: 0;
+      row-gap: 1.5rem;
+      align-items: start;
+    }
+    /* Pull the clock up so it sits about 20px under the headline. A transform is
+       used rather than a margin so the grid rows (and the columns below) stay
+       exactly where they are. */
+    #site-footer .footer-time { grid-column: 1; grid-row: 1; transform: translateY(-14px); }
+    /* Each column anchors to a different top-nav link, so the headings all share
+       the second row and line up across the footer. */
+    #site-footer .footer-general { grid-column: 1; grid-row: 2; }
+    #site-footer .footer-business { grid-column: 2; grid-row: 2; }
+    #site-footer .footer-legal { grid-column: 3; grid-row: 2; }
+    #site-footer .footer-follow { grid-column: 4; grid-row: 2; }
+  }
+
+  /* Mobile landscape: keep the wordmark at half width so a short viewport is
+     not swallowed by it. `h-auto` on the images holds the aspect ratio. */
+  @media (orientation: landscape) and (max-height: 520px) {
+    #site-footer .logo-protection-container img { max-width: 50%; }
+  }
+
+  /* Below lg the Legal and Follow us links stack in a column. Open up the rows
+     and give each link a taller touch target so a tap cannot land on the
+     neighbouring link. The four-column desktop layout is untouched. */
+  @media (max-width: 1023px) {
+    #site-footer .footer-legal .flex.flex-col,
+    #site-footer .footer-follow .flex.flex-col {
+      row-gap: 1rem;
+    }
+    #site-footer .footer-legal a,
+    #site-footer .footer-follow a {
+      padding-top: 0.5rem;
+      padding-bottom: 0.5rem;
+    }
+  }
 </style>
 
 <script is:inline>
@@ -153,6 +237,7 @@ const { isInverted = false, disableMagnet = false } = Astro.props;
         entries.forEach(entry => {
           if (entry.isIntersecting) {
             trigger.classList.add('is-active');
+
             if (!isMagnetDisabled && !isMagnetized && window.canSnap && userScrolled && entry.intersectionRatio >= 0.5) {
               isMagnetized = true;
               window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
@@ -167,4 +252,35 @@ const { isInverted = false, disableMagnet = false } = Astro.props;
 
   initFooterReveals();
   document.addEventListener('astro:after-swap', initFooterReveals);
+
+  // Split the footer's info grid on the About, Services and News links in the
+  // top nav, so New business starts under About, Legal under Services and
+  // Follow us under News. The nav gaps are fluid, so the offsets are measured
+  // rather than hard-coded.
+  function sizeFooterColumns() {
+    const grid = document.querySelector('#site-footer .footer-info');
+    if (!grid) return;
+    const about = document.querySelector('#main-header a[href="/info"]');
+    const services = document.querySelector('#main-header a[href="/services"]');
+    const news = document.querySelector('#main-header a[href="/news"]');
+    if (!about || !services || !news || window.innerWidth < 1024) {
+      grid.style.removeProperty('--about-left');
+      grid.style.removeProperty('--legal-left');
+      grid.style.removeProperty('--follow-left');
+      return;
+    }
+    const g = grid.getBoundingClientRect();
+    grid.style.setProperty('--about-left', Math.round(about.getBoundingClientRect().left - g.left) + 'px');
+    grid.style.setProperty('--legal-left', Math.round(services.getBoundingClientRect().left - g.left) + 'px');
+    grid.style.setProperty('--follow-left', Math.round(news.getBoundingClientRect().left - g.left) + 'px');
+  }
+
+  if (!window.__dattFooterCols) {
+    window.__dattFooterCols = true;
+    window.addEventListener('resize', sizeFooterColumns, { passive: true });
+    window.addEventListener('load', sizeFooterColumns);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(sizeFooterColumns);
+  }
+  sizeFooterColumns();
+  document.addEventListener('astro:after-swap', sizeFooterColumns);
 </script>

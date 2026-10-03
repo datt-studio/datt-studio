@@ -47,6 +47,14 @@ const lines = [
     margin-bottom: -0.15em;
   }
 
+  /* The headline is authored as one mask per line rather than one mask that the
+     splitter divides. Stacked masks each count their bleed twice, which adds
+     0.15em of lead between lines. Cancel it so the lines sit on the line-height,
+     matching the homepage. */
+  #philosophy-section .philosophy-headline > .brands-line-mask + .brands-line-mask {
+    margin-top: calc(-2 * 0.15em);
+  }
+
   #philosophy-section .brands-line-inner {
     display: block;
     /* Mechanical reveal state */

@@ -98,9 +98,10 @@ const posterSrc = "/assets/video-poster-retina.webp";
     transition: transform 0.65s var(--ease-mechanical);
   }
 
-  /* 1. Made to Hold: 5px weight */
-  .trigger-line { padding-bottom: 5px; }
-  .trigger-line::after { height: 5px; }
+  /* 1. Made to Hold: 4px weight, lifted a touch off the text so the rule does
+     not sit flush against the descenders. */
+  .trigger-line { padding-bottom: 9px; }
+  .trigger-line::after { height: 4px; }
 
   /* 2. Video Control Buttons: 2px weight & Very Close */
   .link-underline { padding-bottom: 0.2px; }
@@ -212,6 +213,12 @@ const posterSrc = "/assets/video-poster-retina.webp";
     display: block;
     /* Force the media onto its own composited layer */
     transform: translateZ(0);
+  }
+
+  /* Mobile landscape: the short viewport makes a full-width wordmark dominate
+     the screen. Hold it to half the width and let `h-auto` keep the ratio. */
+  @media (orientation: landscape) and (max-height: 520px) {
+    .logo-area .brands-line-inner { max-width: 50%; }
   }
 </style>
 

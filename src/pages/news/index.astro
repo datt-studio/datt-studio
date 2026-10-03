@@ -26,7 +26,7 @@ const description =
 
     <main class="flex-none w-full">
       <section class="news-hero reveal-trigger w-full px-[var(--page-padding)] pt-[120px] pb-20 md:pb-40 bg-black">
-      <div class="max-w-[720px] w-full">
+      <div class="w-full">
         <h1 class="text-white mb-16">
           <span class="brands-line-mask">
             <span class="brands-line-inner">News</span>
@@ -37,10 +37,21 @@ const description =
           <p class="text-white/70">Nothing published yet.</p>
         )}
 
-        <ul class="flex flex-col gap-16 reveal-trigger">
+        <ul class="news-grid reveal-trigger">
           {posts.map((post) => (
             <li>
               <a href={`/news/${post.id}/`} class="news-card block group">
+                {post.data.cover && (
+                  <div class="news-cover">
+                    <img
+                      class="news-thumb"
+                      src={post.data.cover}
+                      alt={post.data.coverAlt ?? ''}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </div>
+                )}
                 <div class="brands-line-mask block">
                   <div class="brands-line-inner block" style="transition-delay: 0s">
                   <p class="text-label text-white/50 mb-3">
@@ -48,17 +59,8 @@ const description =
                   </p>
                   </div>
                 </div>
-                {post.data.cover && (
-                  <img
-                    class="news-thumb mb-4"
-                    src={post.data.cover}
-                    alt={post.data.coverAlt ?? ''}
-                    loading="lazy"
-                    decoding="async"
-                  />
-                )}
                 <div class="brands-line-mask block">
-                  <h2 class="brands-line-inner block text-white mb-3 transition-opacity duration-300 group-hover:opacity-70" style="transition-delay: 0.1s">
+                  <h2 class="news-card-title brands-line-inner block text-white mb-3 transition-opacity duration-300 group-hover:opacity-70" style="transition-delay: 0.1s">
                     {post.data.title}
                   </h2>
                 </div>
@@ -85,15 +87,74 @@ const description =
 </Layout>
 
 <style>
+  .news-grid > li {
+    display: flex;
+  }
   .news-card {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
     text-decoration: none;
     color: inherit;
+  }
+  /* The card fills the row and the READ MORE is pushed to the bottom, so every
+     CTA in a row lands on the same line however long the title or teaser runs,
+     the same way the Latest component's cards work. */
+  .news-card > .brands-line-mask:last-child {
+    margin-top: auto;
+  }
+  /* Headlines take the third-level heading size, so the page H1 stays display
+     scale while the card titles read as headlines rather than a second H1. The
+     element stays an h2 so the document outline under the News H1 is intact. */
+  .news-card-title {
+    font-size: var(--font-h3);
+  }
+  /* Card teasers run to two or three lines; balancing them keeps the block even
+     instead of leaving a short final line. Headings balance globally already. */
+  .news-card p {
+    text-wrap: balance;
+  }
+  .news-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    /* 64px between rows of cards, 8px between columns */
+    row-gap: 4rem;
+    column-gap: 0.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  @media (min-width: 768px) {
+    .news-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  /* Cover images fade and rise with the grid, the same way the Latest component's
+     covers arrive. The wrapper is not a brand line mask, so the global observer
+     does not touch the image; this owns the transition. */
+  .news-cover {
+    overflow: hidden;
+    margin-bottom: 1rem;
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.9s var(--ease-mechanical), transform 0.9s var(--ease-mechanical);
+  }
+  .news-grid.is-active .news-cover {
+    opacity: 1;
+    transform: translateY(0);
   }
   .news-thumb {
     display: block;
     width: 100%;
     height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
     border: 1px solid rgba(255, 255, 255, 0.12);
+    transition: transform 0.6s var(--ease-mechanical), opacity 0.3s var(--ease-mechanical);
+  }
+  .news-card:hover .news-thumb {
+    transform: scale(1.04);
+    opacity: 0.85;
   }
 </style>
 

@@ -1,0 +1,26 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import WorkHero from '../components/WorkHero.astro';
+---
+
+<Layout
+  title="Work — DATT STUDIO"
+  description="Selected work from DATT STUDIO. Brand identity, visual systems, and digital experiences made to hold."
+  isDark={true}
+>
+  <Header isInverted={true} />
+
+  <main class="bg-black">
+    <WorkHero />
+  </main>
+
+  <Footer isInverted={true} disableMagnet={true} />
+</Layout>
+
+<style>
+  main {
+    overflow-x: hidden;
+  }
+</style>

@@ -1,20 +1,16 @@
 ---
 // HomeIntro.astro
-const text = "Every project begins with context. What matters is defined early, then refined until it holds.";
+const text = "In a crowded digital landscape, clarity is your greatest leverage.<br />We define what matters early, then refine until it holds.";
 ---
 
 <section class="home-intro reveal-trigger relative w-full min-h-[140dvh] px-[var(--page-padding)] flex flex-col items-center justify-center text-center bg-black py-40 md:py-60">
   <div class="max-w-[850px] w-full">
 
-    <!-- Headline: Multi-line flip -->
+    <!-- Headline: one mask, split and staggered per rendered line at runtime -->
     <h2 class="text-white">
-      {text.split('||').map((l, i) => (
-        <span class="brands-line-mask">
-          <span class="brands-line-inner" style={`transition-delay: ${i * 0.1}s`}>
-            {l.trim()}
-          </span>
-        </span>
-      ))}
+      <span class="brands-line-mask">
+        <span class="brands-line-inner" set:html={text}></span>
+      </span>
     </h2>
 
     <!-- CTA Area: Now explicitly sized to 12px label -->
@@ -22,7 +18,7 @@ const text = "Every project begins with context. What matters is defined early, 
       <div class="brands-line-mask inline-block">
         <div class="brands-line-inner" style="transition-delay: 0.5s">
           <a href="/info" class="cta-link inverted-cta">
-            Read about the studio
+            About the studio
           </a>
         </div>
       </div>
@@ -64,6 +60,13 @@ const text = "Every project begins with context. What matters is defined early, 
     font-weight: 600;
     line-height: 1.0 !important;
     letter-spacing: var(--track-tighter);
+  }
+
+  /* The headline is two sentences on two authored lines. The explicit <br>
+     holds the sentence break; `pretty` only tidies the wrap inside each
+     sentence, so the global heading `balance` cannot rebalance through it. */
+  .home-intro h2 {
+    text-wrap: pretty;
   }
 
   /* 4. CTA CONSISTENCY FIX */

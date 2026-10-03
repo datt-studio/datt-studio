@@ -20,6 +20,12 @@ const {
 
 
 const canonicalPath = Astro.url.pathname.endsWith('/') ? Astro.url.pathname : `${Astro.url.pathname}/`;
+
+/* Per-line reveal preview. Enabled on every page in dev so it can be tested
+   before it ships, and absent from production builds until the flag is set.
+   The localStorage override in the script below still wins over this, so a
+   single page can be turned off while comparing against the live behaviour. */
+const lineSplitDev = import.meta.env.DEV;
 const canonicalUrl = `https://dattstudio.com${canonicalPath}`;
 const ogImage = "https://dattstudio.com/assets/video-poster-retina.jpg";
 
@@ -178,6 +184,20 @@ const videoLd = {
         --lh-body: 1.4;
       }
 
+      /* TABLET TYPE SCALE (768-1023px)
+         The display clamps are tuned for phones and large desktops. On a tablet
+         the 9vw curve lands within a few pixels of the 72px desktop cap, which
+         turns long statements into a wall of near-desktop type. A dedicated
+         step for the tablet range keeps headlines readable without touching the
+         phone scale (below 768) or the desktop scale (1024 and up). */
+      @media (min-width: 768px) and (max-width: 1023px) {
+        :root {
+          --font-h1: clamp(46px, 6.6vw, 60px);
+          --font-h2: clamp(34px, 4.8vw, 44px);
+          --font-h3: clamp(24px, 3.4vw, 30px);
+        }
+      }
+
 
       /* --- GLOBAL SELECTION COLOURS --- */
       ::selection {
@@ -223,6 +243,14 @@ const videoLd = {
       p { font-size: clamp(18px, 3vw, 16px); font-weight: 400; line-height: var(--lh-body); letter-spacing: var(--track-tight); }
       .text-label { font-size: var(--font-label); font-weight: 600; text-transform: uppercase; letter-spacing: var(--track-wide); line-height: var(--lh-body); }
 
+      /* SITE-WIDE COPY SETTING
+         Body text takes a pretty final line, so a single word is never stranded
+         on a line of its own and a paragraph does not end in a wide gap. No word
+         is added or removed. `pretty` is progressive: a browser without it falls
+         back to normal wrapping, so nothing regresses. */
+      p, li, dd, dt, blockquote, figcaption { text-wrap: pretty; }
+      h1, h2, h3, h4 { text-wrap: balance; }
+
 
       /* GLOBAL REVEAL ENGINE */
       .brands-line-mask {
@@ -236,6 +264,96 @@ const videoLd = {
       }
       .is-active .brands-line-inner, .is-active.brands-line-inner {
         transform: translateY(0) rotateX(0deg) !important; opacity: 1 !important;
+      }
+
+
+      /* PER-LINE SPLIT (opt-in: body[data-linesplit="on"])
+
+         The engine above reveals one hand-authored mask per element, so a
+         paragraph arrives as a single block. When this is enabled each mask is
+         additionally split into its real rendered lines, one mask per line, and
+         the masks are staggered. transform-box is set so the rotateX on a
+         per-line mask pivots on that line rather than the whole paragraph.
+
+         Line breaks are a function of font metrics and viewport width, so the
+         split is measured at runtime and redone on resize and on font load.
+         Without JS, or with reduced motion, nothing is split and the base
+         engine above applies unchanged. */
+      body[data-linesplit="on"] .ls-mask > .brands-line-inner {
+        transform-box: fill-box;
+        transform-origin: top center;
+      }
+      /* A mask produced by the split carries its own index for the stagger.
+         The bleed padding gives the flip room so glyphs never clip, but that
+         padding sits inside every mask and would otherwise add both paddings'
+         worth of lead between stacked lines, so a split heading drifts from its
+         authored line-height. The adjacent rule cancels the padding exactly:
+         with a bottom margin of -bleed the next mask's top margin of -2 x bleed
+         collapses to -2 x bleed, and padding + margin + padding sums to zero. */
+      /* These are forced because a component styles `.brands-line-mask` with an
+         id-scoped selector (`#philosophy-section .brands-line-mask`), and an id
+         outranks this rule. Without the force the `+` cancel is dropped and
+         every generated line keeps one bleed of extra lead, so a split heading
+         on those pages drifts below its authored line-height. Forcing padding
+         and margin together keeps the sum at zero whatever the component sets. */
+      body[data-linesplit="on"] .ls-mask {
+        display: block !important;
+        padding-top: var(--ls-bleed, 0.2em) !important;
+        padding-bottom: var(--ls-bleed, 0.2em) !important;
+        margin-top: calc(-1 * var(--ls-bleed, 0.2em)) !important;
+        margin-bottom: calc(-1 * var(--ls-bleed, 0.2em)) !important;
+      }
+      body[data-linesplit="on"] .ls-mask + .ls-mask {
+        margin-top: calc(-2 * var(--ls-bleed, 0.2em)) !important;
+      }
+
+      /* Base delay for a block, so two headings in sequence cascade instead of
+         starting together. Read by the splitter and added to each line's step. */
+      .ls-base-03 { --ls-base: 0.3s; }
+
+      /* The element that was split stops being animated itself.
+         The generated per-line masks are nested inside it, so if the original
+         inner kept its closed transform the whole block would travel 115% down
+         while each line inside it did the same again, doubling the offset and
+         the rotation. That reads as a slide with a flicker rather than a
+         line-by-line flip. Neutralising the container leaves the per-line
+         masks as the only animated units. Equal specificity to
+         .is-active .brands-line-inner, but declared later, so it wins. */
+      body[data-linesplit="on"] .brands-line-inner.ls-split-host {
+        transform: none !important;
+        opacity: 1 !important;
+        transition: none !important;
+        will-change: auto;
+      }
+
+      /* Measurement state. The closed mask is translateY + rotateX under a
+         perspective, and getClientRects returns rects in that transformed
+         space, so line tops are distorted non-uniformly and cannot be compared
+         to find line boundaries. The splitter flips this on for the duration of
+         the measure pass, then removes it. Deliberately display:inline-block and
+         not a mask, so the box stays tight to the text and nothing shifts. */
+      body[data-linesplit="on"] .ls-measuring {
+        transform: none !important;
+        opacity: 1 !important;
+        transition: none !important;
+      }
+
+      /* The reduced-motion toggle on /accessibility/ zeroes transition-duration
+         but leaves the closed mask's transform and opacity in place, which would
+         hide the text outright. When motion is off, per-line masks are skipped
+         entirely, so the base engine's own state applies and the copy stays
+         visible. The !important on visibility is what outranks the closed
+         transform, which is declared later in the cascade. */
+      html.user-reduced-motion body[data-linesplit="on"] .brands-line-inner {
+        transform: none !important;
+        opacity: 1 !important;
+        transition: none !important;
+      }
+      html.user-reduced-motion .ls-mask { display: contents !important; }
+      @media (prefers-reduced-motion: reduce) {
+        body[data-linesplit="on"] .brands-line-inner {
+          transform: none !important; transition: none !important; opacity: 1 !important;
+        }
       }
 
 
@@ -266,9 +384,15 @@ const videoLd = {
       body:not([data-page-type="immersive"]):not(.page-dark) #main-header .nav-logo,
       body:not([data-page-type="immersive"]):not(.page-dark) #main-header .desktop-nav-link,
       body:not([data-page-type="immersive"]):not(.page-dark) #main-header #menu-toggle { color: #000 !important; }
+
+      /* LEGAL PAGES: the sidebar links start under the NEWS item in the top nav.
+         The nav gaps are fluid, so the offset is measured in the script below. */
+      @media (min-width: 1024px) {
+        #main-content .legal-sidebar { padding-left: var(--legal-sidebar-left, 5rem); }
+      }
     </style>
   </head>
-  <body class:list={[{ "page-dark": isDark }]}>
+  <body class:list={[{ "page-dark": isDark }]} data-linesplit={lineSplitDev ? 'on' : undefined}>
     <slot />
     <CookieBanner />
 
@@ -287,15 +411,295 @@ const videoLd = {
       }
 
 
+      /* PER-LINE SPLIT
+
+         Measures the real rendered line boxes of a heading or paragraph with
+         Range.getClientRects(), then replaces the single hand-authored mask with
+         one mask per line, each carrying its own stagger delay.
+
+         Two details that matter. Measurement happens before any mutation, so
+         reading client rects never interleaves with writes. And the source HTML
+         is stashed on first pass, so a resize can un-split and re-measure from
+         the original rather than compounding wrappers on wrappers.
+
+         This is inert unless the body carries data-linesplit="on". */
+      const LS_STEP = 0.1;
+
+      /* Base delay comes from a custom property so a component can hold a block
+         back without hardcoding a delay into every generated line. */
+      function lsBase(el) {
+        const raw = getComputedStyle(el).getPropertyValue('--ls-base').trim();
+        if (!raw) return 0;
+        const n = parseFloat(raw);
+        return Number.isFinite(n) ? n : 0;
+      }
+
+      function lsShouldSkip(el) {
+        // Anything that is not flowing text, or that already sits inside a
+        // split, must be left exactly as the base engine authored it.
+        if (el.closest('.ls-mask')) return true;
+        if (el.querySelector('img, video, iframe, svg, canvas, table, .brands-line-mask, .clock-instance')) return true;
+
+        // Article prose runs its own per-block reveal, keyed on .prose-in rather
+        // than .is-active. Splitting inside it would nest new masks that never
+        // receive is-active, leaving the text permanently hidden. Leave it.
+        if (el.closest('[data-prose]')) return true;
+
+        // The hero manages its own cascade from data-text and binds a mouseenter
+        // handler to .trigger-line. It is already one segment per line, so
+        // splitting it would only fight with that script.
+        if (el.closest('.headline-line')) return true;
+
+        return false;
+      }
+
+      /* Collect the elements that actually hold text, in document order.
+         A mask's inner is often a wrapper holding a heading and a paragraph, as
+         on the legal pages, so requiring a single child would skip most of
+         them. Instead every leaf that owns text is collected and split
+         individually, and the line index runs continuously across the whole
+         mask so the cascade reads top to bottom. */
+      function lsTextHosts(el) {
+        const hosts = [];
+        const visit = (node) => {
+          const kids = Array.from(node.children);
+          const ownText = Array.from(node.childNodes).some(
+            n => n.nodeType === 3 && n.nodeValue.trim()
+          );
+          if (ownText && kids.length === 0) { hosts.push(node); return; }
+          if (ownText) { hosts.push(node); return; }
+          kids.forEach(visit);
+        };
+        visit(el);
+        return hosts;
+      }
+
+      function lsOriginal(el) {
+        if (el.dataset.lsSource === undefined) {
+          el.dataset.lsSource = el.innerHTML;
+        }
+        return el.dataset.lsSource;
+      }
+
+      function lsSplit(el) {
+        if (el.dataset.ls === 'done' || el.dataset.ls === 'busy') return;
+        if (lsShouldSkip(el)) return;
+
+        const hosts = lsTextHosts(el);
+        if (!hosts.length) {
+          el.dataset.ls = 'done';
+          return;
+        }
+
+        el.dataset.ls = 'busy';
+        lsOriginal(el);
+
+        /* Measure with the transform off. Reading client rects through a
+           rotateX under a perspective returns distorted, non-uniformly scaled
+           boxes, so the top offsets cannot be compared to find line breaks.
+           Only the transform is neutralised. Display is left alone, because
+           changing it would change the wrapping being measured. */
+        hosts.forEach(h => h.classList.add('ls-measuring'));
+
+        // Measure pass. Read-only: no DOM writes while collecting rects.
+        const measured = [];
+        let lastTop = null;
+
+        hosts.forEach((host) => {
+          const walker = document.createTreeWalker(host, NodeFilter.SHOW_TEXT);
+          const nodes = [];
+          while (walker.nextNode()) nodes.push(walker.currentNode);
+
+          nodes.forEach((node) => {
+            const value = node.nodeValue;
+            let cursor = 0;
+            // Whitespace stays attached to the token before it, so inter-word
+            // spacing is not lost when the line is re-assembled.
+            value.split(/(\s+)/).forEach((part) => {
+              if (!part) return;
+              const start = cursor;
+              const end = cursor + part.length;
+              cursor = end;
+
+              const range = document.createRange();
+              range.setStart(node, start);
+              range.setEnd(node, end);
+              const rects = Array.from(range.getClientRects()).filter(r => r.width > 0 || r.height > 0);
+              if (!rects.length) return;
+
+              const top = Math.round(rects[0].top);
+              if (lastTop === null || Math.abs(top - lastTop) > 4) {
+                measured.push({ host, parts: [] });
+                lastTop = top;
+              }
+              measured[measured.length - 1].parts.push(part);
+            });
+          });
+        });
+
+        hosts.forEach(h => h.classList.remove('ls-measuring'));
+
+        if (!measured.length) {
+          /* Text was found but no client rect had any size, which means the
+             subtree is not laid out. The closed mobile overlay is the case that
+             matters: it is display:none at load, so every rect is zero. Marking
+             it done here would freeze it on the block reveal forever, because
+             the splitter never revisits a finished element. Leaving it unmarked
+             lets a later call split it once it is visible. */
+          delete el.dataset.ls;
+          return;
+        }
+
+        /* Write pass. Each line becomes mask > inner, reusing the global classes
+           so the base CSS drives the animation unchanged. The exact substrings
+           were recorded during measurement, so no source node has to be spliced.
+           The line index runs across every host in this mask, so a heading and
+           the paragraph under it cascade as one sequence. */
+        const base = lsBase(el);
+        const byHost = new Map();
+        measured.forEach((entry, i) => {
+          const mask = document.createElement('span');
+          mask.className = 'brands-line-mask ls-mask';
+          const inner = document.createElement('span');
+          inner.className = 'brands-line-inner';
+          inner.style.transitionDelay = `${base + i * LS_STEP}s`;
+          entry.parts.forEach(p => inner.appendChild(document.createTextNode(p)));
+          mask.appendChild(inner);
+          if (!byHost.has(entry.host)) byHost.set(entry.host, []);
+          byHost.get(entry.host).push(mask);
+        });
+
+        byHost.forEach((masks, host) => host.replaceChildren(...masks));
+        el.dataset.ls = 'done';
+        // The split container no longer animates; its line masks do.
+        el.classList.add('ls-split-host');
+
+        // The new masks must inherit whatever the parent already had, or they
+        // stay closed after the section has revealed.
+        if (el.classList.contains('is-active') || el.closest('.is-active')) {
+          el.querySelectorAll('.brands-line-mask').forEach(m => m.classList.add('is-active'));
+        }
+      }
+
+      /* Toggle for previewing without a rebuild. Set from the console:
+           localStorage.setItem('linesplit', 'on'); location.reload()
+           localStorage.setItem('linesplit', 'off'); location.reload()
+           localStorage.removeItem('linesplit'); location.reload()
+         'off' shows the block reveal this replaces, for comparison. The layout
+         also sets the body attribute on in dev, so no setup is needed there. */
+      function lsMotionOff() {
+        return document.documentElement.classList.contains('user-reduced-motion') ||
+          (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+      }
+
+      function lsOn() {
+        // Never split when motion is off. The toggle on /accessibility/ exists
+        // precisely so a visitor can remove transitions, and splitting would
+        // add a hundred nested masks to do it.
+        if (lsMotionOff()) return false;
+        const stored = localStorage.getItem('linesplit');
+        if (stored === 'on') return true;
+        if (stored === 'off') return false;
+        return document.body.getAttribute('data-linesplit') === 'on';
+      }
+
+      function lsFlag(on) {
+        if (on) document.body.setAttribute('data-linesplit', 'on');
+        else document.body.removeAttribute('data-linesplit');
+      }
+
+      function lsApply() {
+        lsFlag(lsOn());
+        if (!lsOn()) return;
+        const targets = document.querySelectorAll(
+          '.brands-line-mask > .brands-line-inner'
+        );
+        targets.forEach(lsSplit);
+      }
+
+      function lsReset() {
+        document.querySelectorAll('[data-ls-source]').forEach(el => {
+          el.innerHTML = el.dataset.lsSource;
+          delete el.dataset.ls;
+        });
+      }
+
+      let lsTimer;
+      window.addEventListener('resize', () => {
+        if (!lsOn()) return;
+        clearTimeout(lsTimer);
+        lsTimer = setTimeout(() => {
+          lsReset();
+          lsApply();
+        }, 200);
+      });
+
+      // Fonts land after first paint and they change where lines break.
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => {
+          if (!lsOn()) return;
+          lsReset();
+          lsApply();
+        });
+      }
+
+
+      /* Split a subtree that could not be measured while hidden.
+         The mobile overlay is display:none until it opens, so at load time every
+         rect inside it is zero, no lines are found and it is marked done. It
+         then keeps the old block reveal forever. Exposing this lets the menu
+         split itself on open, where the overlay is laid out and measurable. */
+      window.dattSplitLines = function (root) {
+        if (!lsOn() || !root) return;
+        root.querySelectorAll(
+          '.brands-line-mask > .brands-line-inner'
+        ).forEach(lsSplit);
+      };
+
       function initLayout() {
         if ('scrollRestoration' in history) { history.scrollRestoration = 'auto'; }
         document.body.classList.remove('video-active');
         initUniversalReveal();
+        lsApply();
       }
 
 
       initLayout();
       document.addEventListener('astro:after-swap', initLayout);
+    </script>
+
+    <script is:inline>
+      /* Legal pages: left-align the sidebar links to the NEWS item in the top nav,
+         the same way the footer's Follow us column sits under News. The nav gaps
+         are fluid, so the offset is measured. The link text runs at 13px uppercase,
+         so the column must stay wide enough for the longest label. */
+      function sizeLegalSidebar() {
+        const aside = document.querySelector('#main-content .legal-sidebar');
+        if (!aside) return;
+        const news = document.querySelector('#main-header a[href="/news"]');
+        if (!news || window.innerWidth < 1024) {
+          aside.style.removeProperty('--legal-sidebar-left');
+          return;
+        }
+        const a = aside.getBoundingClientRect();
+        const n = news.getBoundingClientRect();
+        const border = parseFloat(getComputedStyle(aside).borderLeftWidth) || 0;
+        const links = [...aside.querySelectorAll('.sidebar-link')];
+        const widest = links.reduce((m, l) => Math.max(m, l.getBoundingClientRect().width), 0);
+        const maxLeft = Math.max(0, Math.round(a.width - widest - 8));
+        let left = Math.round(n.left - a.left - border);
+        if (left < 0) left = 0;
+        if (left > maxLeft) left = maxLeft;
+        aside.style.setProperty('--legal-sidebar-left', left + 'px');
+      }
+      if (!window.__dattLegalSidebar) {
+        window.__dattLegalSidebar = true;
+        window.addEventListener('resize', sizeLegalSidebar, { passive: true });
+        window.addEventListener('load', sizeLegalSidebar);
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(sizeLegalSidebar);
+      }
+      sizeLegalSidebar();
+      document.addEventListener('astro:after-swap', sizeLegalSidebar);
     </script>
   </body>
 </html>

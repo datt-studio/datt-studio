@@ -1,21 +1,23 @@
 ---
 // BrandStatement.astro
-// Moved "don't" to the first segment
-const text = "Strong brands don't demand attention. They hold it.";
+// Moved "don't" to the first segment. "They hold it." is kept as one
+// unbreakable unit: at narrow phone widths "attention. They hold it." cannot
+// fit on one line, and without this the last line stranded a single word
+// ("hold it." / "it."). Keeping the phrase together lets it drop to its own
+// line only when the line above cannot hold it.
+const text = "Strong brands don't demand<br />attention. <span class=\"hold-together\">They hold it.</span>";
 const text2 = "Built through clarity, consistency, and conviction. The most effective work feels inevitable. Not because it's simple, but because nothing unnecessary remains.";
 ---
 <section class="brand-statement reveal-trigger relative w-full min-h-[100dvh] px-[var(--page-padding)] flex flex-col items-start justify-center text-left bg-black py-24">
-  <div class="max-w-[500px] w-full">
+  <div class="max-w-[850px] w-full">
 
-    <!-- Title: Syncs with HomeApproach (mb-12 + 0.1s delay) -->
+    <!-- Title: one mask, split and staggered per rendered line at runtime.
+         The break after "demand" is intentional so the sentence turns on its
+         second half. -->
     <h2 class="text-white mb-12">
-      {text.split('||').map((l, i) => (
-        <span class="brands-line-mask">
-          <span class="brands-line-inner" style={`transition-delay: ${i * 0.1}s`}>
-            {l.trim()}
-          </span>
-        </span>
-      ))}
+      <span class="brands-line-mask">
+        <span class="brands-line-inner" set:html={text}></span>
+      </span>
     </h2>
 
     <!-- Description: Syncs with HomeApproach (mb-10 + 0.4s delay) -->
@@ -70,6 +72,19 @@ const text2 = "Built through clarity, consistency, and conviction. The most effe
     font-weight: 600;
     line-height: 1.0 !important;
     letter-spacing: var(--track-tighter);
+  }
+
+  /* The title turns after "demand"; balancing keeps either half from stranding
+     a word if it has to wrap at a narrow width. */
+  .brand-statement h2 {
+    text-wrap: balance;
+  }
+
+  /* Keep the closing phrase whole. It is dropped to its own line by the line
+     splitter when "attention. They hold it." will not fit, rather than leaving
+     a single trailing word on the last line. */
+  .brand-statement .hold-together {
+    white-space: nowrap;
   }
 
   .brand-statement p {

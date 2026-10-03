@@ -113,7 +113,7 @@ const lastUpdated = "16 June 2026";
         </div>
       </article>
 
-      <aside class="w-full md:w-[35%] lg:sticky lg:top-[132px] h-fit md:pl-20 border-l border-white/5">
+      <aside class="legal-sidebar w-full md:w-[35%] lg:sticky lg:top-[132px] h-fit md:pl-20 border-l border-white/5">
         <nav class="flex flex-col items-start gap-y-3">
           {sidebarLinks.map((link, i) => (
             <div class="brands-line-mask">
@@ -129,7 +129,8 @@ const lastUpdated = "16 June 2026";
 
 <style is:global>
   #main-content h4 { font-size: var(--font-h4); font-weight: 600; }
-  #main-content p { color: #b4b4b4; font-weight: 400; line-height: var(--lh-body); }
+  #main-content p { color: #b4b4b4; font-weight: 400; line-height: var(--lh-body); text-wrap: balance; }
+  #main-content h1, #main-content h2, #main-content h3, #main-content h4 { text-wrap: balance; }
   .cta-link:hover { color: #7e7e7e !important; }
   .sidebar-link { color: #7e7e7e !important; text-decoration: none; transition: color 0.4s var(--ease-mechanical); }
   .sidebar-link:hover, .sidebar-link.active { color: #ffffff !important; }

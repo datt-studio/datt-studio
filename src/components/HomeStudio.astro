@@ -2,36 +2,101 @@
 // HomeStudio.astro
 const title = "A creative studio for brands built to last.";
 const body = "Work shaped through clarity, restraint, and careful execution. Built to be recognised. Designed to endure.";
+
+// Awards listed verbatim. No dates, scores or vote counts here: this block is a
+// short list of what was recognised, and the articles under /news/ carry the
+// detail.
+const recognition = [
+  { label: "CSS Winner Site of the Day", video: 0 },
+  { label: "CSSDA Special Kudos", video: 1 },
+  { label: "CSSDA Public Awards Best UI", video: 2 },
+  { label: "CSSDA Public Awards Best UX", video: 3 },
+  { label: "CSSDA Public Awards Best Innovation", video: 4 },
+];
+
+// One clip per recognition row, in row order. The CSS Winner row reuses the
+// clip from its article; the CSSDA rows use the short cuts supplied for the
+// hover previews. No poster is set on the CSSDA cuts: they load on demand.
+const previews = [
+  { src: "/news/csswinner-sotd.mp4", poster: "/news/csswinner-sotd.webp" },
+  { src: "/assets/CSSDA-SK-short.mp4" },
+  { src: "/assets/CSSDA-UI-short.mp4" },
+  { src: "/assets/CSSDA-UX-short.mp4" },
+  { src: "/assets/CSSDA-INN-short.mp4" },
+];
 ---
 
 <section class="home-studio reveal-trigger relative w-full min-h-[100dvh] px-[var(--page-padding)] flex flex-col items-start justify-center text-left bg-black py-24">
-  <div class="max-w-[580px] w-full">
+  <div class="home-studio-grid w-full grid grid-cols-1 lg:justify-between gap-y-20 lg:gap-y-0">
 
-    <!-- 1. Headline: Tight leading, specific margin -->
-    <div class="brands-line-mask mb-12">
-      <h2 class="brands-line-inner text-white" style="transition-delay: 0.1s;">
-        {title}
-      </h2>
+    <div class="w-full">
+
+      <!-- 1. Headline: Tight leading, specific margin -->
+      <div class="brands-line-mask mb-12">
+        <h2 class="brands-line-inner text-white" style="transition-delay: 0.1s;">
+          {title}
+        </h2>
+      </div>
+
+      <!-- 2. Body: System leading, white/80 contrast -->
+      <div class="max-w-[500px] mb-10">
+          <div class="brands-line-mask">
+              <p class="brands-line-inner text-white/80" style="transition-delay: 0.4s;">
+                {body}
+              </p>
+          </div>
+      </div>
+
+      <!-- 3. CTA: Studio Label style -->
+      <div class="brands-line-mask inline-block">
+          <div class="brands-line-inner" style="transition-delay: 0.6s">
+            <a href="/info" class="cta-link inverted-cta">
+              About the studio
+            </a>
+          </div>
+      </div>
+
     </div>
 
-    <!-- 2. Body: System leading, white/80 contrast -->
-    <div class="max-w-[500px] mb-10">
-        <div class="brands-line-mask">
-            <p class="brands-line-inner text-white/80" style="transition-delay: 0.4s;">
-              {body}
-            </p>
+    <!-- 4. Recognition: right of the copy on desktop, below it on mobile.
+         The mask and inner follow the same shape as every other block here, so
+         the table reveals with the section and the line splitter descends into
+         the cells to stagger the rows. -->
+    <div class="brands-line-mask w-full">
+      <div class="brands-line-inner" style="transition-delay: 0.2s;">
+        <table class="home-studio-table">
+          <thead>
+            <tr>
+              <th scope="col">Recognition</th>
+            </tr>
+          </thead>
+          <tbody>
+            {recognition.map((item) => (
+              <tr data-video-index={item.video}>
+                <td>{item.label}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Hover previews for the recognition rows. Fixed and pointer-events-none,
+       following the cursor like the Services portal but smaller, and scoped to
+       this section. Layers crossfade so moving between rows swaps the clip
+       smoothly instead of cutting. -->
+  <div id="recognition-video-node" class="pointer-events-none fixed top-0 left-0 z-[1200] hidden md:block w-[300px] aspect-video opacity-0 transition-opacity duration-500">
+    <div id="recognition-video-flip" class="relative w-full h-full overflow-hidden bg-neutral-900 shadow-2xl">
+      {previews.map((preview, i) => (
+        <div class="recognition-video-layer absolute inset-0 opacity-0 transition-opacity duration-500" data-index={i}>
+          <video muted loop playsinline preload="none" poster={preview.poster} class="h-full w-full object-cover">
+            <source src={preview.src} type="video/mp4" />
+          </video>
         </div>
+      ))}
     </div>
-
-    <!-- 3. CTA: Studio Label style -->
-    <div class="brands-line-mask inline-block">
-        <div class="brands-line-inner" style="transition-delay: 0.6s">
-          <a href="/info" class="cta-link inverted-cta">
-            About the studio
-          </a>
-        </div>
-    </div>
-
   </div>
 </section>
 
@@ -98,6 +163,84 @@ const body = "Work shaped through clarity, restraint, and careful execution. Bui
     height: 1.5px;
   }
 
+  /* --- RECOGNITION LAYOUT ---
+     On desktop the table is anchored to the Services link in the top nav: its
+     left edge lines up with that link, and the grid gives it whatever width is
+     left to the page margin. --recognition-width is measured at runtime (the
+     nav gaps are fluid), with a 400px fallback before the script runs. */
+  @media (min-width: 1024px) {
+    .home-studio .home-studio-grid {
+      grid-template-columns: minmax(0, 580px) minmax(0, var(--recognition-width, 400px));
+    }
+    .home-studio .home-studio-grid > .brands-line-mask {
+      width: var(--recognition-width, 400px);
+    }
+  }
+
+  /* --- RECOGNITION TABLE ---
+     The rules mirror .news-prose table in /news/[...slug].astro, so the list
+     here and the tables in the articles read as the same object. Only the
+     spacing and font scale differ, to sit at this section's type size. */
+
+  .home-studio-table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #ffffff;
+    margin: 0;
+    font-size: var(--font-label);
+    letter-spacing: var(--track-tight);
+  }
+
+  .home-studio-table th,
+  .home-studio-table td {
+    text-align: left;
+    padding: 0.9em 1em 0.9em 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+    vertical-align: top;
+  }
+
+  .home-studio-table th {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: var(--track-wide);
+    font-size: 0.78em;
+    color: rgba(255, 255, 255, 0.62);
+  }
+
+  .home-studio-table th:last-child,
+  .home-studio-table td:last-child { padding-right: 0; }
+
+  .home-studio-table tbody tr:last-child td {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  /* The splitter wraps each cell's text in a mask. Inside a table cell the
+     descender padding the masks carry elsewhere would push the row borders
+     apart unevenly, so it is removed here. */
+  .home-studio-table .brands-line-mask {
+    padding-top: 0;
+    padding-bottom: 0;
+    overflow: visible;
+  }
+
+  /* --- RECOGNITION HOVER PREVIEW ---
+     The same flip-and-follow behaviour as the Services portal, at a smaller
+     size. The clip flips up on the first hover; layers crossfade, so sliding
+     from one award row to the next changes the clip smoothly rather than
+     cutting. The box stays 16:9 and every clip is cropped to fill it edge to
+     edge, so the 4:3 CSSDA cuts read full bleed rather than letterboxed. */
+  #recognition-video-node { perspective: 900px; }
+  #recognition-video-flip {
+    transform: translateY(40%) rotateX(-60deg);
+    transform-origin: bottom center;
+    transition: transform 1.1s var(--ease-mechanical), opacity 0.5s ease;
+  }
+  #recognition-video-node.is-visible #recognition-video-flip {
+    transform: translateY(0) rotateX(0deg);
+  }
+  .recognition-video-layer.is-active { opacity: 1 !important; z-index: 10; }
+
   /* Spacing Helper */
   .mb-14 { margin-bottom: 60px; }
   .mb-12 { margin-bottom: 48px; }
@@ -107,3 +250,106 @@ const body = "Work shaped through clarity, restraint, and careful execution. Bui
     .mb-12 { margin-bottom: 32px; }
   }
 </style>
+
+<script is:inline>
+  // The hover node and the table rows are looked up on each event rather than
+  // captured once. The node can be replaced after this script first runs, and a
+  // captured reference would then keep writing to an element that is no longer
+  // in the document. Looking everything up per event also survives view swaps.
+  function setupRecognitionVideos() {
+    if (window.__dattRecognitionBound) return;
+    window.__dattRecognitionBound = true;
+
+    const isDesktop = () => window.innerWidth >= 768;
+
+    const open = (index) => {
+      const node = document.getElementById('recognition-video-node');
+      if (!node) return;
+      node.classList.add('is-visible');
+      node.style.opacity = '1';
+      node.querySelectorAll('.recognition-video-layer').forEach((layer, i) => {
+        const video = layer.querySelector('video');
+        if (i === index) {
+          layer.classList.add('is-active');
+          // Nothing is fetched until the row is hovered, so the homepage does
+          // not pay for these clips on load.
+          if (video.preload === 'none') { video.preload = 'auto'; video.load(); }
+          video.play().catch(() => {});
+        } else {
+          layer.classList.remove('is-active');
+          video.pause();
+        }
+      });
+    };
+
+    const close = () => {
+      const node = document.getElementById('recognition-video-node');
+      if (!node) return;
+      node.classList.remove('is-visible');
+      node.style.opacity = '0';
+      node.querySelectorAll('.recognition-video-layer video').forEach((video) => video.pause());
+    };
+
+    // mouseover bubbles where mouseenter does not, so one document listener
+    // covers the rows however many times the table is rewritten.
+    document.addEventListener('mouseover', (e) => {
+      const row = e.target instanceof Element ? e.target.closest('.home-studio-table tbody tr') : null;
+      if (row && isDesktop()) open(Number(row.dataset.videoIndex || 0));
+    }, { passive: true });
+
+    document.addEventListener('mouseout', (e) => {
+      const row = e.target instanceof Element ? e.target.closest('.home-studio-table tbody tr') : null;
+      const to = e.relatedTarget;
+      const stillInside = to instanceof Element && !!to.closest('.home-studio-table');
+      if (row && !stillInside) close();
+    }, { passive: true });
+
+    // Follow the cursor with the same easing as the Services portal.
+    let tX = window.innerWidth / 2, tY = window.innerHeight / 2;
+    let cX = tX, cY = tY;
+    window.addEventListener('mousemove', (e) => { tX = e.clientX; tY = e.clientY; }, { passive: true });
+
+    function render() {
+      const node = document.getElementById('recognition-video-node');
+      if (node && isDesktop() && node.classList.contains('is-visible')) {
+        cX += (tX - cX) * 0.15;
+        cY += (tY - cY) * 0.15;
+        node.style.transform = `translate3d(${cX - node.offsetWidth / 2}px, ${cY - node.offsetHeight / 2}px, 0)`;
+      }
+      requestAnimationFrame(render);
+    }
+    render();
+  }
+
+  setupRecognitionVideos();
+  document.addEventListener('astro:after-swap', setupRecognitionVideos);
+
+  // Keep the recognition table's left edge on the Services link in the top nav.
+  // The nav gaps are fluid, so the offset is measured rather than hard-coded.
+  function sizeRecognitionTable() {
+    const grid = document.querySelector('.home-studio-grid');
+    const copy = grid ? grid.firstElementChild : null;
+    const link = document.querySelector('#main-header a[href="/services"]');
+    if (!grid || !copy || !link) return;
+    if (window.innerWidth < 1024) {
+      grid.style.removeProperty('--recognition-width');
+      return;
+    }
+    const g = grid.getBoundingClientRect();
+    const c = copy.getBoundingClientRect();
+    const s = link.getBoundingClientRect();
+    // Never overlap the copy, even if the Services link sits further left.
+    const left = Math.max(s.left - g.left, c.right - g.left);
+    const width = Math.max(200, Math.round(g.width - left));
+    grid.style.setProperty('--recognition-width', `${width}px`);
+  }
+
+  if (!window.__dattRecognitionSized) {
+    window.__dattRecognitionSized = true;
+    window.addEventListener('resize', sizeRecognitionTable, { passive: true });
+    window.addEventListener('load', sizeRecognitionTable);
+  }
+  document.addEventListener('astro:after-swap', sizeRecognitionTable);
+  sizeRecognitionTable();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(sizeRecognitionTable);
+</script>

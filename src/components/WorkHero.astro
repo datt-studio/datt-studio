@@ -1,0 +1,51 @@
+---
+// WorkHero.astro
+// The Work page is not open yet. This is the same headline block used at the
+// top of Services and Info, reduced to a single line.
+const line = "Coming soon.";
+---
+
+<section class="work-hero reveal-trigger px-[var(--page-padding)] pt-[120px] pb-20 md:pb-40 bg-black min-h-[100dvh]">
+  <div class="max-w-[1010px] w-full">
+    <h1 class="hero-title">
+      <span class="brands-line-mask block">
+        <span class="brands-line-inner block">{line}</span>
+      </span>
+    </h1>
+  </div>
+</section>
+
+<style is:global>
+  .work-hero .hero-title {
+    font-size: var(--font-h1);
+    font-weight: 600;
+    line-height: var(--lh-xtight);
+    letter-spacing: var(--track-tighter);
+    color: #FFFFFF;
+  }
+
+  .work-hero .brands-line-mask {
+    display: block;
+    overflow: hidden;
+    perspective: 1200px;
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
+    margin-top: -0.2em;
+    margin-bottom: -0.2em;
+  }
+
+  .work-hero .brands-line-inner {
+    display: block;
+    transform: translateY(115%) rotateX(-60deg);
+    transform-origin: top center;
+    opacity: 0;
+    transition: transform 1.3s var(--ease-mechanical), opacity 0.9s var(--ease-mechanical);
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+  }
+
+  .work-hero.is-active .brands-line-inner {
+    transform: translateY(0) rotateX(0deg) !important;
+    opacity: 1 !important;
+  }
+</style>

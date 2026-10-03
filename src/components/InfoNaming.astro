@@ -37,8 +37,9 @@ const bodyText = "Reaching the mark. Holding it. Built into the process. Reflect
         </h2>
       </div>
 
-      <!-- Bottom Paragraph -->
-      <div class="max-w-[550px]">
+      <!-- Bottom Paragraph. The measure is set so the copy turns after a full
+           sentence instead of mid-phrase. -->
+      <div class="max-w-[460px]">
         <div class="brands-line-mask">
           <!-- Paragraph now inherits Weight 400 and Leading 1.6 from Layout.astro -->
           <p class="brands-line-inner text-white/80" style="transition-delay: 0.4s;">
@@ -59,6 +60,13 @@ const bodyText = "Reaching the mark. Holding it. Built into the process. Reflect
     line-height: var(--lh-xtight);
     letter-spacing: var(--track-tighter); /* Updated from track-tight */
     max-width: 900px;
+    text-wrap: balance;
+  }
+
+  /* The body copy wraps across two lines; pretty keeps it from stranding a
+     word on the second line. No copy is changed. */
+  #naming-section p {
+    text-wrap: pretty;
   }
 
   /* 2. MASKING & 3D ANIMATION - Fixed for Descenders */

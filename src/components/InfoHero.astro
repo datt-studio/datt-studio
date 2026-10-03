@@ -1,33 +1,21 @@
 ---
 // InfoSection.astro
-const part1 = "DATT STUDIO is a creative studio designing brands, systems, and digital experiences.";
+const part1 = "DATT STUDIO is a design agency & creative studio designing brands, systems, and digital experiences.";
 const part2 = "We build clear, distinctive identities through strategy, design, and implementation. Designed for clarity. Built to hold.";
 ---
 
 <section class="info-section px-[var(--page-padding)] pt-[120px] pb-20 md:pb-40 bg-black">
-  <div class="max-w-[1010px] w-full flex flex-col gap-y-12 md:gap-y-16">
+  <div data-intro-container class="w-full">
 
-    <!-- Block 1 -->
-    <h1 class="hero-title">
-      {part1.split('||').map((line, i) => (
-        <span class="brands-line-mask block">
-          <span class="brands-line-inner block" style={`transition-delay: ${i * 0.1}s`}>
-            {line.trim()}
-          </span>
-        </span>
-      ))}
-    </h1>
-
-    <!-- Block 2 -->
-    <h1 class="hero-title">
-      {part2.split('||').map((line, i) => (
-        <span class="brands-line-mask block">
-          <span class="brands-line-inner block" style={`transition-delay: ${0.3 + (i * 0.1)}s`}>
-            {line.trim()}
-          </span>
-        </span>
-      ))}
-    </h1>
+    <!-- One mask around both headings so the splitter indexes the intro as a
+         single cascade: the first line of the second heading starts after the
+         last line of the first, rather than both beginning together. -->
+    <div class="brands-line-mask">
+      <div class="brands-line-inner flex flex-col gap-y-12 md:gap-y-16">
+        <h1 class="hero-title">{part1}</h1>
+        <h1 class="hero-title">{part2}</h1>
+      </div>
+    </div>
 
   </div>
 </section>
@@ -39,6 +27,7 @@ const part2 = "We build clear, distinctive identities through strategy, design, 
     line-height: var(--lh-xtight);
     letter-spacing: var(--track-tighter);
     color: #FFFFFF;
+    text-wrap: balance; /* keeps 'Defined by' off a line of its own */
   }
 
   .info-section .brands-line-mask {
@@ -66,5 +55,13 @@ const part2 = "We build clear, distinctive identities through strategy, design, 
   .info-section.is-active .brands-line-inner {
     transform: translateY(0) rotateX(0deg) !important;
     opacity: 1 !important;
+  }
+
+  /* The intro takes the full content width. The top nav shares the same page
+     padding, so this reaches the end of the Contact item with nothing measured
+     at runtime, which keeps it from starting narrow and snapping wide. */
+  .info-section [data-intro-container] {
+    width: 100%;
+    max-width: none;
   }
 </style>

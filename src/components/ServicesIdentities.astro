@@ -41,7 +41,7 @@ const items = ["Brand strategy", "Positioning", "Naming", "Visual identity", "Ar
           <div class="brands-line-mask w-full">
             <div class="brands-line-inner w-full service-tile group" style={`transition-delay: ${0.3 + (i * 0.05)}s`}>
               <div class="py-5 px-6 transition-colors duration-300">
-                <span class="text-white font-semibold group-hover:text-black transition-colors duration-300 uppercase text-[11px] tracking-[0.08em]">
+                <span class="text-white font-semibold group-hover:text-black uppercase text-[11px] tracking-[0.08em]">
                   {item}
                 </span>
               </div>
@@ -100,7 +100,7 @@ const items = ["Brand strategy", "Positioning", "Naming", "Visual identity", "Ar
     transition:
       transform 1.3s var(--ease-mechanical),
       opacity 0.9s var(--ease-mechanical),
-      background-color 0.4s var(--ease-mechanical) !important;
+      background-color 0.45s cubic-bezier(0.4, 0, 0.2, 1) !important;
     will-change: transform, opacity;
     backface-visibility: hidden;
   }
@@ -117,5 +117,12 @@ const items = ["Brand strategy", "Positioning", "Naming", "Visual identity", "Ar
   #services-identities .service-tile:hover {
     background-color: #FFFFFF !important;
     transform: none !important;
+  }
+
+  /* The label colour eases on the same curve and duration as the tile wash, so
+     moving between tiles reads as one crossfade instead of two out-of-step
+     ones. */
+  #services-identities .service-tile span {
+    transition: color 0.45s cubic-bezier(0.4, 0, 0.2, 1);
   }
 </style>

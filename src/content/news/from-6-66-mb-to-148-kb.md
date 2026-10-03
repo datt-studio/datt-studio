@@ -1,5 +1,5 @@
 ---
-title: "Cutting the homepage to 110 KB"
+title: "From 6.66 MB to 148 KB"
 date: 2026-09-29
 summary: "What changed, what it cost, and what the numbers look like afterwards."
 draft: false
@@ -7,7 +7,7 @@ cover: /assets/news/performance-cover.webp
 coverAlt: "Performance measurements taken while the homepage was being rebuilt."
 ---
 
-The homepage used to transfer 6.66 MB on a phone. It now transfers 113,397 B (110.7 KiB). This is what happened in between, what we left in place on purpose, and what we would do differently.
+The homepage used to transfer 6.66 MB on a phone. It now transfers 152,224 B (148.7 KiB). This is what happened in between, what we left in place on purpose, and what we would do differently.
 
 ## Where it started
 
@@ -15,7 +15,7 @@ The first version of this site was a portfolio with a full-screen video hero, a 
 
 Most of the weight sat in three places. An unoptimised hero video that loaded on page view, fonts pulled from a third-party CDN covering every glyph the font designer shipped, and the hero poster as a large JPEG. Every one of those was a decision someone made and nobody revisited.
 
-Two numbers frame the rest of this, and they are not the same number. The video files on disk totalled 18.71 MB. A Lighthouse mobile run transferred 6,658,776 bytes of it, because two video elements pulled the reel in parallel and the browser stopped when the audit ended.
+Two numbers frame the rest of this, and they are not the same number. The video files on disk totalled 18.71 MB. A Lighthouse mobile run transferred 6,658,776 bytes of it, because the browser was still buffering the video when the audit ended. The exact figure depends on how far it got, so it is a floor rather than a fixed cost.
 
 The scores were not a mystery. They were the arithmetic of those files.
 
@@ -29,13 +29,15 @@ We did not take it further, and that was a decision rather than an oversight. Th
 
 The poster frame is a WebP now. The same still as a JPEG was 103,857 bytes. It is 9,806 bytes now, a reduction of 90.6%, and the hero paints a real image rather than an empty box.
 
+A later feature added four more clips to the site. They are the short cuts that play when a row in the recognition table is hovered, and together they are 14,917,464 bytes on disk. None of the clips is fetched on page load. They carry preload none and are requested only when a row is hovered. One of them also carries a poster frame, which behaves differently, and that image is accounted for below.
+
 ## The fonts
 
 This part was wrong when we first wrote it, so it is worth being exact about what actually changed.
 
 The site was not self-hosting fonts at the start. It loaded Inter from Google's CDN. That was 73,053 bytes of woff2 and 1,170 bytes of stylesheet, 74,223 bytes in total, and it was a third-party request on the critical path.
 
-The font is no longer a third-party request. Inter ships as two self-hosted subsets: a Latin core file at 52,972 bytes, and a Latin Extended file at 12,492 bytes. Most pages never trigger the second one, because the browser fetches it only when a character needs it. The article on the wordmark does need it, since it contains Đ and ạ. The third-party payload cost 74,223 bytes, the self-hosted pair costs 53,495, and the request leaves a third party entirely.
+The font is no longer a third-party request. Inter ships as two self-hosted subsets: a Latin core file at 52,972 bytes, and a Latin Extended file at 12,492 bytes, 65,464 bytes for the pair. Most pages never trigger the second one, because the browser fetches it only when a character needs it. The article on the wordmark does need it, since it contains Đ and ạ. The third-party payload was 74,223 bytes. The core file the browser fetches on most pages is 52,972, and the request leaves a third party entirely.
 
 It is not two full variable files replaced by two small ones. That is what we believed had happened and what we wrote down, and the network log does not support it.
 
@@ -65,31 +67,32 @@ It was wrong for a studio whose position is clarity. A translucent, floating nav
 
 | | Before | After |
 |---|---|---|
-| Transferred, mobile | 6.66 MB | 113,397 B (110.7 KiB) |
+| Transferred, mobile | 6.66 MB | 152,224 B (148.7 KiB) |
 | Performance, mobile | 94 | 99 |
 | Performance, desktop | 100 | 100 |
 | Best practices | 100 | 100 |
 | Accessibility | 96 | 100 |
 | SEO | 92 | 100 |
 | Third-party requests | 2 | 0 |
-| Video files on disk | 18.71 MB | 9.53 MB |
 | Hero reel on disk | 8.75 MB | 3.37 MB |
+| Page video on disk, four files | 18.71 MB | 9.53 MB |
+| Recognition clips on disk, four files | none | 14.92 MB |
 
-The before column is a Lighthouse 13.5.0 run against commit 7b20a84, built locally, served on localhost and measured on mobile. The after column is a Lighthouse 13.5.0 mobile run against the rebuilt site, taken on the live site on 29 September 2026.
+Both columns are Lighthouse 13.5.0 runs against a local build, served on localhost and measured on mobile. The before column is commit 7b20a84, the version with the video hero. The after column is the current build.
 
-The two were not taken at the same address. The before run was served from localhost. The after run was taken from the public edge, so it carries assets the local run never saw. About 11.5 KB of the after figure is Cloudflare challenge script and favicon. The site's own files account for about 99 KB. We quote the larger number because it is the one a reader will reproduce in their own network panel.
+A few requests make up most of the after figure. The font is the largest single one at 53,182 bytes. The document is 22,407 bytes, the favicon is 16,545, the hero poster is 10,015 and the reveal script is 4,981. The next largest request after the font is an image: 43,352 bytes for the poster frame of the CSS Winner recognition preview. That preview node is hidden below 768 pixels, but the poster is attached to a video element and the browser fetches it whether or not the node is shown. It is the one request in the figure we would remove if we were counting strictly.
 
-The figure comes from a single measured run. The number moves by a kilobyte or two between runs, and repeated measurements gave 110, 111 and 112 KiB, so treat the last digit as noise.
+Repeated runs gave the same total, 152,224 bytes, every time, because the page requests a fixed set of files. The performance score moved between 99 and 100. Treat the score as the part that varies.
 
-The Best Practices row is the one number that moves depending on where the run happens. Our own origin reports 100. The public edge reports 81, because the edge injects the challenge script and a redirect that the origin does not serve. The page did not change between the two.
+The Best Practices row can move depending on where the run happens. Our own build reports 100. When we measured the public edge during this work it read 81, because the edge injects a challenge script and a redirect the origin does not serve. The page itself did not change.
 
 ## Desktop, and what we left on the table
 
 There is no desktop payload row in that table, and the reason is a decision rather than a measurement problem.
 
-Desktop still fetches the hero reel. The most recent desktop run transferred 3,338,134 bytes of it, which is 99.1% of the file. That run scored 100 while doing it, because the video begins after the metrics the score is built from have already been recorded. The score was never going to show this. Only the byte count did.
+Desktop still fetches the hero reel. The most recent desktop run transferred 3,145,992 bytes of it, which is 93% of the file. That run scored 100 while doing it, because the video begins after the metrics the score is built from have already been recorded. The score was never going to show this. Only the byte count did.
 
-Strip the reel and the edge scripts and the desktop page transfers 101,423 bytes, against 101,629 on mobile. Desktop is not heavier. It has one large file attached to it.
+Strip the reel and the desktop page transfers 152,224 bytes, the same as mobile. Desktop is not heavier. It has one large file attached to it.
 
 The cause is three lines of script. On any device reporting a fine pointer, the video's preload attribute is set to auto on page load. The markup says preload none. The script overrides it.
 
@@ -113,14 +116,14 @@ Build the budget first. We had no target before we started optimising, which mea
 
 Measure the files, not only the page. Lighthouse reports what the browser transferred during the run. Some of our video files are larger on disk than anything the audit recorded, because the browser stopped before it finished them. We wrote a figure for the page and a different figure for the assets and did not notice that they disagreed.
 
-Check the network log before writing about the fonts. We believed we had replaced two full variable files with two small subsets. The log shows one third-party woff2 replaced by one self-hosted file. The saving is 28%, not the order of magnitude we had been describing.
+Check the network log before writing about the fonts. We believed we had replaced two full variable files with two small subsets. The log shows one third-party woff2 replaced by one self-hosted file. The saving is about 28%, not the order of magnitude we had been describing.
 
-Quote the number a reader will reproduce. We first wrote this article at 95 KB from a hand measurement. We then wrote it at 4.6 MB, also by hand, and called that a measurement. Both were wrong. The transferred figure is 6,658,776 bytes, which is 31% more than the number we were about to publish.
+Quote the number a reader will reproduce. We first wrote this article at 95 KB from a hand measurement. We then wrote it at 4.6 MB, also by hand, and called that a measurement. Both were wrong. The transferred figure is 6,658,776 bytes on a phone, and we only had it after rebuilding the page and running the audit again.
 
-Rebuild the before state before writing about it. An earlier draft recorded 6.3 MB from memory. The real figure was 6.66 MB, so the memory was nearly right and the corrected number we were about to publish was 31% out. We found out by checking out the old commit and running the audit again.
+Rebuild the before state before writing about it. An earlier draft recorded 6.3 MB from memory. The measured figure was 6,658,776 bytes, so the memory was within a few percent, but we only knew that after checking out the old commit and running the audit again.
 
 ## Where this is written down
 
-Every figure here came from a Lighthouse 13.5.0 run or from a byte count taken on the file. The before column is commit 7b20a84, built locally and served on localhost. The after column is a Lighthouse 13.5.0 mobile run against the live site on 29 September 2026. Where the two were taken at different addresses, this note says so.
+Every figure here came from a Lighthouse 13.5.0 run or from a byte count taken on the file. Both columns are local builds served on localhost. The before column is commit 7b20a84. The after column is the current build. Where a figure is a file size rather than a transfer, the text says so.
 
-Lighthouse reports transfer sizes in KiB, which is 1,024 bytes rather than 1,000. The 110 in the table is 110 KiB by that measure. The 6.66 MB before figure is decimal, which is the same measurement as 6.35 MiB.
+Lighthouse reports transfer sizes in KiB, which is 1,024 bytes rather than 1,000. The 148.7 in the table is KiB by that measure, 152,224 bytes. The 6.66 MB before figure is decimal, which is the same measurement as 6.35 MiB.

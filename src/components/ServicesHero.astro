@@ -1,28 +1,27 @@
 ---
 // InfoHero.astro
-const part1 = "Identity. Systems. Digital.";
-const part2 = "A focused practice spanning brand identity, visual systems, and digital experiences.";
-const part3 = "Work built with structure. Defined by precision.";
-const part4 = "Made to hold.";
+// The body of the intro is one flowing paragraph. Only the closing beat sits
+// on a line of its own, so the copy wraps naturally instead of breaking into a
+// stack of short fragments.
+const intro = "Identity. Systems. Digital. A focused practice spanning brand identity, visual systems, and digital experiences. Work built with structure. Defined by precision.";
+const closing = "Made to hold.";
 
-const lines = [part1, part2, part3, part4];
+const lines = [intro, closing];
 ---
 
 <section class="info-hero-section reveal-trigger px-[var(--page-padding)] pt-[120px] pb-20 md:pb-40 bg-black">
-  <div class="max-w-[1010px] w-full flex flex-col gap-y-10 md:gap-y-12">
+  <div data-intro-container class="w-full">
 
-    {lines.map((line, i) => (
-      <h1 class="hero-title m-0">
-        <span class="brands-line-mask">
-          <span
-            class="brands-line-inner"
-            style={`transition-delay: ${i * 0.12}s`}
-          >
-            {line}
-          </span>
-        </span>
-      </h1>
-    ))}
+    <!-- One mask around every line so the splitter indexes the whole intro as a
+         single cascade and each line starts after the one above it, rather than
+         one sequence per block all starting together. -->
+    <div class="brands-line-mask">
+      <div class="brands-line-inner flex flex-col gap-y-10 md:gap-y-12">
+        {lines.map((line) => (
+          <h1 class="hero-title m-0">{line}</h1>
+        ))}
+      </div>
+    </div>
 
   </div>
 </section>
@@ -37,6 +36,7 @@ const lines = [part1, part2, part3, part4];
     color: #FFFFFF;
     margin: 0;
     text-transform: none; /* Respects sentence case in variables */
+    text-wrap: balance; /* keeps 'Defined by' off a line of its own */
   }
 
   /* 2. MECHANICAL REVEAL ENGINE */
@@ -65,6 +65,14 @@ const lines = [part1, part2, part3, part4];
   .info-hero-section.is-active .brands-line-inner {
     transform: translateY(0) rotateX(0deg) !important;
     opacity: 1 !important;
+  }
+
+  /* The intro takes the full content width. The top nav shares the same page
+     padding, so this reaches the end of the Contact item with nothing measured
+     at runtime, which keeps it from starting narrow and snapping wide. */
+  .info-hero-section [data-intro-container] {
+    width: 100%;
+    max-width: none;
   }
 </style>
 
