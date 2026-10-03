@@ -6,6 +6,10 @@ import sitemap from '@astrojs/sitemap';
 
 const env = loadEnv(process.env.NODE_ENV || "development", process.cwd(), "");
 
+// A deploy is the moment the served page changes, so this is a verifiable
+// lastmod for every canonical URL and never older than the content it stamps.
+const buildTime = new Date().toISOString();
+
 
 export default defineConfig({
   site: 'https://dattstudio.com',
@@ -27,6 +31,12 @@ export default defineConfig({
         !/\/(?:404|500|502|503|504)\/?$/.test(page) &&
         !/\/(?:privacy-cookies-policy|terms-of-use)\/?$/.test(page) &&
         !/\/preview-reveal\/?$/.test(page),
+      // Give each canonical URL a lastmod so Google has a freshness signal to
+      // guide recrawls. Without it the sitemap carries only bare <loc> entries.
+      serialize(item) {
+        item.lastmod = buildTime;
+        return item;
+      },
     }),
     sanity({
       projectId: env.PUBLIC_SANITY_PROJECT_ID,

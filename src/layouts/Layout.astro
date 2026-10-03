@@ -41,6 +41,7 @@ const socialLinks = [
 const organizationLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
+  "@id": "https://dattstudio.com/#organization",
   "name": "DATT STUDIO",
   "legalName": "DATT STUDIO LTD",
   "url": "https://dattstudio.com/",
@@ -55,6 +56,18 @@ const organizationLd = {
     "addressCountry": "GB",
   },
   "sameAs": socialLinks,
+};
+
+// === JSON-LD: WEBSITE SCHEMA ===
+// Site-wide so Google can attach the site name ("DATT STUDIO") to the domain
+// in search results. Linked to the Organization node by @id.
+const websiteLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": "https://dattstudio.com/#website",
+  "name": "DATT STUDIO",
+  "url": "https://dattstudio.com/",
+  "publisher": { "@id": "https://dattstudio.com/#organization" },
 };
 
 // === JSON-LD: VIDEO SCHEMA ===
@@ -117,6 +130,7 @@ const videoLd = {
 
 
     <script type="application/ld+json" set:html={JSON.stringify(organizationLd)} />
+    <script type="application/ld+json" set:html={JSON.stringify(websiteLd)} />
     {showVideoLd && <script type="application/ld+json" set:html={JSON.stringify(videoLd)} />}
 
 
