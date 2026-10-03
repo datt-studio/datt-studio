@@ -23,13 +23,13 @@ export default defineConfig({
   integrations: [
     tailwind(),
     sitemap({
-      // Error pages, and the URLs that robots.txt Disallows, must not appear
-      // in the sitemap: Google reports a sitemap that lists a disallowed URL
-      // as an error. Keep the sitemap to canonical, indexable, crawlable
-      // pages only.
+      // Error pages and the local-only preview page must not appear in the
+      // sitemap. The legal pages (privacy, terms) are ordinary indexable pages,
+      // so they stay in: blocking them in robots.txt while they declare
+      // index,follow was contradictory. Keep the sitemap to canonical,
+      // indexable, crawlable pages only.
       filter: (page) =>
         !/\/(?:404|500|502|503|504)\/?$/.test(page) &&
-        !/\/(?:privacy-cookies-policy|terms-of-use)\/?$/.test(page) &&
         !/\/preview-reveal\/?$/.test(page),
       // Give each canonical URL a lastmod so Google has a freshness signal to
       // guide recrawls. Without it the sitemap carries only bare <loc> entries.

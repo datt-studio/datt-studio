@@ -2,6 +2,3 @@ User-agent: *
 Allow: /
 
 Sitemap: https://dattstudio.com/sitemap-index.xml
-
-Disallow: /privacy-cookies-policy/
-Disallow: /terms-of-use/
