@@ -1,4 +1,3 @@
 Contact: mailto:hello@dattstudio.com
 Expires: 2026-12-31T23:59:59z
-Acknowledgments: https://dattstudio.com/acknowledgments
 Preferred-Languages: en

@@ -12,7 +12,7 @@ const { code, message } = Astro.props;
 const digits = (code ?? 'ERR').split('');
 ---
 
-<Layout title={`${code} — ${message}`} isDark={true}>
+<Layout title={`${code} — ${message}`} isDark={true} robots="noindex, follow">
   <div class="error-page-wrapper">
     <Header />
     <main class="error-content px-[var(--page-padding)]">
