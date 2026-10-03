@@ -1,6 +1,9 @@
 ---
 // HomeIntro.astro
-const text = "In a crowded digital landscape, clarity is your greatest leverage.<br />We define what matters early, then refine until it holds.";
+// Two sentences on two authored lines. "greatest leverage." and "it holds."
+// are bound with non-breaking spaces so neither pair can split at the phone
+// widths where the wrap otherwise strands the final word on its own line.
+const text = "In a crowded digital landscape, clarity is your greatest&nbsp;leverage.<br />We define what matters early, then refine until it&nbsp;holds.";
 ---
 
 <section class="home-intro reveal-trigger relative w-full min-h-[140dvh] px-[var(--page-padding)] flex flex-col items-center justify-center text-center bg-black py-40 md:py-60">
@@ -63,10 +66,10 @@ const text = "In a crowded digital landscape, clarity is your greatest leverage.
   }
 
   /* The headline is two sentences on two authored lines. The explicit <br>
-     holds the sentence break; `pretty` only tidies the wrap inside each
-     sentence, so the global heading `balance` cannot rebalance through it. */
+     holds the sentence break; `balance` only evens the wrap inside each
+     sentence, so the two sentences keep their own shape. */
   .home-intro h2 {
-    text-wrap: pretty;
+    text-wrap: balance;
   }
 
   /* 4. CTA CONSISTENCY FIX */
