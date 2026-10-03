@@ -64,9 +64,9 @@ const { isInverted = false } = Astro.props;
   </nav>
 
   <!-- Social links: a secondary group pinned to the bottom of the screen. Kept
-       tighter than the main menu (40px targets, 4px gaps) so it reads as one
+       tighter than the main menu (36px targets, 2px gaps) so it reads as one
        compact block rather than a second list. -->
-  <div class="mt-auto pb-8 flex flex-col items-stretch gap-y-1">
+  <div class="mt-auto pb-8 flex flex-col items-stretch gap-y-0.5">
     {socialLinks.map((social, i) => (
       <div class="brands-line-mask">
         <a
@@ -109,7 +109,7 @@ const { isInverted = false } = Astro.props;
   .social-link {
     display: flex;
     align-items: center;
-    min-height: 40px;
+    min-height: 36px;
     font-size: var(--font-label);
     font-weight: 600;
     text-decoration: none;
