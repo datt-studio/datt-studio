@@ -3,7 +3,10 @@
 // Two sentences on two authored lines. "greatest leverage." and "it holds."
 // are bound with non-breaking spaces so neither pair can split at the phone
 // widths where the wrap otherwise strands the final word on its own line.
-const text = "In a crowded digital landscape, clarity is your greatest&nbsp;leverage.<br />We define what matters early, then refine until it&nbsp;holds.";
+// "digital landscape," and "clarity is" are also wrapped in .intro-keep: on
+// browsers without `text-wrap: balance` they are held unbreakable (see the
+// @supports block below) so greedy wrapping cannot strand "your" alone.
+const text = 'In a crowded <span class="intro-keep">digital landscape,</span> <span class="intro-keep">clarity is</span> your greatest&nbsp;leverage.<br />We define what matters early, then refine until it&nbsp;holds.';
 ---
 
 <section class="home-intro reveal-trigger relative w-full min-h-[140dvh] px-[var(--page-padding)] flex flex-col items-center justify-center text-center bg-black py-40 md:py-60">
@@ -70,6 +73,17 @@ const text = "In a crowded digital landscape, clarity is your greatest&nbsp;leve
      sentence, so the two sentences keep their own shape. */
   .home-intro h2 {
     text-wrap: balance;
+  }
+
+  /* Browsers without `text-wrap: balance` (older mobile Safari/Firefox and
+     some in-app webviews) fall back to greedy wrapping, which strands "your"
+     alone between "clarity is" and "greatest leverage." on phones. Holding
+     those phrases unbreakable restores the clean breaks there only; browsers
+     that honour `balance` are left exactly as tuned above. */
+  @supports not (text-wrap: balance) {
+    .home-intro .intro-keep {
+      white-space: nowrap;
+    }
   }
 
   /* 4. CTA CONSISTENCY FIX */
