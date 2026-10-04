@@ -26,7 +26,7 @@ That is worth stating plainly rather than letting an awards page imply a body of
 
 A studio that values clarity should have a site that is fast, weighs nothing, and stays out of the way.
 
-This one runs on Astro. Fonts are self-hosted and subset to the characters the site actually uses. The whole homepage transfers about 152 KB on a mobile load, with no third-party requests initiated by the page. On mobile the hero video loads only on interaction. On desktop it loads on page view. Performance is 99 on mobile and 100 on desktop, and accessibility and SEO are both 100. The measurements are written up in full in [From 6.66 MB to 148 KB](/news/from-6-66-mb-to-148-kb/), including the parts that did not work.
+This one runs on Astro. Fonts are self-hosted and subset to the characters the site actually uses. The whole homepage transfers about 152 KiB on a mobile load, with no third-party requests initiated by the page. On mobile the hero video loads only on interaction. On desktop it loads on page view. Performance is 99 on mobile and 100 on desktop, and accessibility and SEO are both 100. The measurements are written up in full in [From 6.66 MB to 148 KB](/news/from-6-66-mb-to-148-kb/), including the parts that did not work.
 
 ## Following along
 

@@ -118,7 +118,7 @@ Measure the files, not only the page. Lighthouse reports what the browser transf
 
 Check the network log before writing about the fonts. We believed we had replaced two full variable files with two small subsets. The log shows one third-party woff2 replaced by one self-hosted file. The saving is about 28%, not the order of magnitude we had been describing.
 
-Quote the number a reader will reproduce. We first wrote this article at 95 KB from a hand measurement. We then wrote it at 4.6 MB, also by hand, and called that a measurement. Both were wrong. The transferred figure is 6,658,776 bytes on a phone, and we only had it after rebuilding the page and running the audit again.
+Quote the number a reader will reproduce. We first wrote this article at 95 KiB from a hand measurement. We then wrote it at 4.6 MB, also by hand, and called that a measurement. Both were wrong. The transferred figure is 6,658,776 bytes on a phone, and we only had it after rebuilding the page and running the audit again.
 
 Rebuild the before state before writing about it. An earlier draft recorded 6.3 MB from memory. The measured figure was 6,658,776 bytes, so the memory was within a few percent, but we only knew that after checking out the old commit and running the audit again.
 
