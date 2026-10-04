@@ -10,11 +10,11 @@ We have been nominated at three design awards. Saying so here rather than leavin
 
 ## Where we are
 
-**CSS Design Awards.** Nominated in the Agency category. Judged on a panel score. Website of the Day goes to the highest average across the nomination window.
+**CSS Design Awards.** Nominated in the Agency category. Judged by a panel of industry experts. Website of the Day is awarded based on the highest average score across the nomination window.
 
-**The FWA.** Nominated in Of the Day. Judges score each submission out of one hundred over fourteen days. Seventy points from twenty judges takes the daily award.
+**The FWA.** Nominated for FWA of the Day. Judges from The FWA's international jury score each submission out of 100. To be awarded FWA of the Day, a project must receive at least 70 points and votes from at least 20 judges over the 14-day judging period.
 
-**CSS Winner.** Nominated in Winners. Decided on jury scores and public votes combined.
+**CSS Winner.** Nominated in the CSS Winner awards. Winners are decided by a combination of jury scores and public votes.
 
 ## What this does not say
 
@@ -26,11 +26,12 @@ That is worth stating plainly rather than letting an awards page imply a body of
 
 A studio that values clarity should have a site that is fast, weighs nothing, and stays out of the way.
 
-This one runs on Astro. Fonts are self-hosted and subset to the characters the site actually uses. The whole homepage transfers about 110 KiB on a mobile load, with no third-party requests initiated by the page. On mobile the hero video loads only on interaction. On desktop it loads on page view, and we have left it there. Performance is 99 on mobile and 100 on desktop, and accessibility and SEO are both 100. The measurements are written up in full, including the parts that did not work.
+This one runs on Astro. Fonts are self-hosted and subset to the characters the site actually uses. The whole homepage transfers about 152 KB on a mobile load, with no third-party requests initiated by the page. On mobile the hero video loads only on interaction. On desktop it loads on page view. Performance is 99 on mobile and 100 on desktop, and accessibility and SEO are both 100. The measurements are written up in full in [From 6.66 MB to 148 KB](/news/from-6-66-mb-to-148-kb/), including the parts that did not work.
 
 ## Following along
 
-Judging is open on all three and scores move daily.
+Judging is open on all three, and scores move daily as votes come in. For more on The FWA's live judging process, see [How FWA Live Judging Works](https://www.thefwa.com/about/judging).
+
 
 **Update.** Two of the three have resolved. The site received Special Kudos at CSS Design Awards, and Site of the Day at CSS Winner. The FWA is still being judged. Both results are written up: [CSS Design Awards](/news/recognised-for-quality/) and [CSS Winner](/news/site-of-the-day-css-winner/).
 
