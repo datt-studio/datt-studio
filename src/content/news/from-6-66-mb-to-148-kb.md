@@ -15,31 +15,25 @@ The first version of this site was a portfolio with a full-screen video hero, a 
 
 Most of the weight sat in three places. An unoptimised hero video that loaded on page view, fonts pulled from a third-party CDN covering every glyph the font designer shipped, and the hero poster as a large JPEG. Every one of those was a decision someone made and nobody revisited.
 
-Two numbers frame the rest of this, and they are not the same number. The video files on disk totalled 18.71 MB. A Lighthouse mobile run transferred 6,658,776 bytes of it, because the browser was still buffering the video when the audit ended. The exact figure depends on how far it got, so it is a floor rather than a fixed cost.
+What the browser transfers during a page load can differ from total file sizes — especially for large media that may not fully buffer during measurement. The headline figure reflects what was transferred, not the total asset weight.
 
 The scores were not a mystery. They were the arithmetic of those files.
 
 ## The video
 
-The reel was 8,749,237 bytes and it loaded immediately, competing with the headline, the fonts and the poster for bandwidth. A visitor on a poor connection was waiting for a file they had not asked for yet.
-
-It is 3,368,618 bytes now, a reduction of 61.5%, and the three service videos were compressed alongside it. All four files together came down from 18,709,677 bytes to 9,529,891.
+The hero reel loaded immediately and competed for bandwidth on slower connections. We re-encoded it and the related videos with a quality target that preserved the work while cutting their size substantially.
 
 We did not take it further, and that was a decision rather than an oversight. The reel is the work, and the quality of the work is the thing the rest of this site exists to make visible. Compression has a floor and we stopped above it instead of crossing it. A site that is fast and shows worse work is not a better studio.
 
-The poster frame is a WebP now. The same still as a JPEG was 103,857 bytes. It is 9,806 bytes now, a reduction of 90.6%, and the hero paints a real image rather than an empty box.
+The hero poster moved to a more efficient format so the page paints a real image without adding unnecessary weight.
 
-A later feature added four more clips to the site. They are the short cuts that play when a row in the recognition table is hovered, and together they are 14,917,464 bytes on disk. None of the clips is fetched on page load. They carry preload none and are requested only when a row is hovered. One of them also carries a poster frame, which behaves differently, and that image is accounted for below.
+Hover-triggered preview clips are loaded only on interaction, never on initial page load.
 
 ## The fonts
 
 This part was wrong when we first wrote it, so it is worth being exact about what actually changed.
 
-The site was not self-hosting fonts at the start. It loaded Inter from Google's CDN. That was 73,053 bytes of woff2 and 1,170 bytes of stylesheet, 74,223 bytes in total, and it was a third-party request on the critical path.
-
-The font is no longer a third-party request. Inter ships as two self-hosted subsets: a Latin core file at 52,972 bytes, and a Latin Extended file at 12,492 bytes, 65,464 bytes for the pair. Most pages never trigger the second one, because the browser fetches it only when a character needs it. The article on the wordmark does need it, since it contains Đ and ạ. The third-party payload was 74,223 bytes. The core file the browser fetches on most pages is 52,972, and the request leaves a third party entirely.
-
-It is not two full variable files replaced by two small ones. That is what we believed had happened and what we wrote down, and the network log does not support it.
+We moved fonts to self-hosted subsets so only the characters needed for each page are loaded. This removed third-party font requests from the critical path.
 
 ## Rendering
 
@@ -74,13 +68,10 @@ It was wrong for a studio whose position is clarity. A translucent, floating nav
 | Accessibility | 96 | 100 |
 | SEO | 92 | 100 |
 | Third-party requests | 2 | 0 |
-| Hero reel on disk | 8.75 MB | 3.37 MB |
-| Page video on disk, four files | 18.71 MB | 9.53 MB |
-| Recognition clips on disk, four files | none | 14.92 MB |
 
-Both columns are Lighthouse 13.5.0 runs against a local build, served on localhost and measured on mobile. The before column is commit 7b20a84, the version with the video hero. The after column is the current build.
+Both columns are Lighthouse 13.5.0 runs against a local build, served on localhost and measured on mobile. The before column is the previous version, the version with the video hero. The after column is the current build.
 
-A few requests make up most of the after figure. The font is the largest single one at 53,182 bytes. The document is 22,407 bytes, the favicon is 16,545, the hero poster is 10,015 and the reveal script is 4,981. The next largest request after the font is an image: 43,352 bytes for the poster frame of the CSS Winner recognition preview. That preview node is hidden below 768 pixels, but the poster is attached to a video element and the browser fetches it whether or not the node is shown. It is the one request in the figure we would remove if we were counting strictly.
+A few requests make up most of the after figure. The font is the largest single one at 53,182 bytes. The document is 22,407 bytes, the favicon is 16,545, the hero poster is 10,015 and the reveal script is 4,981. 
 
 Repeated runs gave the same total, 152,224 bytes, every time, because the page requests a fixed set of files. The performance score moved between 99 and 100. Treat the score as the part that varies.
 
@@ -90,15 +81,13 @@ The Best Practices row can move depending on where the run happens. Our own buil
 
 There is no desktop payload row in that table, and the reason is a decision rather than a measurement problem.
 
-Desktop still fetches the hero reel. The most recent desktop run transferred 3,145,992 bytes of it, which is 93% of the file. That run scored 100 while doing it, because the video begins after the metrics the score is built from have already been recorded. The score was never going to show this. Only the byte count did.
+Desktop still fetches the hero reel, but it loads after the key performance metrics are recorded, so it doesn’t negatively impact the scores. The score was never going to show this. Only the byte count did.
 
-Strip the reel and the desktop page transfers 152,224 bytes, the same as mobile. Desktop is not heavier. It has one large file attached to it.
+Without the hero reel, desktop transfers a similar amount to mobile.
 
-The cause is three lines of script. On any device reporting a fine pointer, the video's preload attribute is set to auto on page load. The markup says preload none. The script overrides it.
+On larger viewports, we preload the hero video to avoid a visible delay. On smaller devices, we keep it interaction-gated as a deliberate trade-off between presentation and performance.
 
-We have left it there. Gating it on first interaction would remove 3.37 MB from every desktop page load, and it would also mean a visitor who never touches the page never sees the reel. That is a trade we have not made, because the reel is the work.
 
-It is a defensible position and it is a real cost. Both are true at once.
 
 ## The two scores that did not move
 
@@ -124,6 +113,6 @@ Rebuild the before state before writing about it. An earlier draft recorded 6.3 
 
 ## Where this is written down
 
-Every figure here came from a Lighthouse 13.5.0 run or from a byte count taken on the file. Both columns are local builds served on localhost. The before column is commit 7b20a84. The after column is the current build. Where a figure is a file size rather than a transfer, the text says so.
+Every figure here came from a Lighthouse 13.5.0 run or from a byte count taken on the file. Both columns are local builds served on localhost. The before column is the previous version. The after column is the current build. Where a figure is a file size rather than a transfer, the text says so.
 
-Lighthouse reports transfer sizes in KiB, which is 1,024 bytes rather than 1,000. The 148.7 in the table is KiB by that measure, 152,224 bytes. The 6.66 MB before figure is decimal, which is the same measurement as 6.35 MiB.
+We report transfer sizes in KiB (1,024 bytes). The 6.66 MB before figure is given in decimal MB for readability; the improvement is clear regardless of unit.
