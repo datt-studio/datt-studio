@@ -38,3 +38,75 @@ import ServicesApproach from '../components/ServicesApproach.astro'; // Added Im
     overflow-x: hidden;
   }
 </style>
+
+<style is:global>
+  /* --- TABLET: THE COPY HANGS OFF THE SERVICES ITEM IN THE NAV ---
+     Between 768px and 1023px these sections are split in two, and the copy ends
+     up in the right half of a tablet screen with only the page margin to its
+     left, while the top nav has a SERVICES item sitting much further right. The
+     copy is hung off that item instead, so the reading column starts where the
+     word SERVICES does. It is the same join the homepage's recognition table
+     makes with the same link.
+
+     The label column takes the measured distance and the copy takes what is
+     left, rather than the copy being shoved across with a margin: a margin
+     would come out of the copy's own width and leave it a sliver, which is the
+     thing this is meant to fix. The distance is capped at 55% of the container
+     so a wide nav on a narrow tablet cannot do that either, and 45% stands in
+     until the script has measured it.
+
+     Nothing here applies at 1024px and up, where the split and its proportions
+     are left exactly as they were, or below 768px, where the nav has no SERVICES
+     item to line up with and the copy already runs the full width. */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    #services-identities > div,
+    #services-systems > div,
+    #services-digital > div {
+      grid-template-columns: minmax(0, var(--services-copy-left, 45%)) 1fr;
+    }
+
+    /* Our Approach gives up the split altogether on a tablet. The label and the
+       four steps are one reading column rather than two, so the steps get the
+       width of the section instead of the right-hand part of it and each one is
+       a comfortable measure rather than a column with the label beside it. The
+       column hangs off the SERVICES item like every other section here.
+
+       The label's own bottom margin is what the split needed, and md:mb-0 has
+       already taken it away at this width, so it is put back to keep the gap
+       between the label and the steps. */
+    #services-approach > div {
+      grid-template-columns: minmax(0, 1fr);
+      margin-left: var(--services-copy-left, 45%);
+    }
+    #services-approach > div > div:first-child {
+      margin-bottom: 3rem;
+    }
+  }
+</style>
+
+<script is:inline>
+  /* Where the SERVICES item sits in the top nav, so the copy below the hero can
+     be hung off it. The nav gaps are fluid, so the offset is measured rather
+     than hard-coded. Set at every width and only read between 768px and 1023px,
+     which means the value is already right if the window is dragged across
+     either edge. */
+  function sizeTabletCopy() {
+    const main = document.querySelector('main');
+    const link = document.querySelector('#main-header a[href="/services"]');
+    const anchor = document.getElementById('services-identities');
+    if (!main || !link || !anchor) return;
+    const container = anchor.firstElementChild.getBoundingClientRect();
+    const wanted = link.getBoundingClientRect().left - container.left;
+    const left = Math.min(Math.max(0, wanted), container.width * 0.55);
+    main.style.setProperty('--services-copy-left', `${Math.round(left)}px`);
+  }
+
+  if (!window.__dattTabletCopy) {
+    window.__dattTabletCopy = true;
+    window.addEventListener('resize', sizeTabletCopy, { passive: true });
+    window.addEventListener('load', sizeTabletCopy);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(sizeTabletCopy);
+  }
+  sizeTabletCopy();
+  document.addEventListener('astro:after-swap', sizeTabletCopy);
+</script>

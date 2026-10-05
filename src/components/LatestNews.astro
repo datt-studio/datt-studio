@@ -11,19 +11,45 @@ const fmt = (d) =>
 <section class="latest-news reveal-trigger w-full px-[var(--page-padding)] pt-20 md:pt-32 pb-24 md:pb-40 bg-black">
   <div class="w-full">
 
-    <!-- Same heading block as the footer, reading Recent News. -->
-    <div class="mb-12 md:mb-12">
-      <div class="brands-line-mask !py-[0.8em] !-my-[0.8em]">
-        <h2 class="brands-line-inner text-white max-w-[1100px]">Latest</h2>
+    <!-- Heading row: the section name on the left, the ALL NEWS CTA on the right.
+         The CTA was in a row of its own below the cards. It belongs with the
+         heading it belongs to, and one row means the way on to every article is
+         where the eye already is after reading the heading.
+
+         Each side is a plain wrapper with the reveal mask inside it, rather than
+         the mask being the thing in the row. That is what puts the two on one
+         baseline: the row aligns the baselines of what is in it, and a reveal
+         mask clips, so a mask in the row hands back a baseline taken from its
+         own box instead of from its text — two differently sized texts in two
+         clipped boxes then sit several pixels apart however carefully the row is
+         aligned. The wrappers are unclipped and their baselines come from the
+         text, and the masks keep doing the reveal underneath. -->
+    <div class="latest-news-head">
+      <div class="latest-news-headline">
+        <div class="brands-line-mask !py-[0.8em] !-my-[0.8em]">
+          <h2 class="brands-line-inner text-white max-w-[1100px]">Latest</h2>
+        </div>
+      </div>
+
+      <div class="latest-news-cta">
+        <div class="brands-line-mask block">
+          <div class="brands-line-inner block" style="--ls-base: 0.5s; transition-delay: 0.5s">
+            <a href="/news" class="cta-link inverted-cta">All news</a>
+          </div>
+        </div>
       </div>
     </div>
 
     {posts.length > 0 && (
-      <ul class="latest-news-grid">
+      /* Below 1024px this viewport clips the track to one card at a time and the
+         script drives it by translate. From 1024px the clip is lifted and the
+         track is the four-up grid again. */
+      <div class="latest-news-viewport">
+      <ul class="latest-news-grid latest-news-track">
         {posts.map((post, i) => {
           const base = i * 0.12;
           return (
-            <li class="latest-news-card">
+            <li class="latest-news-card" data-latest-id={post.id}>
               <a href={`/news/${post.id}/`} class="latest-news-link">
                 <!-- Cover: a plain fade, not a mask. The reveal engine skips any
                      inner that contains an image, and a rotateX on a fixed-ratio
@@ -63,11 +89,24 @@ const fmt = (d) =>
           );
         })}
       </ul>
+      </div>
     )}
 
-    <div class="brands-line-mask block latest-news-read-all">
-      <div class="brands-line-inner block" style="--ls-base: 0.5s; transition-delay: 0.5s">
-        <a href="/news" class="cta-link inverted-cta">All news</a>
+    {/* Below 1024px these step through the carousel, and they take the row the
+        ALL NEWS CTA used to have below the cards. Icon controls with no
+        underline, in 48px targets with 20px between them, so they are hittable
+        by a thumb. Right-aligned, so the control column sits under the CTA now
+        that both are on the right. Hidden from 1024px, where all four cards are
+        visible and there is nothing to step to, and with them this row, which
+        would otherwise be an empty box under the grid. */}
+    <div class="latest-news-foot">
+      <div class="latest-news-arrows" role="group" aria-label="Latest articles">
+        <button type="button" class="latest-news-arrow" data-latest-dir="-1" disabled>
+          <span aria-hidden="true">←</span><span class="sr-only">Previous article</span>
+        </button>
+        <button type="button" class="latest-news-arrow" data-latest-dir="1">
+          <span aria-hidden="true">→</span><span class="sr-only">Next article</span>
+        </button>
       </div>
     </div>
 
@@ -75,6 +114,42 @@ const fmt = (d) =>
 </section>
 
 <style>
+  /* --- HEADING ROW ---
+     The section name and the ALL NEWS CTA on one baseline, the name left and the
+     CTA right. align-items baseline rather than centre: the heading is 36 to 56px
+     and the CTA is a label, so centring them would sit the CTA near the middle
+     of the heading's line box and read as a caption hung off it. On the baseline
+     the two share a line, the way a heading and its own link do.
+
+     The gap is not what separates them. space-between does that, across the
+     whole column, so the CTA holds the right margin at every width rather than
+     sitting a fixed distance from the heading. */
+  .latest-news-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+
+  /* The CTA is a link on a heading's baseline, so it keeps the label scale and
+     weight it has everywhere else and adds nothing of its own.
+
+     display:block is the part that matters. .cta-link is an inline-block, which
+     puts its text inside a line box that belongs partly to the row's other
+     contents rather than to the CTA itself, and a row that aligns baselines
+     then reads that shared line instead of the CTA's own text — so the CTA sits
+     a few pixels above the heading however carefully the row is aligned, 5px at
+     desktop and 4px on a phone. A block box has its own line box, its own
+     baseline, and nothing to disagree about. The wrapper is a flex item sized to
+     its contents, so the block link is still only as wide as the words and the
+     underline still runs exactly under them. */
+  .latest-news-cta { flex-shrink: 0; }
+  .latest-news-cta .cta-link {
+    display: block;
+    white-space: nowrap;
+  }
+
   .latest-news-grid {
     list-style: none;
     margin: 0;
@@ -178,10 +253,668 @@ const fmt = (d) =>
     color: #ffffff !important;
   }
 
-  /* Clear space above the READ ALL NEWS CTA. The mask carries its own 0.2em of
-     top padding inside the box, so subtracting it from the margin makes the
-     visible gap from the last article card to the CTA exactly 80px. */
-  .latest-news-read-all {
-    margin-top: calc(5rem - 0.2em);
+  /* --- CAROUSEL: MOBILE AND TABLET ---
+
+     The track becomes a horizontal strip and the viewport clips it to the width
+     of the content column, so one card is shown at full width and the next is
+     held off screen. The card takes its width from the column rather than a
+     fixed size, so it is the same on a phone and on a tablet. Only the transform
+     is driven by script; width and spacing stay in CSS so the layout is settled
+     before the script measures it. */
+  .latest-news-arrows { display: none; }
+
+  /* The row that held the ALL NEWS CTA. On desktop the arrows are gone and the
+     CTA has moved up to the heading, so there is nothing left in this row and
+     removing it entirely takes the empty box with it rather than leaving a gap
+     under the grid. */
+  .latest-news-foot { display: none; }
+
+  @media (max-width: 1023px) {
+    .latest-news-viewport {
+      overflow: hidden;
+      /* Bleeds to the page edge so the card is clipped exactly at the margin
+         rather than the clip stopping short of it and leaving a gap. */
+      margin-inline: calc(var(--page-padding) * -1);
+      padding-inline: var(--page-padding);
+      cursor: grab;
+      touch-action: pan-y;
+    }
+    .latest-news-viewport.is-dragging { cursor: grabbing; }
+
+    .latest-news-grid.latest-news-track {
+      display: flex;
+      align-items: stretch;
+      gap: 0.5rem;
+      /* No transition here. The script owns the movement so a drag can follow
+         the finger exactly and only a release eases into place. */
+      will-change: transform;
+    }
+
+    /* Full width of the content column, so a card runs margin to margin and the
+       square cover is as large as the column allows. */
+    .latest-news-track > .latest-news-card {
+      flex: 0 0 100%;
+      min-width: 0;
+      scroll-snap-align: start;
+    }
+
+    /* Covers go square on a phone only.
+
+       At one card across, a 16:9 frame on a 350px card is a short letterbox
+       under a narrow image and the article has nothing to look at; a square
+       holds the frame the card actually has.
+
+       From 768px the card is 720px and up, and a square there is 720px tall,
+       which is too much of the viewport for one article and crops the frame
+       harder than the wide card needs cropping. So a tablet goes back to the
+       desktop's 16:9 and only a phone keeps the square. 768px is the width the
+       header treats as the same line — below it the site is on its phone
+       layout. object-fit stays cover either way, so the crop is the fill and
+       the image is never letterboxed or stretched. */
+    @media (max-width: 767px) {
+      .latest-news-cover img {
+        aspect-ratio: 1 / 1;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      /* One cover is not centred worth showing. This article's frame is a wide
+         screenshot, so squaring it keeps only the middle third and whatever was
+         in the middle of it — a column of readings and nothing around them,
+         which reads as a mistake rather than as a crop. Anchoring the fill to the
+         left keeps the start of the frame, where the subject is.
+
+         Written against the article rather than against the last card, so it
+         stays this cover if the order changes, and only on a phone: at 768px and
+         up the frame is 16:9 and is not cropped at all. */
+      .latest-news-card[data-latest-id="from-6-66-mb-to-148-kb"] .latest-news-cover img {
+        object-position: left center;
+      }
+    }
+
+    .latest-news-foot {
+      display: flex;
+      align-items: flex-end;
+      /* Left, because this is the spot the ALL NEWS CTA used to hold: it was the
+         first thing in this row, against the page margin, with the arrows
+         opposite it. The CTA has gone up to the heading, so the arrows take its
+         place rather than standing still on the other side of an empty row. */
+      justify-content: flex-start;
+      gap: 1.5rem;
+      /* The CTA carried the space above this row and took its margin with it, so
+         the gap from the last card down to the arrows is restored here. */
+      margin-top: 3.5rem;
+    }
+
+    /* Arrows: 20px apart, each in a 48px target.
+
+       The gap is between the targets rather than between the glyphs, so the
+       20px is the space a thumb has to travel between them and the 48px is the
+       space it has to land in. Sizing the button rather than padding the glyph
+       keeps the arrows on the same line as ALL NEWS, because the extra height
+       sits either side of the character instead of pushing the row about. */
+    .latest-news-arrows {
+      display: flex;
+      gap: 20px;
+      flex-shrink: 0;
+      margin-bottom: 2px;
+    }
+    .latest-news-arrow {
+      appearance: none;
+      background: transparent;
+      border: 0;
+      padding: 0;
+      /* A square target with the glyph centred in it. */
+      width: 48px;
+      height: 48px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      /* The glyph, not the label scale: the arrows are icons here, and at label
+         size the arrowheads are small enough to be hard to hit. */
+      font-size: 20px;
+      line-height: 1;
+      color: #ffffff;
+      cursor: pointer;
+      transition: color 0.4s var(--ease-mechanical);
+    }
+    /* No underline. These are icon controls sitting beside a text CTA rather than
+       links in a line of their own, and a rule under each arrow reads as a
+       separate row of links. The .link-underline class is kept off the button
+       entirely so the shared rule cannot reach it. */
+    .latest-news-arrow::after { display: none; }
+
+    /* The left arrow's glyph on the page margin, on the same line as the card
+       image's left edge.
+
+       Each target is 48px wide and centres its glyph, so a small arrow sits
+       about 14px inside the target and the target itself sits on the margin. The
+       boxes lined up and the arrows did not: the pair read as indented from the
+       cards above them by however wide half the unused target is. Anchoring the
+       first glyph to the start of its own target puts the arrow itself on the
+       margin while the target keeps its full 48px and the 20px between them, so
+       nothing is lost from the tap area.
+
+       Only the first. The pair is read from the left, and moving one glyph out
+       of its target's centre is a smaller change than moving both. */
+    .latest-news-arrow:first-child { justify-content: flex-start; }
+
+    /* Disabled at either end of the strip. The arrow stays in place rather than
+       being dimmed away or hidden, so the row does not reflow as the carousel
+       reaches its limits and the control does not appear and disappear under the
+       finger.
+
+       The dimming is a solid grey rather than an opacity, because opacity would
+       also fade the arrow against a background it does not know about and would
+       take it below the contrast a control needs to be readable. This grey is
+       4.2:1 on black, clear of the 3:1 that applies to a control boundary, so an
+       arrow that cannot be used is still an arrow that can be read. */
+    .latest-news-arrow[disabled] {
+      cursor: default;
+      color: #6f6f6f;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .latest-news-track { transition: none !important; }
+  }
+
+  /* The screen-reader label on each arrow sits inside the button, so it is taken
+     out of the layout the same way .sr-only is everywhere else. */
+  .latest-news-arrow .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 </style>
+
+<script is:inline>
+  /* Below 1024px the Latest strip is a carousel: one card centred with a sliver
+     of the next, stepped by the arrows or by a drag. From 1024px the four cards
+     are all visible, so nothing here runs.
+
+     The movement is one transform on the track, written from a single place. A
+     drag writes the finger's offset directly, so the cards sit under the hand
+     rather than chasing it, and a release hands the same value to the snap. One
+     writer also means the drag and the snap cannot fight over the transform. */
+
+  function setupLatestCarousel() {
+    if (window.__dattLatestBound) return;
+    window.__dattLatestBound = true;
+
+    const isCarousel = () => window.innerWidth < 1024;
+
+    const motionOff = () =>
+      document.documentElement.classList.contains('user-reduced-motion') ||
+      (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+    let index = 0;
+    let cardCount = 0;
+    let step = 0;
+    let dragX = 0;
+    let startX = 0;
+    let startY = 0;
+    let baseX = 0;
+    let pointerId = null;
+    let axis = null;
+    let rafPending = false;
+    let velocity = 0;
+
+    /* Recent pointer positions, kept as a short window rather than folded into a
+       running average on every event. Pointer events arrive at whatever rate the
+       device and browser manage, which on a touch screen can be uneven, and a
+       weighted average over uneven samples reads a flick as slower or faster
+       than it was. A window over time does not care how many samples arrived in
+       it, so the throw reads the same on a 60Hz phone and a 120Hz one. */
+    let samples = [];
+    const SAMPLE_WINDOW = 90;
+
+    /* How far past its own bounds the strip will run before it is sprung back,
+       how fast a throw has to be to be treated as a throw rather than a
+       placement, and how fast to be treated as a deliberate run to the end of
+       the strip. Both in px and px/ms. */
+    const FLICK = 0.35;
+    const END_RUN = 0.8;
+    const STOP = 0.02;
+
+    /* Decay applied per 60th of a second. Chosen so a hard throw coasts for
+       roughly half a second: long enough to read as the strip carrying on under
+       its own weight, short enough that it is not still moving when the snap
+       takes it. */
+    const FRICTION = 0.945;
+
+    /* How far a coast covers for every px/ms it is started with, worked out from
+       the decay rather than guessed: each frame keeps FRICTION of the speed, so
+       the speeds form a geometric series and the total is the first speed times
+       FRAME / (1 - FRICTION). A throw at the flick threshold covers about 106px,
+       which is under a third of a card, which is why a flick used to arrive at
+       its card by easing rather than by carrying: the coast died and the snap
+       did the rest. */
+    const FRAME = 16.667;
+    const COAST_PER_MS = FRAME / (1 - FRICTION);
+
+    let glideRaf = null;
+
+    const viewport = () => document.querySelector('.latest-news-viewport');
+    const track = () => document.querySelector('.latest-news-track');
+
+    /* Where the strip actually is, mid-animation included.
+
+       Reading this rather than reconstructing the offset from the index matters
+       at the moment a drag begins: if a snap or a coast is still easing when the
+       finger lands, the index is already the destination but the strip has not
+       arrived there. Starting the drag from the index would jump the cards by
+       the remainder of that easing on the first move of the gesture. */
+    function currentX() {
+      const t = track();
+      if (!t) return 0;
+      const cs = getComputedStyle(t).transform;
+      if (!cs || cs === 'none') return 0;
+      // A matrix is written as matrix(a, b, c, d, tx, ty), and the strip only
+      // ever translates, so the fifth value is the horizontal offset.
+      const m = new DOMMatrixReadOnly(cs);
+      return m.m41;
+    }
+
+    /* Stops both the coast and any easing in progress, leaving the strip exactly
+       where it is. Called when a gesture takes over, so the two never blend. */
+    function stopMotion() {
+      if (glideRaf !== null) {
+        cancelAnimationFrame(glideRaf);
+        glideRaf = null;
+      }
+      const t = track();
+      if (t) t.style.transition = 'none';
+    }
+
+    /* Writes the position with no easing, for anything driven per frame. */
+    function draw(px) {
+      const t = track();
+      if (!t) return;
+      t.style.transition = 'none';
+      t.style.transform = `translate3d(${px}px, 0, 0)`;
+    }
+
+    /* The distance from one card to the next, taken from the layout rather than
+       assumed: the card is a percentage of the viewport and the gap is a rem, so
+       the step differs between a phone and a tablet and changes with the font
+       size. Measuring the second card against the first gets both in one read. */
+    function measure() {
+      const cards = track()?.children;
+      if (!cards || !cards.length) return;
+      cardCount = cards.length;
+      if (cardCount < 2) { step = 0; return; }
+      step = cards[1].offsetLeft - cards[0].offsetLeft;
+    }
+
+    const clampIndex = (i) => Math.max(0, Math.min(cardCount - 1, i));
+
+    function render(px, animate) {
+      const t = track();
+      if (!t) return;
+      if (animate && !motionOff()) {
+        t.style.transition = 'transform 0.6s var(--ease-mechanical)';
+      } else {
+        t.style.transition = 'none';
+      }
+      t.style.transform = `translate3d(${px}px, 0, 0)`;
+    }
+
+    function place(i, animate) {
+      stopMotion();
+      index = clampIndex(i);
+      render(-index * step, animate);
+      syncArrows();
+    }
+
+    function syncArrows() {
+      const prev = document.querySelector('[data-latest-dir="-1"]');
+      const next = document.querySelector('[data-latest-dir="1"]');
+      if (prev) prev.disabled = index <= 0;
+      if (next) next.disabled = index >= cardCount - 1;
+    }
+
+    /* A drag past either end is allowed to move, but only a third as far, and it
+       springs back on release. The resistance is what tells the hand it has run
+       out of strip before the snap puts it back. */
+    function rubber(px) {
+      const min = -(cardCount - 1) * step;
+      if (px > 0) return px * 0.33;
+      if (px < min) return min + (px - min) * 0.33;
+      return px;
+    }
+
+    /* The card showing the most of itself, measured rather than calculated.
+
+       Rounding the strip's position to the nearest step assumes the cards are
+       evenly spaced and the viewport starts at the first card, and both are true
+       until a drag past either end, where the strip is somewhere between cards
+       but the spacing is still even and the arithmetic still holds. It does not
+       hold once the strip is left part-way by a drag that ended between two
+       cards: which of the two is more on screen then depends on how much of
+       each is left showing, and rounding guesses it from the midpoint instead.
+
+       Measured, the answer is the same in every case and it is the card the
+       visitor was already looking at when they let go, which is what makes the
+       snap feel magnetic rather than corrective. */
+    function mostOnScreen() {
+      const cards = track() ? track().children : null;
+      const vp = viewport();
+      if (!cards || !cards.length || !vp) return index;
+
+      const box = vp.getBoundingClientRect();
+      // The viewport is bled to the page edge but its padding puts the first card
+      // back at the margin, so the strip is clipped to the padded box.
+      const left = box.left + parseFloat(getComputedStyle(vp).paddingLeft || 0);
+      const right = box.right - parseFloat(getComputedStyle(vp).paddingRight || 0);
+
+      let best = 0;
+      let bestShown = -1;
+      for (let i = 0; i < cards.length; i++) {
+        const r = cards[i].getBoundingClientRect();
+        const shown = Math.min(r.right, right) - Math.max(r.left, left);
+        // Ties go to the earlier card, so releasing exactly between two lands on
+        // the one already showing rather than jumping to its neighbour.
+        if (shown > bestShown) { bestShown = shown; best = i; }
+      }
+      return best;
+    }
+
+    /* A release that was not coasting eases straight to its resting card, with a
+       bounce when it was released hard against an end.
+
+       A hard throw in either direction runs the strip to that end of the carousel
+       instead, which is what makes a fast swipe feel like the strip was thrown
+       rather than nudged. It is the same gesture as a flick, only carried further:
+       one card if the throw was ordinary, the whole way if it was hard.
+
+       The run is the coast that does the travelling, not an easing. A transition
+       across three cards is a single fixed-length move, so it reads as a slide
+       rather than as momentum however long it is set to, and its timing would
+       have to be stretched for a long run and shortened for a short one. The
+       coast keeps the speed it was released with and slows into the end card, so
+       the arrival is the same gesture arriving rather than a new move starting.
+
+       The speed it starts the coast with is whichever is faster: what the hand
+       actually gave it, or the speed the decay needs to cover the distance left.
+       Without the second half a short hard throw on a four-card strip would run
+       out of momentum two cards from the end and arrive by easing, which is the
+       nudge this is meant to replace. Taking the faster of the two leaves the
+       hand in charge: a throw faster than the run needs is not slowed to match
+       it, and the coast spends what is left on slowing into the end card. */
+    function settle(px, v) {
+      const min = -(cardCount - 1) * step;
+      const target = restFor(px, v);
+
+      /* Past an end, held rather than run to. The strip has nowhere left to go,
+         so the overshoot and the spring back are all there is to play with, and
+         running the decay toward a target it is already past would only add a
+         slow drift on the way. */
+      const overshoot =
+        target.i === 0 && px > 0 ? px * 0.33
+        : target.i === cardCount - 1 && px < min ? px + (px - min) * 0.33
+        : null;
+
+      if (overshoot !== null) {
+        // Released hard against an end: hold the sprung position for a beat, then
+        // let it ease back to the end card. The pause is what reads as a bounce
+        // rather than a snap.
+        render(overshoot, false);
+        window.setTimeout(() => place(target.i, true), 90);
+        return;
+      }
+
+      /* A hard throw runs the strip to the end it was thrown towards, which is
+         the whole gesture carried further rather than a different gesture. The
+         end is worked out from the direction of the throw rather than from the
+         card the flick would have landed on, because on a four-card strip that
+         card is usually nowhere near the end. */
+      if (cardCount > 1 && Math.abs(v) >= END_RUN) {
+        const i = v < 0 ? cardCount - 1 : 0;
+        const end = { i, x: -i * step };
+        /* A shade more than the decay strictly needs to cover the distance. At
+           exactly enough the strip only ever approaches the end card and never
+           reaches it, so the glide spends its last half second moving a pixel a
+           frame under the snap's nose; a little over and it arrives while still
+           moving at a good pace, which is the whole difference between being
+           carried to the end and creeping towards it. */
+        const needed = (Math.abs(end.x - px) / COAST_PER_MS) * 1.15;
+        coast(px, Math.sign(v) * Math.max(Math.abs(v), needed), end);
+        return;
+      }
+
+      /* An ordinary flick coasts on to its own card under the speed it was
+         released with, so a short throw and a long drag of the same distance do
+         not arrive at the card together. */
+      if (target.flick && !motionOff()) { coast(px, v, target); return; }
+
+      place(target.i, true);
+    }
+
+    /* The card a release should come to rest on, and whether it should coast there
+       or ease there.
+
+       A flick gets its own card: the one past the nearest, in the direction of
+       the throw. Deciding this from the nearest card rather than from the
+       distance travelled is what makes a short hard swipe turn the page. It also
+       bounds the flick at one card, which matters because a throw can be far
+       faster than a swipe needs: coasting on raw speed alone, a hard flick
+       overshoots the card the visitor was aiming at and lands past it.
+
+       Everything slower is a placement and eases straight to the nearest card. */
+    function restFor(px, v) {
+      const min = -(cardCount - 1) * step;
+      const nearest = mostOnScreen();
+
+      if (px > 0) return { i: 0, x: 0 };
+      if (px < min) return { i: cardCount - 1, x: min };
+
+      if (Math.abs(v) > FLICK) {
+        // A flick moves on from wherever the strip came to rest, rather than
+        // replacing that with a direction calculation. The nearest card is still
+        // the baseline, so a flick that lands almost exactly on a card boundary
+        // does not skip a card the visitor was already most of the way to.
+        const i = clampIndex(nearest + (v < 0 ? 1 : -1));
+        return { i, x: -i * step, flick: true };
+      }
+      return { i: nearest, x: -nearest * step };
+    }
+
+    /* --- the coast after a throw ---
+
+       A flick does not jump straight to its card. It keeps travelling under the
+       speed it was released with, slowing the way a real object does, and eases
+       into the card when it arrives. This is most of what makes a swipe feel
+       like the strip has weight: without it, a fast swipe and a slow drag of the
+       same distance end identically and instantly, which reads as the carousel
+       snapping at you rather than carrying.
+
+       The decay is applied against real elapsed time rather than per frame
+       nominal, so the coast covers the same ground at 120Hz as at 60Hz. A frame
+       that arrives late or early decays for the time it actually covered.
+
+       It stops at the card rather than at whatever the decay alone would have
+       reached. The coast is the travel; the ease onto the card is a separate,
+       shorter move that begins the moment the coast lands, so the strip is never
+       left drifting the last few pixels and there is no overshoot to correct. */
+    function coast(fromX, v0, target) {
+      if (motionOff() || !step) { place(target.i, false); return; }
+
+      let x = fromX;
+      let v = v0;
+      let last = performance.now();
+
+      glideRaf = requestAnimationFrame(function frame(now) {
+        const dt = Math.min(64, now - last);
+        last = now;
+
+        const there = v < 0 ? x <= target.x : x >= target.x;
+        // Below a frame's worth of movement there is nothing left to show, so the
+        // strip eases in rather than crawling the last pixel or two.
+        if (there || Math.abs(v) < STOP) {
+          glideRaf = null;
+          place(target.i, true);
+          return;
+        }
+
+        x += v * dt;
+        // Past the target there is nothing left to travel, so what speed is left
+        // is spent slowing rather than carrying on past where it was aimed.
+        if (v < 0 ? x < target.x : x > target.x) v = 0;
+        v *= Math.pow(FRICTION, dt / 16.667);
+
+        draw(x);
+        glideRaf = requestAnimationFrame(frame);
+      });
+    }
+
+    /* --- drag --- */
+
+    function onDown(e) {
+      if (!isCarousel() || pointerId !== null) return;
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      pointerId = e.pointerId;
+      axis = null;
+      startX = e.clientX;
+      startY = e.clientY;
+      samples = [{ t: e.timeStamp, x: e.clientX }];
+      velocity = 0;
+
+      /* From where the strip actually is, not from where the index says it
+         should be, so a gesture landing mid-snap takes over from the live
+         position and the cards are already under the finger.
+
+         Read before the easing is taken off. Removing a running transition makes
+         the strip jump straight to that transition's destination in the same
+         frame, so measuring afterwards would read the destination and the cards
+         would jump by whatever was left of the ease. Read first, then freeze at
+         the value that was read, and there is nothing left to catch up to. */
+      baseX = currentX();
+      stopMotion();
+      draw(baseX);
+      dragX = baseX;
+
+      viewport()?.classList.add('is-dragging');
+      if (viewport()?.setPointerCapture) {
+        try { viewport().setPointerCapture(pointerId); } catch (_) {}
+      }
+    }
+
+    function onMove(e) {
+      if (pointerId !== e.pointerId) return;
+
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+
+      /* Until the gesture commits to an axis it is not ours. Vertical wins the
+         tie, because letting a mostly-vertical drag move the strip sideways
+         while the page is trying to scroll reads as the strip hijacking the
+         page. Once it is horizontal the page is left alone. */
+      if (axis === null) {
+        if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
+        axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+        if (axis !== 'x') {
+          endDrag(e);
+          return;
+        }
+      }
+      if (axis !== 'x') return;
+
+      if (e.cancelable) e.preventDefault();
+
+      /* Velocity over the last SAMPLE_WINDOW of movement rather than between this
+         event and the last one. A pair of samples far apart in time reports a
+         slow drag as slow however fast the hand actually was in between, which is
+         exactly the gesture where the difference is felt. */
+      samples.push({ t: e.timeStamp, x: e.clientX });
+      const cutoff = e.timeStamp - SAMPLE_WINDOW;
+      while (samples.length > 2 && samples[0].t < cutoff) samples.shift();
+      const first = samples[0];
+      const span = e.timeStamp - first.t;
+      velocity = span > 0 ? (e.clientX - first.x) / span : 0;
+
+      dragX = rubber(baseX + dx);
+      if (!rafPending) {
+        rafPending = true;
+        requestAnimationFrame(() => { rafPending = false; draw(dragX); });
+      }
+    }
+
+    function endDrag(e) {
+      if (pointerId === null) return;
+      if (e && e.pointerId !== undefined && e.pointerId !== pointerId) return;
+      const id = pointerId;
+      pointerId = null;
+      const vp = viewport();
+      if (vp && vp.releasePointerCapture && vp.hasPointerCapture && vp.hasPointerCapture(id)) {
+        try { vp.releasePointerCapture(id); } catch (_) {}
+      }
+      vp?.classList.remove('is-dragging');
+      if (axis !== 'x') { axis = null; return; }
+      axis = null;
+
+      /* Everything about a release is decided in one place, so a throw cannot take a
+         different route depending on which branch happened to ask first. */
+      settle(dragX, velocity);
+    }
+
+    /* --- arrows --- */
+
+    document.addEventListener('click', (e) => {
+      const btn = e.target instanceof Element ? e.target.closest('[data-latest-dir]') : null;
+      if (!btn || !isCarousel()) return;
+      const dir = Number(btn.dataset.latestDir || 0);
+      if (!dir) return;
+      place(index + dir, true);
+    });
+
+    /* --- wiring --- */
+
+    const vp = viewport();
+    if (vp) {
+      vp.addEventListener('pointerdown', onDown, { passive: true });
+      vp.addEventListener('pointermove', onMove, { passive: false });
+      vp.addEventListener('pointerup', endDrag);
+      vp.addEventListener('pointercancel', endDrag);
+      vp.addEventListener('lostpointercapture', endDrag);
+      // A swipe that starts as a scroll must not also drag the strip.
+      vp.addEventListener('dragstart', (e) => e.preventDefault());
+      // Keyboard, for anyone stepping through with a keyboard on a narrow window.
+      vp.addEventListener('keydown', (e) => {
+        if (!isCarousel()) return;
+        if (e.key === 'ArrowRight') { place(index + 1, true); e.preventDefault(); }
+        if (e.key === 'ArrowLeft') { place(index - 1, true); e.preventDefault(); }
+      });
+    }
+
+    function relayout() {
+      measure();
+      // Crossing the breakpoint hands the strip back to the grid, so the transform
+      // and the transition both come off rather than being left on a grid track.
+      if (!isCarousel()) {
+        const t = track();
+        if (t) { t.style.transform = ''; t.style.transition = ''; }
+        index = 0;
+        syncArrows();
+        return;
+      }
+      // Font size and card width both change with the viewport, so the step is
+      // remeasured and the current card is held in place rather than jumping.
+      place(index, false);
+    }
+
+    window.addEventListener('resize', relayout, { passive: true });
+    window.addEventListener('orientationchange', relayout, { passive: true });
+    relayout();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(relayout);
+  }
+
+  setupLatestCarousel();
+  document.addEventListener('astro:after-swap', setupLatestCarousel);
+</script>

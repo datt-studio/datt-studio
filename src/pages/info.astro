@@ -98,9 +98,97 @@ import InfoPhilosophy from '../components/InfoPhilosophy.astro';
     50% { transform: scaleX(0); transform-origin: left; }
     100% { transform: scaleX(1); transform-origin: left; }
   }
+
+  /* --- TABLET: THE COPY HANGS OFF THE SERVICES ITEM IN THE NAV ---
+     Between 768px and 1023px these sections are split in two, and the copy ends
+     up in the right half of a tablet screen with only the page margin to its
+     left, while the top nav has a SERVICES item sitting much further right. The
+     copy is hung off that item instead, so the reading column starts where the
+     word SERVICES does. It is the same join the homepage's recognition table
+     makes with the same link.
+
+     The label column takes the measured distance and the copy takes what is
+     left, rather than the copy being shoved across with a margin: a margin
+     would come out of the copy's own width and leave it a sliver, which is the
+     thing this is meant to fix. The distance is capped at 55% of the container
+     so a wide nav on a narrow tablet cannot do that either, and 45% stands in
+     until the script has measured it.
+
+     Philosophy is deliberately left out. It is a single closing statement rather
+     than a section in the split, and it stays on the page margin, which also
+     keeps the last thing on the page from stopping short of the right margin the
+     way the sections above it do.
+
+     Nothing here applies at 1024px and up, where the split and its proportions
+     are left exactly as they were, or below 768px, where the nav has no SERVICES
+     item to line up with and the copy already runs the full width. */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    #naming-section > div,
+    #perspective-section > div,
+    #thinking-section > div {
+      grid-template-columns: minmax(0, var(--services-copy-left, 45%)) 1fr;
+    }
+  }
+
+  /* --- TABLET AND MOBILE: THE MIDDLE OF THE PAGE IS TIGHTER ---
+     The same change as the homepage's own sections, and for the same reason.
+     Each of these is a screen tall with a label and a short block of copy in the
+     middle, so on a narrow window the height is nearly all empty: at 768x1024
+     there was 717px of nothing between Perspective's words and Thinking's, and
+     818px between Thinking and Philosophy. Read one after another it feels like a
+     slideshow of statements rather than a page.
+
+     The height is what produces that space, not the padding. The tallest of these
+     is under 350px of copy, so trimming the padding would move the gap by tens of
+     pixels while the section is still padded out to a screen. The height is what
+     has to come down, which is what this changes.
+
+     65dvh is the value the homepage's statement sections use, which is the point:
+     these pages should feel like one site. It is a floor, not a height, so a
+     section with more to say than fits simply grows to hold it — Thinking on a
+     phone is the one that does.
+
+     dvh rather than the screen these are written in, so on a phone the height is
+     measured against what is actually visible rather than against a viewport that
+     includes the browser chrome.
+
+     Desktop is untouched, above and below. */
+  @media (max-width: 1023px) {
+    #naming-section,
+    #perspective-section,
+    #thinking-section,
+    #philosophy-section {
+      min-height: 65dvh;
+    }
+  }
 </style>
 
 <script is:inline>
+  /* Where the SERVICES item sits in the top nav, so the copy below the hero can
+     be hung off it. The nav gaps are fluid, so the offset is measured rather
+     than hard-coded. Set at every width and only read between 768px and 1023px,
+     which means the value is already right if the window is dragged across
+     either edge. */
+  function sizeTabletCopy() {
+    const main = document.querySelector('main');
+    const link = document.querySelector('#main-header a[href="/services"]');
+    const anchor = document.getElementById('naming-section');
+    if (!main || !link || !anchor) return;
+    const container = anchor.firstElementChild.getBoundingClientRect();
+    const wanted = link.getBoundingClientRect().left - container.left;
+    const left = Math.min(Math.max(0, wanted), container.width * 0.55);
+    main.style.setProperty('--services-copy-left', `${Math.round(left)}px`);
+  }
+
+  if (!window.__dattTabletCopy) {
+    window.__dattTabletCopy = true;
+    window.addEventListener('resize', sizeTabletCopy, { passive: true });
+    window.addEventListener('load', sizeTabletCopy);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(sizeTabletCopy);
+  }
+  sizeTabletCopy();
+  document.addEventListener('astro:after-swap', sizeTabletCopy);
+
   (function() {
     function initInfo() {
       const observer = new IntersectionObserver((entries) => {

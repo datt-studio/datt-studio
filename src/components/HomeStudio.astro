@@ -62,7 +62,7 @@ const previews = [
          The mask and inner follow the same shape as every other block here, so
          the table reveals with the section and the line splitter descends into
          the cells to stagger the rows. -->
-    <div class="brands-line-mask w-full">
+    <div class="brands-line-mask recognition-reveal w-full">
       <div class="brands-line-inner" style="transition-delay: 0.2s;">
         <table class="home-studio-table">
           <thead>
@@ -73,7 +73,21 @@ const previews = [
           <tbody>
             {recognition.map((item) => (
               <tr data-video-index={item.video}>
-                <td>{item.label}</td>
+                <td>
+                  {/* Below 1024px the cell becomes a card the size of its clip.
+                      The label sits on a black band across the top of it, so the
+                      card keeps the clip's full 16:9 with nothing cropping it.
+                      On desktop the row stays a plain label and this card's own
+                      video is never shown or fetched. */}
+                  <div class="recognition-card">
+                    <div class="recognition-card-media" aria-hidden="true">
+                      <video muted loop playsinline preload="none" poster={previews[item.video].poster} class="h-full w-full object-cover">
+                        <source src={previews[item.video].src} type="video/mp4" />
+                      </video>
+                    </div>
+                    <div class="recognition-card-label">{item.label}</div>
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -83,11 +97,15 @@ const previews = [
 
   </div>
 
-  <!-- Hover previews for the recognition rows. Fixed and pointer-events-none,
-       following the cursor like the Services portal but smaller, and scoped to
-       this section. Layers crossfade so moving between rows swaps the clip
-       smoothly instead of cutting. -->
-  <div id="recognition-video-node" class="pointer-events-none fixed top-0 left-0 z-[1200] hidden md:block w-[300px] aspect-video opacity-0 transition-opacity duration-500">
+  <!-- The recognition preview. One fixed, pointer-events-none node serves both
+       breakpoints, because the clips are identical either way and a second set
+       of <video> elements would just be more state to keep in step. From 1024px
+       on a device with a pointer it follows the cursor like the Services
+       portal, smaller and scoped to this section. Everywhere else there is no
+       cursor to follow, so it anchors under whichever row is crossing the
+       middle of the screen, and flips open and closed as the rows swap. Layers
+       crossfade so the clip changes without cutting. -->
+  <div id="recognition-video-node" class="pointer-events-none fixed top-0 left-0 z-[1200] w-[300px] aspect-video opacity-0 transition-opacity duration-500">
     <div id="recognition-video-flip" class="relative w-full h-full overflow-hidden bg-neutral-900 shadow-2xl">
       {previews.map((preview, i) => (
         <div class="recognition-video-layer absolute inset-0 opacity-0 transition-opacity duration-500" data-index={i}>
@@ -167,8 +185,16 @@ const previews = [
      On desktop the table is anchored to the Services link in the top nav: its
      left edge lines up with that link, and the grid gives it whatever width is
      left to the page margin. --recognition-width is measured at runtime (the
-     nav gaps are fluid), with a 400px fallback before the script runs. */
-  @media (min-width: 1024px) {
+     nav gaps are fluid), with a 400px fallback before the script runs.
+
+     The hover test is not decoration. Below 1024px the cards stack and hold the
+     middle of the screen, and on a touch device they do the same at any width,
+     because there is no cursor for the clips to follow. Two columns put the copy
+     and the ABOUT THE STUDIO CTA beside the table, and a card holding the middle
+     of the screen then lands on top of it. Gating this on hover as well as
+     width keeps the two layouts from ever disagreeing: wherever the card stack
+     is on, the grid is a single column and the table is under the copy. */
+  @media (min-width: 1024px) and (hover: hover) {
     .home-studio .home-studio-grid {
       grid-template-columns: minmax(0, 580px) minmax(0, var(--recognition-width, 400px));
     }
@@ -203,7 +229,10 @@ const previews = [
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: var(--track-wide);
-    font-size: 0.78em;
+    /* The label scale, the same one .text-label uses everywhere else. It was a
+       0.78em fraction of the table, which put the column head at roughly 11px
+       — below any other meta text on the site. */
+    font-size: var(--font-label);
     color: rgba(255, 255, 255, 0.62);
   }
 
@@ -241,6 +270,226 @@ const previews = [
   }
   .recognition-video-layer.is-active { opacity: 1 !important; z-index: 10; }
 
+  /* --- RECOGNITION CARD ---
+     The card only takes shape below 1024px. On desktop the row is still a plain
+     label with a rule under it and the clip follows the cursor, so the card
+     collapses to nothing and its own video is never shown or fetched. This is
+     what keeps the desktop table reading exactly as it did. */
+  .recognition-card { display: contents; }
+  .recognition-card-media { display: none; }
+
+  /* --- RECOGNITION CARD: MOBILE AND TABLET ---
+     Each cell becomes a card the size of its clip, with the label on a black
+     band across the top so the clip keeps its full 16:9 with nothing cropping
+     it. The cards then stack: one sticks under the header and the next slides
+     up over it, so the incoming card's black edge is what masks the outgoing
+     clip as the outgoing one scrolls away. Nothing crossfades and nothing waits
+     on a timer, which is what keeps a fast swipe from queueing up handoffs. */
+  @media (max-width: 1023px), (hover: none) {
+    /* Sticky cards need a scrollport they can travel in. The reveal wrapper is
+       a mask with overflow hidden and a perspective, and both of those trap a
+       sticky descendant, so on this layout the wrapper stands aside and the
+       table fades in flat instead of turning. */
+    .home-studio .recognition-reveal {
+      overflow: visible;
+      perspective: none;
+      padding-top: 0;
+    }
+    .home-studio .recognition-reveal .brands-line-inner {
+      transform: none !important;
+      will-change: opacity;
+    }
+
+    /* The copy and the table sit one above the other, with the same gap they
+       have at every other width. Tailwind's lg: utilities start at 1024px and
+       zero this gap for the two-column desktop layout, and a touch device at
+       1024px is on this layout and not that one, so it is put back here where
+       this layout owns it. */
+    .home-studio .home-studio-grid { row-gap: 5rem; }
+
+    /* Column head keeps its rule and its label scale, and gives up the cell
+       padding so the cards below start on the same left edge. */
+    .home-studio-table { border-collapse: separate; border-spacing: 0; }
+    .home-studio-table thead th {
+      position: relative;
+      z-index: 4;
+      background: #000;
+      padding: 0 0 0.75em 0;
+    }
+
+    /* The stack line: where a card comes to rest, and where it holds while the
+       next one comes up over it.
+
+       Half the viewport less half a card, so a card hanging from the line is
+       centred on the middle of the screen with its label and its clip together
+       rather than its label on the middle with the clip running off below.
+
+       The line is a row's own top edge, which is also the divider under the
+       RECOGNITION column head. That is what stops the stack covering the two
+       things above it: the divider passes down through this line as the table
+       arrives and carries the column head and, behind that, the ABOUT THE STUDIO
+       CTA up and away with it, so the cards can only ever start below the
+       divider. Pinning the middle of the viewport instead let a card reach half
+       its height above the line and lay itself over both. */
+    .home-studio-table tbody tr {
+      position: sticky;
+      top: calc(50svh - var(--recognition-card-h, 240px) / 2);
+      background: #000;
+      z-index: 1;
+    }
+    .home-studio-table tbody td {
+      padding: 0;
+      border-bottom: 0;
+      background: #000;
+      /* A shade over the desktop label scale: this is the only thing
+         identifying the card once its clip is open. */
+      font-size: 16px;
+    }
+
+    /* Every card is the same height: its label, plus room for a clip that is
+       that wide at 16:9. The height is fixed whether the card is open or closed,
+       which is the whole trick.
+
+       A closed card does not take up less room, so opening one changes no
+       layout. That has to hold: the cards are pinned to the same line, so a card
+       in flow is also what decides when the next card arrives. If opening a card
+       pushed its neighbours down, the push would delay the next arrival, the
+       delayed arrival would close the open card, and the two would chase each
+       other — cards skipped on the way down and no reversal on the way back up.
+
+       The fixed height is also what gives the run its length. With each row only
+       as tall as its label the table was 215px from end to end, which is less
+       than a single swipe, so the last cards never got scroll distance to reach
+       the line and were skipped straight past. Reserving the clip's height gives
+       every card a full swipe's worth of travel before the next one takes over.
+
+       The reserved space costs nothing visually. It is black on a black page, and
+       it is where the open card's clip goes, so the card below always sits
+       immediately under the clip on screen rather than leaving a gap. */
+    .recognition-card {
+      display: grid;
+      grid-template-rows: auto auto;
+      position: relative;
+      width: 100%;
+      background: #000;
+      overflow: hidden;
+      /* Hangs from the stack line rather than straddling it. The line is the
+         divider under RECOGNITION, so a card drawn from its top downwards starts
+         exactly at the divider and leaves the column head and the CTA above it
+         clear. */
+    }
+
+    .recognition-card-label {
+      grid-row: 1;
+      position: relative;
+      z-index: 3;
+      background: #000;
+      padding: 0.6em 0 0.55em;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+    }
+    /* Open, the clip butts up against the label, so the rule would sit across
+       the top of the video. */
+    .recognition-card.is-active .recognition-card-label {
+      border-bottom-color: transparent;
+    }
+
+    .recognition-card-media {
+      grid-row: 2;
+      display: block;
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      /* Closed from the bottom, so the clip opens downward from the label and
+         the two clips in a handover meet where the handover is. Masked rather
+         than scaled so the video is always at its own size and is never squashed
+         part-way through the reveal. */
+      clip-path: inset(0 0 100% 0);
+      transition: clip-path 0.6s var(--ease-mechanical);
+    }
+    .recognition-card.is-active .recognition-card-media {
+      clip-path: inset(0 0 0 0);
+    }
+    .recognition-card-media video {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      /* The desktop flip, on the same easing: the clip turns up into place as
+         the card opens and tucks back down as it closes, so a handover reads as
+         one clip leaving the way the next arrives. */
+      transform: translateY(30%) rotateX(-54deg);
+      transform-origin: bottom center;
+      opacity: 0;
+      transition: transform 0.6s var(--ease-mechanical), opacity 0.5s ease;
+    }
+    .recognition-card.is-active .recognition-card-media video {
+      transform: translateY(0) rotateX(0deg);
+      opacity: 1;
+    }
+
+    /* Entering the stack on the first card opens it outright. The turn exists to
+       carry one clip into the next; arriving there is nothing to carry from, and
+       a clip that turns up on entrance reads as a card that had to load. Held for
+       two frames, which is all the transition needs to be absent. */
+    .recognition-card.is-instant .recognition-card-media,
+    .recognition-card.is-instant .recognition-card-media video {
+      transition: none;
+    }
+
+    /* The overlay, and what makes the stack reverse on the way back up.
+
+       Every card is pinned to the same line, so they occupy one band and the
+       later row, being later in the document, paints over the earlier one.
+       Nothing moves on its own: as the page scrolls, a card reaches the line and
+       is pinned there and the card below it climbs into the same band until it
+       too is pinned. Scrolling back up takes the pins off in reverse, so each
+       card drops out of the band and the one above is uncovered. Sticky does the
+       whole thing, which is why it is identical in both directions and needs no
+       scroll handler to place anything.
+
+       The whole table descends to the line before the first card pins, so the
+       stack arrives at the middle of the viewport rather than appearing there,
+       and it is released once the table's own bottom has travelled past the line
+       — at which point there are no cards left and the block scrolls on to
+       wherever the page puts it next. The run of the stack is bounded by the
+       table's height, so the padding below gives it room to finish before the
+       next component arrives.
+
+       The open card is lifted above them. Its clip hangs below its own label,
+       into the band the cards below occupy, so at the default stacking order the
+       card it is taking over from would be painted over it — the handover would
+       show the incoming label covering the outgoing clip. The lift is on the row
+       rather than the card because the row is what sticky and z-index apply to;
+       the card is inside the row's own stacking context and cannot rise above
+       its siblings from there. */
+    .home-studio-table tbody tr:has(.recognition-card.is-active) { z-index: 5; }
+
+    /* Clearance under the last card. The stack unsticks as soon as the table
+       ends, and without this the next component arrives on the same beat the
+       final clip is still settling. */
+    .home-studio .recognition-reveal { padding-bottom: 22vh; }
+  }
+
+  /* --- RECOGNITION PREVIEW: MOBILE AND TABLET ---
+     Below 1024px, and on any device without a pointer, the cursor node is not
+     used at all: the clip lives in the card. Its flip keeps a shorter duration
+     so it cannot be caught mid-turn by the handover if the layout ever falls
+     back to it. */
+  @media (max-width: 1023px), (hover: none) {
+    #recognition-video-flip {
+      transition: transform 0.42s var(--ease-mechanical), opacity 0.3s ease;
+    }
+  }
+
+  /* Reduced motion keeps the preview and drops the flip between rows, so the
+     clip still tracks the row it belongs to without anything moving. */
+  @media (prefers-reduced-motion: reduce) {
+    #recognition-video-flip { transition: none !important; }
+  }
+
   /* Spacing Helper */
   .mb-14 { margin-bottom: 60px; }
   .mb-12 { margin-bottom: 48px; }
@@ -260,18 +509,45 @@ const previews = [
     if (window.__dattRecognitionBound) return;
     window.__dattRecognitionBound = true;
 
-    const isDesktop = () => window.innerWidth >= 768;
+    /* Two ways of driving the same node. 1024px is where the section becomes
+       two columns, and hover: hover is what a real pointer reports, so the
+       cursor-following preview needs both. A touch device at any size gets the
+       scroll-driven path instead, which matters on a large tablet in portrait:
+       it clears 1024px but has no cursor to follow, and hover alone would leave
+       it with no preview at all. */
+    const isDesktop = () =>
+      window.innerWidth >= 1024 &&
+      !(window.matchMedia && window.matchMedia('(hover: none)').matches);
 
-    const open = (index) => {
-      const node = document.getElementById('recognition-video-node');
-      if (!node) return;
-      node.classList.add('is-visible');
-      node.style.opacity = '1';
-      node.querySelectorAll('.recognition-video-layer').forEach((layer, i) => {
+    const motionOff = () =>
+      document.documentElement.classList.contains('user-reduced-motion') ||
+      (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+    const node = () => document.getElementById('recognition-video-node');
+    const rows = () => document.querySelectorAll('.home-studio-table tbody tr');
+
+    const show = () => {
+      const n = node();
+      if (!n) return;
+      n.classList.add('is-visible');
+      n.style.opacity = '1';
+    };
+
+    const hide = () => {
+      const n = node();
+      if (!n) return;
+      n.classList.remove('is-visible');
+      n.style.opacity = '0';
+    };
+
+    const setLayers = (index) => {
+      const n = node();
+      if (!n) return;
+      n.querySelectorAll('.recognition-video-layer').forEach((layer, i) => {
         const video = layer.querySelector('video');
         if (i === index) {
           layer.classList.add('is-active');
-          // Nothing is fetched until the row is hovered, so the homepage does
+          // Nothing is fetched until the row is reached, so the homepage does
           // not pay for these clips on load.
           if (video.preload === 'none') { video.preload = 'auto'; video.load(); }
           video.play().catch(() => {});
@@ -282,19 +558,31 @@ const previews = [
       });
     };
 
+    const pauseAll = () => {
+      const n = node();
+      if (!n) return;
+      n.querySelectorAll('.recognition-video-layer video').forEach((video) => video.pause());
+    };
+
+    /* --- CURSOR: hover a row, the clip follows the pointer --- */
+
+    const open = (index) => {
+      if (!isDesktop()) return;
+      show();
+      setLayers(index);
+    };
+
     const close = () => {
-      const node = document.getElementById('recognition-video-node');
-      if (!node) return;
-      node.classList.remove('is-visible');
-      node.style.opacity = '0';
-      node.querySelectorAll('.recognition-video-layer video').forEach((video) => video.pause());
+      if (!isDesktop()) return;
+      hide();
+      pauseAll();
     };
 
     // mouseover bubbles where mouseenter does not, so one document listener
     // covers the rows however many times the table is rewritten.
     document.addEventListener('mouseover', (e) => {
       const row = e.target instanceof Element ? e.target.closest('.home-studio-table tbody tr') : null;
-      if (row && isDesktop()) open(Number(row.dataset.videoIndex || 0));
+      if (row) open(Number(row.dataset.videoIndex || 0));
     }, { passive: true });
 
     document.addEventListener('mouseout', (e) => {
@@ -309,16 +597,178 @@ const previews = [
     let cX = tX, cY = tY;
     window.addEventListener('mousemove', (e) => { tX = e.clientX; tY = e.clientY; }, { passive: true });
 
-    function render() {
-      const node = document.getElementById('recognition-video-node');
-      if (node && isDesktop() && node.classList.contains('is-visible')) {
+    function follow() {
+      const n = node();
+      if (n && isDesktop() && n.classList.contains('is-visible')) {
         cX += (tX - cX) * 0.15;
         cY += (tY - cY) * 0.15;
-        node.style.transform = `translate3d(${cX - node.offsetWidth / 2}px, ${cY - node.offsetHeight / 2}px, 0)`;
+        n.style.transform = `translate3d(${cX - n.offsetWidth / 2}px, ${cY - n.offsetHeight / 2}px, 0)`;
       }
-      requestAnimationFrame(render);
+      requestAnimationFrame(follow);
     }
-    render();
+    follow();
+
+    /* --- SCROLL: the card on top of the stack owns the clip ---
+
+       The overlay itself is CSS: the rows are pinned a pixel apart and the later
+       one paints over the earlier one, so the cards slide on top of each other
+       in both scroll directions without anything here moving them. All this does
+       is decide which card is the one on top, and start or stop its clip.
+
+       There is no crossfade and no timer. The card that was on top is simply the
+       one being covered, so the transition is the same movement the visitor is
+       already making with their thumb. Swapping the clip instantly avoids a
+       queue: a fast scroll through five cards runs five class changes, and each
+       one is already correct on its own. */
+
+    let scrollIndex = -1;
+
+    /* Marks the card on top. The flag lives on the card rather than on the
+       section, because the media rule hangs off it — the clip and the row cannot
+       disagree about which one is showing. */
+    function setScrollIndex(next) {
+      if (next === scrollIndex) return;
+      const prev = scrollIndex;
+      scrollIndex = next;
+
+      const list = rows();
+      for (let i = 0; i < list.length; i++) {
+        const card = list[i].querySelector('.recognition-card');
+        const video = card && card.querySelector('video');
+        if (!card || !video) continue;
+
+        const on = i === next;
+        card.classList.toggle('is-active', on);
+
+        /* Arriving at the stack on the first card, from either direction. The
+           clip goes straight to open: there is no card underneath it to slide
+           out from, so the flip would only be showing off. The class is held for
+           a frame and dropped, which is long enough for the transition to be
+           skipped and short enough that the second card still flips normally. */
+        const entering = on && i === 0 && prev === -1;
+        if (entering) {
+          card.classList.add('is-instant');
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => card.classList.remove('is-instant'));
+          });
+        }
+
+        if (on) {
+          // Nothing is fetched until the card reaches the top, so the homepage
+          // does not pay for these clips on load.
+          if (video.preload === 'none') { video.preload = 'auto'; video.load(); }
+          video.play().catch(() => {});
+        } else if (prev >= 0) {
+          video.pause();
+        }
+      }
+    }
+
+    /* The card on top of the stack, which is the one whose own top has reached
+       the stack line. Every card is pinned to that same line, so the last one to
+       arrive is the one covering the others and "highest index that has reached
+       the line" is the card the visitor is looking at. Reading it this way rather
+       from the midpoint is what makes it symmetric: the same test describes the
+       card on the way down and on the way back up. */
+    function activeRow() {
+      const list = rows();
+      if (!list.length) return -1;
+      const line = stackLine();
+      let best = -1;
+      for (let i = 0; i < list.length; i++) {
+        // The card's own top, not its bottom: a card that has reached the line
+        // and grown now hangs below it, and reading the bottom would keep it
+        // active until its clip had scrolled clear of the header.
+        if (list[i].getBoundingClientRect().top <= line + 2) best = i;
+      }
+      return best;
+    }
+
+    /* Where the cards rest, read from the rows rather than worked out here.
+
+       Reading it back off a row's computed top means the script and the CSS can
+       never disagree about where the stack is: there is one line, written in CSS,
+       and this finds it. A row's computed top is the resolved value of the calc,
+       so it is already in pixels and needs no measuring of the viewport here. */
+    function stackLine() {
+      const row = rows()[0];
+      if (!row) return 0;
+      const top = parseFloat(getComputedStyle(row).top);
+      return Number.isFinite(top) ? Math.round(top) : 0;
+    }
+
+    /* How tall a card is, handed to the CSS so it can place the line half a card
+       above the middle of the screen.
+
+       The card's height is its label plus its clip, and the clip is 16:9 of the
+       column, so the height moves with the viewport and cannot be written down as
+       a number once. Measuring it is also what keeps the line honest: the card
+       hangs from the line, so a line placed for the wrong card height would put
+       the card off centre and, at the tall end, push the top of it back up over
+       the divider.
+
+       Written on the table so it reaches every row through inheritance. Desktop
+       collapses the card to `display: contents`, where it has no height of its
+       own and no line is in play, so the property is left off there. */
+    function measureCard() {
+      const table = document.querySelector('.home-studio-table');
+      const card = document.querySelector('.recognition-card');
+      if (!table) return;
+      if (isDesktop()) { table.style.removeProperty('--recognition-card-h'); return; }
+      if (!card) return;
+      const h = Math.round(card.getBoundingClientRect().height);
+      if (h > 0) table.style.setProperty('--recognition-card-h', h + 'px');
+    }
+
+    // Reads layout, so it runs once per frame at most, however fast the scroll.
+    let queued = false;
+    function onScroll() {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(() => {
+        queued = false;
+        if (!isDesktop()) setScrollIndex(activeRow());
+      });
+    }
+
+    /* Resizing or rotating across the 1024px line swaps which path owns the
+       node, so the state that is left behind has to be cleared rather than left
+       for the other path to inherit. */
+    let mode = isDesktop() ? 'cursor' : 'scroll';
+
+    function resetForMode(next) {
+      mode = next;
+      clearTimeout(swapTimer);
+      scrollIndex = -1;
+      // Both paths own state: the cursor node is hidden and released, and the
+      // card flags are dropped so the next path starts from a clean card.
+      const n = node();
+      if (n) {
+        n.classList.remove('is-visible');
+        n.style.opacity = '0';
+        n.style.width = '';
+        n.style.transform = '';
+        pauseAll();
+      }
+      rows().forEach((row) => {
+        const card = row.querySelector('.recognition-card');
+        const video = card && card.querySelector('video');
+        if (card) card.classList.remove('is-active');
+        if (video) video.pause();
+      });
+    }
+
+    function syncMode() {
+      const next = isDesktop() ? 'cursor' : 'scroll';
+      if (next !== mode) resetForMode(next);
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', () => { syncMode(); measureCard(); onScroll(); }, { passive: true });
+    window.addEventListener('load', () => { measureCard(); onScroll(); });
+    syncMode();
+    measureCard();
+    onScroll();
   }
 
   setupRecognitionVideos();
@@ -331,7 +781,12 @@ const previews = [
     const copy = grid ? grid.firstElementChild : null;
     const link = document.querySelector('#main-header a[href="/services"]');
     if (!grid || !copy || !link) return;
-    if (window.innerWidth < 1024) {
+    // The same test the two-column rule uses, not just the width. A touch device
+    // at 1024px and up is on the stacked card layout, where there is no second
+    // column to measure and the width is left alone.
+    const wide = window.innerWidth >= 1024 &&
+      !(window.matchMedia && window.matchMedia('(hover: none)').matches);
+    if (!wide) {
       grid.style.removeProperty('--recognition-width');
       return;
     }

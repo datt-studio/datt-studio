@@ -80,6 +80,14 @@ const { isInverted = false, disableMagnet = false } = Astro.props;
       </div>
     </div>
 
+    <!-- Where the magnet waits.
+         A hairline at the bottom of the links above, which is the last thing a
+         reader has to have seen before the pull is worth doing: after it the
+         footer is only the wordmark and the copyright, so bringing the rest up
+         means the logo and its line are read together rather than the page
+         sliding a screen of nothing into view. -->
+    <div id="footer-links-end" class="w-full h-px pointer-events-none" aria-hidden="true"></div>
+
     <div class="flex-grow"></div>
 
     <!-- Logo -->
@@ -151,11 +159,11 @@ const { isInverted = false, disableMagnet = false } = Astro.props;
     transition: none !important;
   }
 
-  /* Info grid. Two even columns below lg; from lg it is split on the About,
-     Services and News links in the top nav, so New business starts under About,
-     Legal under Services and Follow us under News. The offsets are measured in
-     the footer script because the nav gaps are fluid, with percentage throwbacks
-     before it runs. */
+  /* Info grid. One column on mobile; two columns from 768px and four from
+     1024px. At desktop it is split on the About, Services and News links in the
+     top nav, so New business starts under About, Legal under Services and
+     Follow us under News. The offsets are measured in the footer script because
+     the nav gaps are fluid, with percentage throwbacks before it runs. */
   #site-footer .footer-info {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -164,6 +172,32 @@ const { isInverted = false, disableMagnet = false } = Astro.props;
   }
   /* The clock spans the full width above the grid below lg. */
   #site-footer .footer-time { grid-column: 1 / -1; }
+
+  /* --- TABLET: THE SECOND COLUMN HANGS OFF THE SERVICES ITEM ---
+     Between 768px and 1023px the grid is in two columns and the second one
+     holds New business and Follow us, with the first one holding General
+     enquiries and Legal. Even columns split the footer down the middle of a
+     tablet screen, which lines the second column up with nothing at all while
+     the top nav has a SERVICES item much further right. The second column is
+     hung off that item instead, so New business, the email under it, Follow us
+     and the social links all start where the word SERVICES does. It is the same
+     join the desktop grid makes with the same link, and the same one the
+     services and info pages hang their copy off.
+
+     The first column takes the measured distance less the 2rem gap, and the
+     second takes what is left, so the gap survives and the join still lands
+     exactly on the nav item. Making the second column a fixed width instead
+     would have it overflow the narrower tablets. 50% stands in until the script
+     has measured.
+
+     Below 768px the nav has no SERVICES item to line up with and the grid is a
+     single column, so nothing applies. */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    #site-footer .footer-info {
+      grid-template-columns: minmax(0, calc(var(--services-left, 50%) - 2rem)) 1fr;
+    }
+  }
+
   @media (min-width: 1024px) {
     #site-footer .footer-info {
       grid-template-columns:
@@ -237,22 +271,139 @@ const { isInverted = false, disableMagnet = false } = Astro.props;
     const trigger = document.getElementById('footer-reveal-trigger');
     let isMagnetized = false;
 
-    if (trigger) {
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            trigger.classList.add('is-active');
+    /* Motion off means the pull is off. The kill-switch in the layout only forces
+       scroll-behavior to auto, which a scrollTo({behavior:'smooth'}) ignores, so
+       this has to be asked about in script or a reader who has asked for less
+       movement gets the largest movement on the page. */
+    const motionOff = () =>
+      document.documentElement.classList.contains('user-reduced-motion') ||
+      (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
-            if (!isMagnetDisabled && !isMagnetized && window.canSnap && userScrolled && entry.intersectionRatio >= 0.5) {
-              isMagnetized = true;
-              window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
-              setTimeout(() => { isMagnetized = false; }, 2000);
-            }
-          }
-        });
-      }, { threshold: [0, 0.5] });
-      observer.observe(footer);
-    }
+    /* The magnet holds the footer at the bottom of the screen once it has arrived.
+
+       It fires when the bottom of the legal and social links reaches the screen,
+       which is the last thing a reader has to have seen before the pull is worth
+       doing. Everything left below that line is the wordmark and the copyright,
+       so carrying it up means the logo is read with its line instead of the page
+       sliding a screen of nothing into view.
+
+       Waiting on that line rather than on the footer itself is what makes the
+       guarantee real. Measured as a fraction of the footer it could only ever be
+       an estimate, and the estimate is wrong in both directions: the footer is
+       roughly a viewport tall, so a fraction of it is a fraction of the screen,
+       but how much of it that is worth varies with the viewport and, more to the
+       point, a fifth is early enough to fire while the enquiries are still the
+       bottom of the screen and the links have not been seen at all. The line is
+       a thing that either is or is not on screen, so the pull can never fire
+       before the links are readable.
+
+       Only on the way in. Reading the previous state and acting just as the line
+       arrives means a reader who scrolls back up to reread the links is not
+       dragged down again the moment the footer reappears, which is what would
+       happen if this were simply a level to cross. */
+
+    const linksEnd = document.getElementById('footer-links-end');
+    let linksWereOnScreen = false;
+
+    /* Is the line on screen right now? The observer only reports when it enters
+       or leaves, so this is how a pull that was held back during a gesture is
+       checked before it is carried out. */
+    const linksOnScreen = () =>
+      linksEnd ? linksEnd.getBoundingClientRect().top <= window.innerHeight : false;
+
+    const pullDown = () => {
+      isMagnetized = true;
+      window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+      setTimeout(() => { isMagnetized = false; }, 2000);
+    };
+
+    /* The pull moves the page under the reader's hand, so it must not run while a
+       gesture is in progress.
+
+       Dragging the carousel is the case that matters: the strip is read by the
+       drag in finger-offset terms while a smooth scroll slides the whole page,
+       so a pull landing mid-drag moves the strip out from under the finger and
+       the drag settles on a position the reader never put it on. The tap of an
+       arrow matters for the same reason, and a tap can also land on the same
+       frame as the crossing.
+
+       Two things are needed, not one. A pull must not start mid-gesture, and a
+       pull already running must be abandoned the moment a gesture begins,
+       because cancelling it late still means the page moved under the finger
+       first. Asking for the position already reached stops a smooth scroll where
+       it is; `behavior: auto` is the documented way to do that and is honoured
+       even where the reduced-motion kill-switch has forced scroll-behavior. */
+
+    let gestureActive = false;
+    let pullPending = false;
+
+    /* Held back rather than dropped. A drag is a pause in the pull, not a
+       refusal of it: the footer arriving during a drag is still the footer
+       arriving, so the pull is carried out once the finger lifts. */
+    const onGestureStart = () => {
+      gestureActive = true;
+      if (isMagnetized) window.scrollTo({ top: window.scrollY, left: window.scrollX, behavior: 'auto' });
+    };
+
+    const onGestureEnd = () => {
+      gestureActive = false;
+      if (!pullPending) return;
+      pullPending = false;
+      /* The gesture may have carried the footer back out of view, in which case
+         pulling would now be pushing the reader somewhere they just left. */
+      if (isMagnetDisabled || isMagnetized || motionOff() || !linksOnScreen()) return;
+      pullDown();
+    };
+
+    // Captured on window so a gesture is seen before the carousel's own handlers
+    // act on it, whatever part of the page it starts on.
+    window.addEventListener('pointerdown', onGestureStart, { passive: true, capture: true });
+    window.addEventListener('pointerup', onGestureEnd, { passive: true, capture: true });
+    window.addEventListener('pointercancel', onGestureEnd, { passive: true, capture: true });
+    /* A pointer released off the window sends no pointerup, which would leave the
+       pull held back for good. Only a leave with nowhere to point at counts,
+       though: moving the page under a finger that has not lifted sends
+       pointerleave for whatever was under it, and being read as the end of the
+       gesture that would drop the hold and let the pull through a live drag. */
+    window.addEventListener('pointerleave', (e) => {
+      if (!e.relatedTarget) onGestureEnd();
+    }, { passive: true, capture: true });
+    window.addEventListener('blur', onGestureEnd);
+
+    /* Two observers, because two different things are being watched. The
+       footer's own arrival drives the reveal, which should happen as soon as
+       anything of the footer is on screen. The line at the bottom of the links
+       drives the pull, which must wait for that line and not for the footer.
+
+       The line is a hairline, so it is watched with a threshold of zero and the
+       decision is made from where it actually is rather than from a ratio: a
+       one-pixel target reports a ratio of one the moment a sliver of it appears,
+       which would fire while the links were still mostly below the fold. */
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting || !trigger) return;
+        trigger.classList.add('is-active');
+      });
+    }, { threshold: 0 });
+    revealObserver.observe(footer);
+
+    const magnetObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        const arriving = entry.isIntersecting && !linksWereOnScreen;
+        linksWereOnScreen = entry.isIntersecting;
+
+        // The line going back off screen cancels a pull that was waiting on a
+        // gesture, so a scroll upward does not leave one armed.
+        if (!entry.isIntersecting) { pullPending = false; return; }
+
+        if (isMagnetDisabled || isMagnetized || !userScrolled || !arriving) return;
+        if (motionOff()) return;
+
+        if (gestureActive) { pullPending = true; return; }
+        pullDown();
+      });
+    }, { threshold: 0 });
+    if (linksEnd) magnetObserver.observe(linksEnd);
   }
 
   initFooterReveals();
@@ -262,21 +413,36 @@ const { isInverted = false, disableMagnet = false } = Astro.props;
   // top nav, so New business starts under About, Legal under Services and
   // Follow us under News. The nav gaps are fluid, so the offsets are measured
   // rather than hard-coded.
+  //
+  // The Services link is measured from 768px rather than from 1024px, because on
+  // a tablet it is the link the second column of the two-column grid hangs off.
+  // It is kept under its own name there and also serves as --legal-left at
+  // desktop, so neither width has to read a variable named for the other.
   function sizeFooterColumns() {
     const grid = document.querySelector('#site-footer .footer-info');
     if (!grid) return;
-    const about = document.querySelector('#main-header a[href="/info"]');
     const services = document.querySelector('#main-header a[href="/services"]');
-    const news = document.querySelector('#main-header a[href="/news"]');
-    if (!about || !services || !news || window.innerWidth < 1024) {
+    if (!services || window.innerWidth < 768) {
+      grid.style.removeProperty('--services-left');
       grid.style.removeProperty('--about-left');
       grid.style.removeProperty('--legal-left');
       grid.style.removeProperty('--follow-left');
       return;
     }
     const g = grid.getBoundingClientRect();
+    const servicesLeft = Math.round(services.getBoundingClientRect().left - g.left);
+    grid.style.setProperty('--services-left', servicesLeft + 'px');
+    // The other two links only matter to the four-column grid at 1024px and up.
+    const about = document.querySelector('#main-header a[href="/info"]');
+    const news = document.querySelector('#main-header a[href="/news"]');
+    if (!about || !news || window.innerWidth < 1024) {
+      grid.style.removeProperty('--about-left');
+      grid.style.removeProperty('--legal-left');
+      grid.style.removeProperty('--follow-left');
+      return;
+    }
     grid.style.setProperty('--about-left', Math.round(about.getBoundingClientRect().left - g.left) + 'px');
-    grid.style.setProperty('--legal-left', Math.round(services.getBoundingClientRect().left - g.left) + 'px');
+    grid.style.setProperty('--legal-left', servicesLeft + 'px');
     grid.style.setProperty('--follow-left', Math.round(news.getBoundingClientRect().left - g.left) + 'px');
   }
 

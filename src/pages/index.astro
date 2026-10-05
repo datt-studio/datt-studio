@@ -37,3 +37,41 @@ const posts = (await getCollection('news', ({ data }) => !data.draft))
 
   <Footer isInverted={true} />
 </Layout>
+
+<style is:global>
+  /* --- TABLET AND MOBILE: THE MIDDLE OF THE PAGE IS TIGHTER ---
+     HomeIntro through HomeApproach are each at least a screen tall with a short
+     block of copy centred in them, so on a narrow window the height is almost
+     all empty: at 768x1024 there was 1045px of nothing between HomeIntro's words
+     and the services nav, and 863px between Perspective and Approach. Read one
+     after another it feels like a slideshow of statements rather than a page.
+
+     The heights are what produce that space, not the padding. Each block is under
+     300px tall, so trimming the padding would move the gap by tens of pixels
+     while the section is still padded out to a screen. The height is what has to
+     come down, which is what these rules change.
+
+     HomeIntro goes furthest, from one and a third screens to under one, since it
+     is a single statement with a CTA under it and it opens the run. The two
+     statement sections come down to two thirds, which still leaves each of them
+     comfortably more than their copy needs and reads as its own space. The
+     services node keeps more of its height because it is a list to be read and
+     scrolled rather than a statement, and its buttons are laid out against that
+     height.
+
+     Desktop is untouched, above and below. */
+  @media (max-width: 1023px) {
+    .home-intro {
+      min-height: 90dvh;
+    }
+    #services-interactive-node {
+      min-height: 75dvh;
+    }
+    .brand-statement {
+      min-height: 65dvh;
+    }
+    .home-approach {
+      min-height: 65dvh;
+    }
+  }
+</style>
