@@ -16,17 +16,52 @@ const recognition = [
 
 // One clip per recognition row, in row order. The CSS Winner row reuses the
 // clip from its article; the CSSDA rows use the short cuts supplied for the
-// hover previews. No poster is set on the CSSDA cuts: they load on demand.
+// hover previews.
+//
+// Each clip comes in two sizes and they are not interchangeable.
+//
+//   src   the master: full resolution, and the CSSDA cuts carry the audio they
+//         were recorded with. The articles under /news/ play these, so this is
+//         the one that quality and sound belong to.
+//   card  the same clip cut down for the recognition cards: 960x720 rather than
+//         1600x1200, 20fps rather than 30, and silent. The card is 351px wide on
+//         a phone and never more than 720px on a tablet, so the master was two
+//         to three times oversampled and carrying a soundtrack nobody can hear
+//         on a muted clip. 15 MB of master became 3.3 MB of card.
+//
+// The CSS Winner clip is the exception: at 336 KB it is already small enough to
+// serve both, so it has no card cut and the card falls back to the master.
+//
+// poster is the clip's own first frame. Without one a card is black until its
+// clip arrives, which on a phone reads as a broken panel rather than as a
+// loading one. Applied by script rather than in the markup, so five posters are
+// not fetched with the page: see warmCard().
 const previews = [
   { src: "/news/csswinner-sotd.mp4", poster: "/news/csswinner-sotd.webp" },
-  { src: "/assets/CSSDA-SK-short.mp4" },
-  { src: "/assets/CSSDA-UI-short.mp4" },
-  { src: "/assets/CSSDA-UX-short.mp4" },
-  { src: "/assets/CSSDA-INN-short.mp4" },
+  {
+    src: "/assets/CSSDA-SK-short.mp4",
+    card: "/assets/CSSDA-SK-card.mp4",
+    poster: "/assets/recognition-SK.webp",
+  },
+  {
+    src: "/assets/CSSDA-UI-short.mp4",
+    card: "/assets/CSSDA-UI-card.mp4",
+    poster: "/assets/recognition-UI.webp",
+  },
+  {
+    src: "/assets/CSSDA-UX-short.mp4",
+    card: "/assets/CSSDA-UX-card.mp4",
+    poster: "/assets/recognition-UX.webp",
+  },
+  {
+    src: "/assets/CSSDA-INN-short.mp4",
+    card: "/assets/CSSDA-INN-card.mp4",
+    poster: "/assets/recognition-INN.webp",
+  },
 ];
 ---
 
-<section class="home-studio reveal-trigger relative w-full min-h-[100dvh] px-[var(--page-padding)] flex flex-col items-start justify-center text-left bg-black py-24">
+<section class="home-studio reveal-trigger relative w-full min-h-[100svh] px-[var(--page-padding)] flex flex-col items-start justify-center text-left bg-black py-24">
   <div class="home-studio-grid w-full grid grid-cols-1 lg:justify-between gap-y-20 lg:gap-y-0">
 
     <div class="w-full">
@@ -79,10 +114,10 @@ const previews = [
                       card keeps the clip's full 16:9 with nothing cropping it.
                       On desktop the row stays a plain label and this card's own
                       video is never shown or fetched. */}
-                  <div class="recognition-card">
+                  <div class="recognition-card" data-poster={previews[item.video].poster}>
                     <div class="recognition-card-media" aria-hidden="true">
-                      <video muted loop playsinline preload="none" poster={previews[item.video].poster} class="h-full w-full object-cover">
-                        <source src={previews[item.video].src} type="video/mp4" />
+                      <video muted loop playsinline preload="none" class="h-full w-full object-cover">
+                        <source src={previews[item.video].card || previews[item.video].src} type="video/mp4" />
                       </video>
                     </div>
                     <div class="recognition-card-label">{item.label}</div>
@@ -108,8 +143,13 @@ const previews = [
   <div id="recognition-video-node" class="pointer-events-none fixed top-0 left-0 z-[1200] w-[300px] aspect-video opacity-0 transition-opacity duration-500">
     <div id="recognition-video-flip" class="relative w-full h-full overflow-hidden bg-neutral-900 shadow-2xl">
       {previews.map((preview, i) => (
-        <div class="recognition-video-layer absolute inset-0 opacity-0 transition-opacity duration-500" data-index={i}>
-          <video muted loop playsinline preload="none" poster={preview.poster} class="h-full w-full object-cover">
+        <div class="recognition-video-layer absolute inset-0 opacity-0 transition-opacity duration-500" data-index={i} data-poster={preview.poster}>
+          {/* The poster is attached by script when the layer is opened, not here.
+              These five videos sit in the document from page load, and a poster
+              attribute is fetched whether or not it is ever looked at — so writing
+              it here pulled all five posters into the first paint, which is the
+              cost the recognition cards go to such lengths to avoid. */}
+          <video muted loop playsinline preload="none" class="h-full w-full object-cover">
             <source src={preview.src} type="video/mp4" />
           </video>
         </div>
@@ -540,6 +580,19 @@ const previews = [
       n.style.opacity = '0';
     };
 
+    /* Attaches a layer's poster at the moment it is opened.
+
+       A poster attribute is fetched as soon as the element is in the document,
+       so these five had to be written into the script rather than the markup.
+       Setting it here is what puts a still frame under the clip while the clip
+       arrives, which is the difference between a preview opening and a black
+       panel appearing and then filling in. */
+    const applyPoster = (host) => {
+      const poster = host && host.dataset ? host.dataset.poster : null;
+      const video = host && host.querySelector ? host.querySelector('video') : null;
+      if (poster && video && !video.getAttribute('poster')) video.setAttribute('poster', poster);
+    };
+
     const setLayers = (index) => {
       const n = node();
       if (!n) return;
@@ -549,8 +602,14 @@ const previews = [
           layer.classList.add('is-active');
           // Nothing is fetched until the row is reached, so the homepage does
           // not pay for these clips on load.
+          applyPoster(layer);
           if (video.preload === 'none') { video.preload = 'auto'; video.load(); }
-          video.play().catch(() => {});
+          // Deferred rather than called straight away. On the cursor path the row
+          // is hovered, often in passing, and play() on a clip with nothing
+          // buffered yet restarts it from zero — so a row brushed on the way to
+          // another one would show its first frame rather than its clip.
+          if (video.readyState >= 3) video.play().catch(() => {});
+          else video.addEventListener('canplay', () => video.play().catch(() => {}), { once: true });
         } else {
           layer.classList.remove('is-active');
           video.pause();
@@ -623,6 +682,119 @@ const previews = [
 
     let scrollIndex = -1;
 
+    /* Card clips are warmed before their card opens, and warmed exactly once.
+
+       The clips used to begin fetching at the moment their card reached the top
+       of the stack, which is too late to be useful: a card is on screen for
+       roughly one card-height of scroll, a fraction of a second on a phone, and
+       a fetch does not finish inside that. What the reader got was the poster,
+       or a black panel on the four clips that had no poster at all.
+
+       The transfers made it worse rather than better. Every re-activation called
+       load(), and load() throws away whatever has already been buffered and
+       starts the download again, so a slow scroll through the stack could
+       request the same clip three times and abandon it three times — which is
+       what the cancelled requests were.
+
+       load() is still the trigger, because in every current engine setting
+       preload on an element written with preload="none" does not begin a fetch.
+       What changed is that it is never called twice for the same card, which is
+       what lets the buffer survive until the card's turn.
+
+       The poster is attached here rather than in the markup so five posters are
+       not part of the page. It is only wanted in the moment before the clip
+       lands, which is exactly when this runs. */
+    const warmed = new WeakSet();
+
+    function warmCard(card) {
+      if (!card || warmed.has(card)) return;
+      const video = card.querySelector('video');
+      if (!video) return;
+      warmed.add(card);
+
+      applyPoster(card);
+
+      // Autoplay is judged when play() is called, so muted has to be true by then
+      // and not only written into the markup.
+      video.muted = true;
+      video.defaultMuted = true;
+
+      if (video.preload === 'none') {
+        video.preload = 'auto';
+        video.load();
+      }
+    }
+
+    /* Clips whose own download is still running when the reader moves on.
+
+       Nothing here pauses or cancels: a paused video keeps buffering, and
+       letting the transfers finish is why arriving at the last card no longer
+       means watching it fill in from nothing. What is avoided is the opposite —
+       calling load() again on a clip already in flight, which is what used to
+       abandon a download and start it over. */
+    function inFlightCount() {
+      let n = 0;
+      for (const card of document.querySelectorAll('.recognition-card')) {
+        const v = card.querySelector('video');
+        if (v && v.preload === 'auto' && v.readyState < 4 && !v.error) n++;
+      }
+      return n;
+    }
+
+    /* Warms the card being read and the one after it.
+
+       Warming all five the moment the section nears would put 3.3 MB on one
+       connection at once, on the same phone that is the reason the card cuts are
+       smaller. Warming only the card being shown is what arrived too late. One
+       ahead gives each clip the whole of the previous card's scroll to arrive,
+       and spreads the cost down the section instead of front-loading it. */
+    function warmAhead(from) {
+      const list = rows();
+      for (let i = from; i <= from + 1 && i < list.length; i++) {
+        warmCard(list[i].querySelector('.recognition-card'));
+      }
+    }
+
+    /* Starts the queue while the section is still off screen, so the first card
+       is already buffering by the time the reader arrives. Two screens of lead is
+       about one card's scroll on a slow connection, and far enough back that a
+       reader who never reaches this section does not pay for any of it. */
+    const warmObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        warmObserver.unobserve(entry.target);
+        warmAhead(0);
+      });
+    }, { rootMargin: '200% 0px' });
+
+    const studio = document.querySelector('.home-studio');
+    if (studio) warmObserver.observe(studio);
+
+    /* Opens the card on its clip rather than on a still, where that can be done
+       honestly.
+
+       The clip-path reveal takes 0.6s, so a card that has reached the stack line
+       is still opening while the reader is already looking straight at it. When
+       its clip is already buffered, playing it now means the movement is there
+       under the opening clip; when it is not, playing now would restart the
+       clip from zero every time the card is opened and the handover would read
+       as a stutter rather than as one clip leaving the way the next arrives.
+
+       So the opening still is allowed to be a still, but only where it has to
+       be. This is also what stops a card that is opened twice from snapping back
+       to the first frame: a clip that has been playing is left where it is. */
+    function playIfBuffered(video) {
+      if (video.readyState >= 3) {
+        video.play().catch(() => {});
+        return;
+      }
+      const onReady = () => {
+        video.removeEventListener('canplay', onReady);
+        video.play().catch(() => {});
+      };
+      video.addEventListener('canplay', onReady, { once: true });
+    }
+
     /* Marks the card on top. The flag lives on the card rather than on the
        section, because the media rule hangs off it — the clip and the row cannot
        disagree about which one is showing. */
@@ -654,10 +826,8 @@ const previews = [
         }
 
         if (on) {
-          // Nothing is fetched until the card reaches the top, so the homepage
-          // does not pay for these clips on load.
-          if (video.preload === 'none') { video.preload = 'auto'; video.load(); }
-          video.play().catch(() => {});
+          warmAhead(i);
+          playIfBuffered(video);
         } else if (prev >= 0) {
           video.pause();
         }

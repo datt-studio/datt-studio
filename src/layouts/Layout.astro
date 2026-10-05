@@ -424,7 +424,27 @@ const videoLd = {
               entry.target.querySelectorAll('.brands-line-mask').forEach(m => m.classList.add('is-active'));
             }
           });
-        }, { threshold: 0.1 });
+
+          /* The trigger is anchored to the viewport, not to a fraction of the
+             element.
+
+             A threshold is a proportion of the *target*, so it silently couples
+             when a block reveals to how tall that block happens to be. An
+             element more than ten viewports tall can never satisfy a threshold
+             of 0.1 — it needs a tenth of itself on screen at once — and so never
+             reveals at all: the article hero is 8,768px on a phone, where a
+             844px viewport is 9.6% of it, which is just short of the mark. The
+             cover stayed frozen at rotateX(-60deg) for the whole page.
+
+             Threshold zero with a bottom margin asks the question that was
+             actually meant: has the top of this block reached the reader's line.
+             And for the blocks that made up most of the site it lands in almost
+             exactly the same place as before — a full-height section on a phone
+             needed 84px of itself visible, which is the same moment its top
+             passes 90% down the viewport, and that is what -10% asks for. Short
+             blocks now reveal a few pixels earlier and tall ones no longer fail
+             to reveal, which is the direction the inconsistency wanted to go. */
+        }, { threshold: 0, rootMargin: '0px 0px -10% 0px' });
         document.querySelectorAll('section, footer, .reveal-trigger').forEach(el => observer.observe(el));
       }
 

@@ -1,14 +1,51 @@
 ---
 // Renders a post's cover image if the post defines one.
 // Covers live in /public/news so they are served as-is with no build step.
+import sharp from 'sharp';
+import path from 'node:path';
+
 const { src, alt = '' } = Astro.props;
 const coverSrc = typeof src === 'string' ? src : src?.src;
+
+/* The intrinsic size, read once per cover at build time and written onto the
+   element as width/height.
+
+   The carousel reserves the space for its covers in CSS with an aspect-ratio,
+   which is why the homepage has never moved. This cover had no reservation of
+   any kind and is loaded eagerly, so on a slow connection the article body was
+   pushed down the page as the image arrived — measured as zero shift on a fast
+   connection and a shift on a slow one, which is the worst kind of defect to
+   find in production.
+
+   Read from the file rather than written into the frontmatter so a cover
+   cannot disagree with its own dimensions, and written onto the element rather
+   than hardcoded as a ratio so a cover that is not 16:9 stays uncropped. The
+   carousel currently assumes 16:9 for all five; this does not. */
+let dims: { width: number; height: number } | undefined;
+
+if (coverSrc) {
+  try {
+    const file = path.join(process.cwd(), 'public', coverSrc.replace(/^\//, ''));
+    const meta = await sharp(file).metadata();
+    if (meta.width && meta.height) dims = { width: meta.width, height: meta.height };
+  } catch (_) {
+    // No dimensions is the state this component started in, so a cover that
+    // cannot be read renders as it always has rather than failing the build.
+  }
+}
 ---
 
 {
   coverSrc && (
     <figure class="news-cover">
-      <img src={coverSrc} alt={alt} loading="eager" decoding="async" />
+      <img
+        src={coverSrc}
+        alt={alt}
+        loading="eager"
+        decoding="async"
+        width={dims?.width}
+        height={dims?.height}
+      />
     </figure>
   )
 }

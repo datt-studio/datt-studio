@@ -188,6 +188,19 @@ const articleLd = {
     font-size: 0.78em;
     color: rgba(255, 255, 255, 0.62);
   }
+  /* The label down the left of a comparison table heads its row rather than the
+     table, so it is marked up as a header for that row, which is what lets a
+     screen reader announce it as the reader moves across the numbers. It keeps
+     the appearance of the cells it replaces: only the column headings above
+     should read as headings, and the row labels should not shout over the
+     figures they name. */
+  .news-prose th[scope='row'] {
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: inherit;
+    font-size: inherit;
+    color: inherit;
+  }
 
   .news-prose td:last-child,
   .news-prose th:last-child { padding-right: 0; }

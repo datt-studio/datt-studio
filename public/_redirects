@@ -1,4 +1,8 @@
-# Old slug for "From 6.66 MB to 148 KB", kept so existing links and search
-# results keep working after the title change.
-/news/cutting-the-homepage-to-110-kb/ /news/from-6-66-mb-to-148-kb/ 301
-/news/cutting-the-homepage-to-110-kb /news/from-6-66-mb-to-148-kb/ 301
+# Old slugs for "From 6.66 MB to 128 KB", kept so existing links and search
+# results keep working across the title changes. Each hop is a single 301, so a
+# link written two renames ago still arrives through one redirect per step
+# rather than needing to know where the article lives now.
+/news/cutting-the-homepage-to-110-kb/ /news/from-6-66-mb-to-128-kb/ 301
+/news/cutting-the-homepage-to-110-kb /news/from-6-66-mb-to-128-kb/ 301
+/news/from-6-66-mb-to-148-kb/ /news/from-6-66-mb-to-128-kb/ 301
+/news/from-6-66-mb-to-148-kb /news/from-6-66-mb-to-128-kb/ 301

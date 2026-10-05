@@ -143,22 +143,28 @@ import InfoPhilosophy from '../components/InfoPhilosophy.astro';
      pixels while the section is still padded out to a screen. The height is what
      has to come down, which is what this changes.
 
-     65dvh is the value the homepage's statement sections use, which is the point:
+     65svh is the value the homepage's statement sections use, which is the point:
      these pages should feel like one site. It is a floor, not a height, so a
      section with more to say than fits simply grows to hold it — Thinking on a
      phone is the one that does.
 
-     dvh rather than the screen these are written in, so on a phone the height is
-     measured against what is actually visible rather than against a viewport that
-     includes the browser chrome.
+     `svh`, the small viewport height, and not the `screen` these are written in,
+     so on a phone the height is measured against what is actually visible rather
+     than against a viewport that includes the browser chrome. And not `dvh`, the
+     dynamic one, which looks equivalent and is not: `dvh` re-resolves every time
+     the phone's URL bar slides away, so these sections grew by the height of that
+     bar part-way through a scroll and pushed the copy the reader was already
+     looking at down the page under their thumb. `svh` is fixed for the life of
+     the page, so the space here is the space they saw when they arrived.
 
-     Desktop is untouched, above and below. */
+     Desktop is untouched, above and below — where every viewport unit is the same
+     number anyway. */
   @media (max-width: 1023px) {
     #naming-section,
     #perspective-section,
     #thinking-section,
     #philosophy-section {
-      min-height: 65dvh;
+      min-height: 65svh;
     }
   }
 </style>

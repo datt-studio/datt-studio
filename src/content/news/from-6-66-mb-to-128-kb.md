@@ -1,5 +1,5 @@
 ---
-title: "From 6.66 MB to 148 KB"
+title: "From 6.66 MB to 128 KB"
 date: 2026-09-29
 summary: "What changed, what it cost, and what the numbers look like afterwards."
 draft: false
@@ -7,7 +7,7 @@ cover: /assets/news/performance-cover.webp
 coverAlt: "Performance measurements taken while the homepage was being rebuilt."
 ---
 
-The homepage used to transfer 6.66 MB on a phone. It now transfers 152,224 B (148.7 KiB). This is what happened in between, what we left in place on purpose, and what we would do differently.
+The homepage used to transfer 6.66 MB on a phone. It now transfers 130,955 B (127.9 KiB). This is what happened in between, what we left in place on purpose, and what we would do differently.
 
 ## Where it started
 
@@ -59,21 +59,26 @@ It was wrong for a studio whose position is clarity. A translucent, floating nav
 
 ## What it weighs now
 
-| | Before | After |
-|---|---|---|
-| Transferred, mobile | 6.66 MB | 152,224 B (148.7 KiB) |
-| Performance, mobile | 94 | 99 |
-| Performance, desktop | 100 | 100 |
-| Best practices | 100 | 100 |
-| Accessibility | 96 | 100 |
-| SEO | 92 | 100 |
-| Third-party requests | 2 | 0 |
+<table>
+<thead>
+<tr><th></th><th scope="col">Before</th><th scope="col">After</th></tr>
+</thead>
+<tbody>
+<tr><th scope="row">Transferred, mobile</th><td>6.66 MB</td><td>130,955 B (127.9 KiB)</td></tr>
+<tr><th scope="row">Performance, mobile</th><td>94</td><td>100</td></tr>
+<tr><th scope="row">Performance, desktop</th><td>100</td><td>100</td></tr>
+<tr><th scope="row">Best practices</th><td>100</td><td>100</td></tr>
+<tr><th scope="row">Accessibility</th><td>96</td><td>100</td></tr>
+<tr><th scope="row">SEO</th><td>92</td><td>100</td></tr>
+<tr><th scope="row">Third-party requests</th><td>2</td><td>0</td></tr>
+</tbody>
+</table>
 
 Both columns are Lighthouse 13.5.0 runs against a local build, served on localhost and measured on mobile. The before column is the previous version, the version with the video hero. The after column is the current build.
 
-A few requests make up most of the after figure. The font is the largest single one at 53,182 bytes. The document is 22,407 bytes, the favicon is 16,545, the hero poster is 10,015 and the reveal script is 4,981. 
+A few requests make up most of the after figure, and there are only seven of them. The font is the largest single one at 53,292 bytes. The document is 43,178, the favicon is 16,603, the hero poster is 10,072 and the reveal script is 5,652, with the two wordmark files at 1,431 and 727 between them.
 
-Repeated runs gave the same total, 152,224 bytes, every time, because the page requests a fixed set of files. The performance score moved between 99 and 100. Treat the score as the part that varies.
+Repeated runs gave the same total, 130,955 bytes, every time, because the page requests a fixed set of files. One exception is worth naming rather than hiding. The Recognition clips are fetched when that section approaches, two screens ahead, and a run that scrolls far enough to reach it records them as well — one of three runs did, and reported 1,648,866 B over 13 requests. That is the intended behaviour and not a regression: the clips are not part of what the page costs to arrive, and a reader who never scrolls to Recognition never pays for them. The performance score did not move when it happened, which is the part that matters.
 
 The Best Practices row can move depending on where the run happens. Our own build reports 100. When we measured the public edge during this work it read 81, because the edge injects a challenge script and a redirect the origin does not serve. The page itself did not change.
 
@@ -83,9 +88,21 @@ There is no desktop payload row in that table, and the reason is a decision rath
 
 Desktop still fetches the hero reel, but it loads after the key performance metrics are recorded, so it doesn’t negatively impact the scores. The score was never going to show this. Only the byte count did.
 
-Without the hero reel, desktop transfers a similar amount to mobile.
+Without the hero reel, desktop transfers exactly what mobile transfers: 130,955 B, the same seven files, the same bytes. That is worth stating precisely rather than as "a similar amount", because it was measured rather than estimated, and it is the clearest argument for the trade-off above. The desktop total varies between runs — 2.6 MB and 3.1 MB across two of them — and none of that variation is the page. It is the reel, still downloading when the audit ends, which is the same effect described under Where it started.
 
 On larger viewports, we preload the hero video to avoid a visible delay. On smaller devices, we keep it interaction-gated as a deliberate trade-off between presentation and performance.
+
+## The Recognition clips
+
+The five Recognition clips were the one place where we were shipping the wrong file, and the reason is worth recording because it was not obvious.
+
+Each clip exists in two sizes. The master is full resolution and carries the audio it was recorded with, because the articles under /news/ play these and the quality and the sound belong to that use. The card cut is the same footage at 960x720 rather than 1600x1200, 20fps rather than 30, and silent — because the Recognition card is 351px wide on a phone and never more than 720px on a tablet. The masters totalled 15 MB. The card cuts total 3.3 MB, and the clip the CSS Winner row reuses needed no second version at all, at 336 KB it was already small enough to serve both.
+
+Twenty-one megabytes became 3.3, and nothing about the articles changed.
+
+That fixed the weight but not the symptom people actually reported, which was that the videos were not playing and showed only poster frames. The weight was never the cause. Three things were: the clips began downloading at the moment a card reached the top of the stack, which is too late to finish inside the scroll that opened it; every re-activation called load(), which discards the buffer and restarts the download, so a slow scroll could fetch the same clip three times and abandon it three times; and four of the five had no poster at all, so those cards were black until the clip arrived. Each clip is now fetched once, one card ahead of the reader, and each has its own first frame as a poster.
+
+One detail there is worth keeping. The posters are attached by script when a clip is opened, not written into the markup, because a poster attribute is fetched as soon as the element is in the document. Writing them in markup pulled all five into the first paint, and moving them out removed 43,410 bytes from the load.
 
 
 

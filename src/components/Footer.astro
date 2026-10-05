@@ -16,7 +16,7 @@ const { isInverted = false, disableMagnet = false } = Astro.props;
 >
   <div id="footer-magnet-trigger" class="absolute -top-40 left-0 w-full h-20 pointer-events-none"></div>
 
-  <div id="footer-reveal-trigger" class="flex flex-col min-h-[100dvh] pt-[120px]">
+  <div id="footer-reveal-trigger" class="flex flex-col min-h-[100svh] pt-[120px]">
 
     <!-- Headline: Safe-zone padding added to prevent clipping. -->
     <div class="mb-12 md:mb-12">
@@ -317,6 +317,50 @@ const { isInverted = false, disableMagnet = false } = Astro.props;
       setTimeout(() => { isMagnetized = false; }, 2000);
     };
 
+    /* --- WAITING FOR THE PAGE TO BE STILL ---
+
+       A finger being off the glass is not the same as the page having stopped.
+       On a phone the list is thrown, not pushed, and it keeps coasting for a
+       second or so after the finger lifts. The trigger line crosses the screen
+       during that coast, so the pull used to begin while the browser was still
+       decelerating the reader's own scroll: two things commanding the scroll
+       position at once, and the page would creep, stall, then be carried the rest
+       of the way. That reads as the scroll catching, which is the one thing a
+       scroll must not do.
+
+       So the pull waits for the page to be still rather than trusting the moment
+       the line arrived. Every scroll restarts a short timer, and the pull runs
+       when the timer is allowed to expire. A reader who is still coasting gets
+       the footer once they have actually stopped; a reader who carries on past
+       the line never gets it, which is the existing cancellation.
+
+       The window is short on purpose: long enough that the tail of a throw has
+       finished, short enough that the footer still feels attached to the scroll
+       that arrived rather than answering to some later one. */
+
+    const SETTLE_MS = 110;
+    let settleTimer = 0;
+
+    function pullWhenStill() {
+      clearTimeout(settleTimer);
+      settleTimer = setTimeout(() => {
+        if (gestureActive) return;
+        // Re-checked here rather than trusted from when the timer was set: the
+        // line can have gone back off screen while the page was settling, and
+        // pulling then would carry the reader somewhere they have just left.
+        if (isMagnetDisabled || isMagnetized || motionOff() || !linksOnScreen()) return;
+        pullDown();
+      }, SETTLE_MS);
+    }
+
+    /* Only armed while the line is on screen and the magnet is idle, so an
+       ordinary scroll through the rest of the page costs one comparison and no
+       timer churn. */
+    window.addEventListener('scroll', () => {
+      if (isMagnetDisabled || isMagnetized) return;
+      if (linksOnScreen()) pullWhenStill();
+    }, { passive: true, capture: true });
+
     /* The pull moves the page under the reader's hand, so it must not run while a
        gesture is in progress.
 
@@ -350,9 +394,12 @@ const { isInverted = false, disableMagnet = false } = Astro.props;
       if (!pullPending) return;
       pullPending = false;
       /* The gesture may have carried the footer back out of view, in which case
-         pulling would now be pushing the reader somewhere they just left. */
+         pulling would now be pushing the reader somewhere they just left. And a
+         lifted finger on a phone does not mean the page has stopped, so this
+         goes through the same wait rather than pulling under the remaining
+         coast. */
       if (isMagnetDisabled || isMagnetized || motionOff() || !linksOnScreen()) return;
-      pullDown();
+      pullWhenStill();
     };
 
     // Captured on window so a gesture is seen before the carousel's own handlers
@@ -400,7 +447,7 @@ const { isInverted = false, disableMagnet = false } = Astro.props;
         if (motionOff()) return;
 
         if (gestureActive) { pullPending = true; return; }
-        pullDown();
+        pullWhenStill();
       });
     }, { threshold: 0 });
     if (linksEnd) magnetObserver.observe(linksEnd);

@@ -43,7 +43,7 @@ const posterSrc = "/assets/video-poster-retina.webp";
     </div>
 </div>
 
-<section id="hero-section" class="relative z-10 min-h-[100dvh] flex flex-col justify-between px-[var(--page-padding)] pt-16 pb-[40px] bg-black transition-colors duration-1000 overflow-hidden">
+<section id="hero-section" class="relative z-10 min-h-[100svh] flex flex-col justify-between px-[var(--page-padding)] pt-16 pb-[40px] bg-black transition-colors duration-1000 overflow-hidden">
   <div class="logo-area brands-line-mask w-full transition-all duration-800 ease-[var(--ease-mechanical)]">
     <div class="brands-line-inner w-full md:max-w-[414px]">
       <img src="/assets/datt_logo_s.svg" alt="DATT STUDIO" width="440" height="159" class="w-full h-auto invert select-none pointer-events-none" />
@@ -216,9 +216,28 @@ const posterSrc = "/assets/video-poster-retina.webp";
   }
 
   /* Mobile landscape: the short viewport makes a full-width wordmark dominate
-     the screen. Hold it to half the width and let `h-auto` keep the ratio. */
+     the screen, so it is held to half the width and `h-auto` keeps the ratio.
+
+     That was not enough on its own. The headline is sized from the viewport
+     *width*, and in landscape width is the long axis: at 844x390 the clamp
+     resolved to 71px, so the H1 stood 232px tall and the wordmark 144px. That is
+     376px of content in a 390px screen, and with `justify-between` there was no
+     slack left to hand out — measured, the gap between the wordmark and the H1
+     was exactly 0px on every phone-landscape size, and the hero overflowed the
+     viewport by up to 90px.
+
+     So on a short landscape screen both are sized from the short axis instead,
+     and the gap is stated rather than left to the leftover. The `gap` is the
+     floor: if the screen is shorter still, the words keep their distance from
+     the logo instead of touching it. */
   @media (orientation: landscape) and (max-height: 520px) {
-    .logo-area .brands-line-inner { max-width: 50%; }
+    #hero-section {
+      padding-top: 20px;
+      padding-bottom: 20px;
+      gap: 18px;
+    }
+    .hero-headline { font-size: min(clamp(38px, 8.4vw, 72px), 12vh); }
+    .logo-area .brands-line-inner { max-width: min(50%, 34vh); }
   }
 </style>
 
