@@ -3,19 +3,16 @@ import SecureEmail from './SecureEmail.astro';
 import TimeDisplay from './TimeDisplay.astro';
 import { socialLinks } from '../data/social';
 const currentYear = new Date().getFullYear();
-const { isInverted = false, disableMagnet = false } = Astro.props;
+const { isInverted = false } = Astro.props;
 ---
 
 <footer
   id="site-footer"
-  data-disable-magnet={disableMagnet.toString()}
   class:list={[
     "relative px-[var(--page-padding)] pb-0 overflow-hidden transition-colors duration-700 w-full",
     isInverted ? "bg-black text-white" : "bg-white text-black"
   ]}
 >
-  <div id="footer-magnet-trigger" class="absolute -top-40 left-0 w-full h-20 pointer-events-none"></div>
-
   <div id="footer-reveal-trigger" class="flex flex-col min-h-[100svh] pt-[120px]">
 
     <!-- Headline: Safe-zone padding added to prevent clipping. -->
@@ -79,14 +76,6 @@ const { isInverted = false, disableMagnet = false } = Astro.props;
         </div>
       </div>
     </div>
-
-    <!-- Where the magnet waits.
-         A hairline at the bottom of the links above, which is the last thing a
-         reader has to have seen before the pull is worth doing: after it the
-         footer is only the wordmark and the copyright, so bringing the rest up
-         means the logo and its line are read together rather than the page
-         sliding a screen of nothing into view. -->
-    <div id="footer-links-end" class="w-full h-px pointer-events-none" aria-hidden="true"></div>
 
     <div class="flex-grow"></div>
 
@@ -258,17 +247,11 @@ const { isInverted = false, disableMagnet = false } = Astro.props;
        This script is inline, so the client router re-runs it on every
        navigation. Everything it attaches to `window` outlives the swap: the
        listeners stay bound and the observers stay pointed at nodes the router
-       has already discarded, and they are then looking at a page the reader
-       never scrolled. A leftover copy would arm the pull on the new page and
-       carry it to the footer unbidden — which is what happened on the way from
-       the homepage to any other page, and why scrolling back up dragged the
-       page down again.
-
-       So a previous run is stopped before this one starts. The list is kept on
-       `window` because an inline script gets a fresh scope on every navigation
-       and nothing else survives the swap. `sizeFooterColumns` below guards its
-       own resize listener the same way; this is the same guard, extended to
-       everything else here. */
+       has already discarded. So a previous run is stopped before this one
+       starts. The list is kept on `window` because an inline script gets a
+       fresh scope on every navigation and nothing else survives the swap.
+       `sizeFooterColumns` below guards its own resize listener the same way;
+       this is the same guard, applied to everything here. */
     const KEY = '__dattFooterReveals';
     if (window[KEY]) window[KEY]();
     const stoppers = [];
@@ -285,198 +268,19 @@ const { isInverted = false, disableMagnet = false } = Astro.props;
       stoppers.push(() => target.removeEventListener(type, fn, opts));
     };
 
-    let userScrolled = false;
-    const unlockOnScroll = () => { userScrolled = true; };
-    on(window, 'wheel', unlockOnScroll, { once: true, passive: true });
-    on(window, 'touchmove', unlockOnScroll, { once: true, passive: true });
-    on(window, 'keydown', (e) => {
-        if (['ArrowDown', 'Space', 'PageDown'].includes(e.code)) userScrolled = true;
-    }, { once: true, passive: true });
-
-    const isMagnetDisabled = footer.getAttribute('data-disable-magnet') === 'true';
-
+    /* The wordmark is not a thing to be dragged off the page or saved by
+       accident, so the usual two gestures are refused on it. */
     document.querySelectorAll('.logo-protection-container').forEach(c => {
       on(c, 'contextmenu', e => e.preventDefault());
       on(c, 'dragstart', e => e.preventDefault());
     });
 
     const trigger = document.getElementById('footer-reveal-trigger');
-    let isMagnetized = false;
 
-    /* Motion off means the pull is off. The kill-switch in the layout only forces
-       scroll-behavior to auto, which a scrollTo({behavior:'smooth'}) ignores, so
-       this has to be asked about in script or a reader who has asked for less
-       movement gets the largest movement on the page. */
-    const motionOff = () =>
-      document.documentElement.classList.contains('user-reduced-motion') ||
-      (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-
-    /* The magnet holds the footer at the bottom of the screen once it has arrived.
-
-       It fires when the bottom of the legal and social links reaches the screen,
-       which is the last thing a reader has to have seen before the pull is worth
-       doing. Everything left below that line is the wordmark and the copyright,
-       so carrying it up means the logo is read with its line instead of the page
-       sliding a screen of nothing into view.
-
-       Waiting on that line rather than on the footer itself is what makes the
-       guarantee real. Measured as a fraction of the footer it could only ever be
-       an estimate, and the estimate is wrong in both directions: the footer is
-       roughly a viewport tall, so a fraction of it is a fraction of the screen,
-       but how much of it that is worth varies with the viewport and, more to the
-       point, a fifth is early enough to fire while the enquiries are still the
-       bottom of the screen and the links have not been seen at all. The line is
-       a thing that either is or is not on screen, so the pull can never fire
-       before the links are readable.
-
-       Only on the way in. Reading the previous state and acting just as the line
-       arrives means a reader who scrolls back up to reread the links is not
-       dragged down again the moment the footer reappears, which is what would
-       happen if this were simply a level to cross. */
-
-    const linksEnd = document.getElementById('footer-links-end');
-    let linksWereOnScreen = false;
-
-    /* The wordmark is what the pull is for, so it is also what decides whether
-       there is anything to do. If it is already on screen the reader has reached
-       it themselves and moving the page would achieve nothing but motion — and
-       the wordmark reveals itself in any case, being a line of its own. */
-    const wordmark = footer.querySelector('.logo-protection-container');
-    const wordmarkOnScreen = () =>
-      !!wordmark && wordmark.isConnected &&
-      wordmark.getBoundingClientRect().top < window.innerHeight &&
-      wordmark.getBoundingClientRect().bottom > 0;
-
-    /* Is the line on screen right now? The observer only reports when it enters
-       or leaves, so this is how a pull that was held back during a gesture is
-       checked before it is carried out.
-
-       `isConnected` is not defensive noise. A node the router has already
-       detached reports an all-zero rect, and zero is above minus nothing: a
-       discarded line would read as sitting at the top of the screen, i.e. as
-       plainly on screen, so anything still holding a reference to it would
-       conclude the reader had reached the footer. Asking whether the node is
-       still in the document is what makes that impossible. */
-    const linksOnScreen = () =>
-      !!linksEnd && linksEnd.isConnected && linksEnd.getBoundingClientRect().top <= window.innerHeight;
-
-    const pullDown = () => {
-      isMagnetized = true;
-      window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
-      setTimeout(() => { isMagnetized = false; }, 2000);
-    };
-
-    /* --- WAITING FOR THE PAGE TO BE STILL ---
-
-       A finger being off the glass is not the same as the page having stopped.
-       On a phone the list is thrown, not pushed, and it keeps coasting for a
-       second or so after the finger lifts. The trigger line crosses the screen
-       during that coast, so the pull used to begin while the browser was still
-       decelerating the reader's own scroll: two things commanding the scroll
-       position at once, and the page would creep, stall, then be carried the rest
-       of the way. That reads as the scroll catching, which is the one thing a
-       scroll must not do.
-
-       So the pull waits for the page to be still rather than trusting the moment
-       the line arrived. Every scroll restarts a short timer, and the pull runs
-       when the timer is allowed to expire. A reader who is still coasting gets
-       the footer once they have actually stopped; a reader who carries on past
-       the line never gets it, which is the existing cancellation.
-
-       The window is short on purpose: long enough that the tail of a throw has
-       finished, short enough that the footer still feels attached to the scroll
-       that arrived rather than answering to some later one. */
-
-    const SETTLE_MS = 110;
-    let settleTimer = 0;
-
-    function pullWhenStill() {
-      clearTimeout(settleTimer);
-      settleTimer = setTimeout(() => {
-        if (gestureActive) return;
-        // Re-checked here rather than trusted from when the timer was set: the
-        // line can have gone back off screen while the page was settling, and
-        // pulling then would carry the reader somewhere they have just left.
-        if (isMagnetDisabled || isMagnetized || motionOff() || !linksOnScreen()) return;
-        // Nothing to reveal: the wordmark is already in view.
-        if (wordmarkOnScreen()) return;
-        pullDown();
-      }, SETTLE_MS);
-    }
-
-    /* Only armed while the line is on screen and the magnet is idle, so an
-       ordinary scroll through the rest of the page costs one comparison and no
-       timer churn. */
-    on(window, 'scroll', () => {
-      if (isMagnetDisabled || isMagnetized) return;
-      if (linksOnScreen()) pullWhenStill();
-    }, { passive: true, capture: true });
-
-    /* The pull moves the page under the reader's hand, so it must not run while a
-       gesture is in progress.
-
-       Dragging the carousel is the case that matters: the strip is read by the
-       drag in finger-offset terms while a smooth scroll slides the whole page,
-       so a pull landing mid-drag moves the strip out from under the finger and
-       the drag settles on a position the reader never put it on. The tap of an
-       arrow matters for the same reason, and a tap can also land on the same
-       frame as the crossing.
-
-       Two things are needed, not one. A pull must not start mid-gesture, and a
-       pull already running must be abandoned the moment a gesture begins,
-       because cancelling it late still means the page moved under the finger
-       first. Asking for the position already reached stops a smooth scroll where
-       it is; `behavior: auto` is the documented way to do that and is honoured
-       even where the reduced-motion kill-switch has forced scroll-behavior. */
-
-    let gestureActive = false;
-    let pullPending = false;
-
-    /* Held back rather than dropped. A drag is a pause in the pull, not a
-       refusal of it: the footer arriving during a drag is still the footer
-       arriving, so the pull is carried out once the finger lifts. */
-    const onGestureStart = () => {
-      gestureActive = true;
-      if (isMagnetized) window.scrollTo({ top: window.scrollY, left: window.scrollX, behavior: 'auto' });
-    };
-
-    const onGestureEnd = () => {
-      gestureActive = false;
-      if (!pullPending) return;
-      pullPending = false;
-      /* The gesture may have carried the footer back out of view, in which case
-         pulling would now be pushing the reader somewhere they just left. And a
-         lifted finger on a phone does not mean the page has stopped, so this
-         goes through the same wait rather than pulling under the remaining
-         coast. */
-      if (isMagnetDisabled || isMagnetized || motionOff() || !linksOnScreen()) return;
-      pullWhenStill();
-    };
-
-    // Captured on window so a gesture is seen before the carousel's own handlers
-    // act on it, whatever part of the page it starts on.
-    on(window, 'pointerdown', onGestureStart, { passive: true, capture: true });
-    on(window, 'pointerup', onGestureEnd, { passive: true, capture: true });
-    on(window, 'pointercancel', onGestureEnd, { passive: true, capture: true });
-    /* A pointer released off the window sends no pointerup, which would leave the
-       pull held back for good. Only a leave with nowhere to point at counts,
-       though: moving the page under a finger that has not lifted sends
-       pointerleave for whatever was under it, and being read as the end of the
-       gesture that would drop the hold and let the pull through a live drag. */
-    on(window, 'pointerleave', (e) => {
-      if (!e.relatedTarget) onGestureEnd();
-    }, { passive: true, capture: true });
-    on(window, 'blur', onGestureEnd);
-
-    /* Two observers, because two different things are being watched. The
-       footer's own arrival drives the reveal, which should happen as soon as
-       anything of the footer is on screen. The line at the bottom of the links
-       drives the pull, which must wait for that line and not for the footer.
-
-       The line is a hairline, so it is watched with a threshold of zero and the
-       decision is made from where it actually is rather than from a ratio: a
-       one-pixel target reports a ratio of one the moment a sliver of it appears,
-       which would fire while the links were still mostly below the fold. */
+    /* The footer's own arrival drives its reveal, which happens as soon as
+       anything of the footer is on screen. Threshold zero because the trigger is
+       a hairline: a one-pixel target reports a ratio of one the moment a sliver
+       of it appears. */
     const revealObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (!entry.isIntersecting || !trigger) return;
@@ -485,28 +289,6 @@ const { isInverted = false, disableMagnet = false } = Astro.props;
     }, { threshold: 0 });
     revealObserver.observe(footer);
     stoppers.push(() => revealObserver.disconnect());
-
-    const magnetObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        const arriving = entry.isIntersecting && !linksWereOnScreen;
-        linksWereOnScreen = entry.isIntersecting;
-
-        // The line going back off screen cancels a pull that was waiting on a
-        // gesture, so a scroll upward does not leave one armed.
-        if (!entry.isIntersecting) { pullPending = false; return; }
-
-        if (isMagnetDisabled || isMagnetized || !userScrolled || !arriving) return;
-        if (motionOff()) return;
-
-        if (gestureActive) { pullPending = true; return; }
-        pullWhenStill();
-      });
-    }, { threshold: 0 });
-    if (linksEnd) magnetObserver.observe(linksEnd);
-    stoppers.push(() => {
-      magnetObserver.disconnect();
-      clearTimeout(settleTimer);
-    });
   }
 
   initFooterReveals();
