@@ -7,7 +7,7 @@ cover: /assets/news/performance-cover.webp
 coverAlt: "Performance measurements taken while the homepage was being rebuilt."
 ---
 
-The homepage used to transfer 6.66 MB on a phone. It now transfers 130,955 B (127.9 KiB). This is what happened in between, what we left in place on purpose, and what we would do differently.
+The homepage used to transfer 6.66 MB on a phone. It now transfers 131,874 B (128.8 KiB). This is what happened in between, what we left in place on purpose, and what we would do differently.
 
 ## Where it started
 
@@ -64,7 +64,7 @@ It was wrong for a studio whose position is clarity. A translucent, floating nav
 <tr><th></th><th scope="col">Before</th><th scope="col">After</th></tr>
 </thead>
 <tbody>
-<tr><th scope="row">Transferred, mobile</th><td>6.66 MB</td><td>130,955 B (127.9 KiB)</td></tr>
+<tr><th scope="row">Transferred, mobile</th><td>6.66 MB</td><td>131,874 B (128.8 KiB)</td></tr>
 <tr><th scope="row">Performance, mobile</th><td>94</td><td>100</td></tr>
 <tr><th scope="row">Performance, desktop</th><td>100</td><td>100</td></tr>
 <tr><th scope="row">Best practices</th><td>100</td><td>100</td></tr>
@@ -78,7 +78,7 @@ Both columns are Lighthouse 13.5.0 runs against a local build, served on localho
 
 A few requests make up most of the after figure, and there are only seven of them. The font is the largest single one at 53,292 bytes. The document is 43,178, the favicon is 16,603, the hero poster is 10,072 and the reveal script is 5,652, with the two wordmark files at 1,431 and 727 between them.
 
-Repeated runs gave the same total, 130,955 bytes, every time, because the page requests a fixed set of files. One exception is worth naming rather than hiding. The Recognition clips are fetched when that section approaches, two screens ahead, and a run that scrolls far enough to reach it records them as well — one of three runs did, and reported 1,648,866 B over 13 requests. That is the intended behaviour and not a regression: the clips are not part of what the page costs to arrive, and a reader who never scrolls to Recognition never pays for them. The performance score did not move when it happened, which is the part that matters.
+Repeated runs gave the same total, 131,874 bytes, every time, because the page requests a fixed set of files. One exception is worth naming rather than hiding. The Recognition clips are fetched when that section approaches, two screens ahead, and a run that scrolls far enough to reach it records them as well — one of three runs did, and reported 1,648,866 B over 13 requests. That is the intended behaviour and not a regression: the clips are not part of what the page costs to arrive, and a reader who never scrolls to Recognition never pays for them. The performance score did not move when it happened, which is the part that matters.
 
 The Best Practices row can move depending on where the run happens. Our own build reports 100. When we measured the public edge during this work it read 81, because the edge injects a challenge script and a redirect the origin does not serve. The page itself did not change.
 
@@ -88,7 +88,7 @@ There is no desktop payload row in that table, and the reason is a decision rath
 
 Desktop still fetches the hero reel, but it loads after the key performance metrics are recorded, so it doesn’t negatively impact the scores. The score was never going to show this. Only the byte count did.
 
-Without the hero reel, desktop transfers exactly what mobile transfers: 130,955 B, the same seven files, the same bytes. That is worth stating precisely rather than as "a similar amount", because it was measured rather than estimated, and it is the clearest argument for the trade-off above. The desktop total varies between runs — 2.6 MB and 3.1 MB across two of them — and none of that variation is the page. It is the reel, still downloading when the audit ends, which is the same effect described under Where it started.
+Without the hero reel, desktop transfers exactly what mobile transfers: 131,874 B, the same seven files, the same bytes. That is worth stating precisely rather than as "a similar amount", because it was measured rather than estimated, and it is the clearest argument for the trade-off above. The desktop total varies between runs — 2.6 MB and 3.1 MB across two of them — and none of that variation is the page. It is the reel, still downloading when the audit ends, which is the same effect described under Where it started.
 
 On larger viewports, we preload the hero video to avoid a visible delay. On smaller devices, we keep it interaction-gated as a deliberate trade-off between presentation and performance.
 

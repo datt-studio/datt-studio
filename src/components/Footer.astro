@@ -253,19 +253,51 @@ const { isInverted = false, disableMagnet = false } = Astro.props;
     const footer = document.getElementById('site-footer');
     if (!footer) return;
 
+    /* --- ONE LIVE INSTANCE AT A TIME ---
+
+       This script is inline, so the client router re-runs it on every
+       navigation. Everything it attaches to `window` outlives the swap: the
+       listeners stay bound and the observers stay pointed at nodes the router
+       has already discarded, and they are then looking at a page the reader
+       never scrolled. A leftover copy would arm the pull on the new page and
+       carry it to the footer unbidden — which is what happened on the way from
+       the homepage to any other page, and why scrolling back up dragged the
+       page down again.
+
+       So a previous run is stopped before this one starts. The list is kept on
+       `window` because an inline script gets a fresh scope on every navigation
+       and nothing else survives the swap. `sizeFooterColumns` below guards its
+       own resize listener the same way; this is the same guard, extended to
+       everything else here. */
+    const KEY = '__dattFooterReveals';
+    if (window[KEY]) window[KEY]();
+    const stoppers = [];
+    window[KEY] = () => {
+      for (const stop of stoppers) {
+        try { stop(); } catch (_) {}
+      }
+      stoppers.length = 0;
+    };
+    /* Every listener goes through this, so stopping is a matter of undoing what
+       is in the list rather than remembering to undo each one by hand. */
+    const on = (target, type, fn, opts) => {
+      target.addEventListener(type, fn, opts);
+      stoppers.push(() => target.removeEventListener(type, fn, opts));
+    };
+
     let userScrolled = false;
     const unlockOnScroll = () => { userScrolled = true; };
-    window.addEventListener('wheel', unlockOnScroll, { once: true, passive: true });
-    window.addEventListener('touchmove', unlockOnScroll, { once: true, passive: true });
-    window.addEventListener('keydown', (e) => {
+    on(window, 'wheel', unlockOnScroll, { once: true, passive: true });
+    on(window, 'touchmove', unlockOnScroll, { once: true, passive: true });
+    on(window, 'keydown', (e) => {
         if (['ArrowDown', 'Space', 'PageDown'].includes(e.code)) userScrolled = true;
     }, { once: true, passive: true });
 
     const isMagnetDisabled = footer.getAttribute('data-disable-magnet') === 'true';
 
     document.querySelectorAll('.logo-protection-container').forEach(c => {
-      c.addEventListener('contextmenu', e => e.preventDefault());
-      c.addEventListener('dragstart', e => e.preventDefault());
+      on(c, 'contextmenu', e => e.preventDefault());
+      on(c, 'dragstart', e => e.preventDefault());
     });
 
     const trigger = document.getElementById('footer-reveal-trigger');
@@ -305,11 +337,28 @@ const { isInverted = false, disableMagnet = false } = Astro.props;
     const linksEnd = document.getElementById('footer-links-end');
     let linksWereOnScreen = false;
 
+    /* The wordmark is what the pull is for, so it is also what decides whether
+       there is anything to do. If it is already on screen the reader has reached
+       it themselves and moving the page would achieve nothing but motion — and
+       the wordmark reveals itself in any case, being a line of its own. */
+    const wordmark = footer.querySelector('.logo-protection-container');
+    const wordmarkOnScreen = () =>
+      !!wordmark && wordmark.isConnected &&
+      wordmark.getBoundingClientRect().top < window.innerHeight &&
+      wordmark.getBoundingClientRect().bottom > 0;
+
     /* Is the line on screen right now? The observer only reports when it enters
        or leaves, so this is how a pull that was held back during a gesture is
-       checked before it is carried out. */
+       checked before it is carried out.
+
+       `isConnected` is not defensive noise. A node the router has already
+       detached reports an all-zero rect, and zero is above minus nothing: a
+       discarded line would read as sitting at the top of the screen, i.e. as
+       plainly on screen, so anything still holding a reference to it would
+       conclude the reader had reached the footer. Asking whether the node is
+       still in the document is what makes that impossible. */
     const linksOnScreen = () =>
-      linksEnd ? linksEnd.getBoundingClientRect().top <= window.innerHeight : false;
+      !!linksEnd && linksEnd.isConnected && linksEnd.getBoundingClientRect().top <= window.innerHeight;
 
     const pullDown = () => {
       isMagnetized = true;
@@ -349,6 +398,8 @@ const { isInverted = false, disableMagnet = false } = Astro.props;
         // line can have gone back off screen while the page was settling, and
         // pulling then would carry the reader somewhere they have just left.
         if (isMagnetDisabled || isMagnetized || motionOff() || !linksOnScreen()) return;
+        // Nothing to reveal: the wordmark is already in view.
+        if (wordmarkOnScreen()) return;
         pullDown();
       }, SETTLE_MS);
     }
@@ -356,7 +407,7 @@ const { isInverted = false, disableMagnet = false } = Astro.props;
     /* Only armed while the line is on screen and the magnet is idle, so an
        ordinary scroll through the rest of the page costs one comparison and no
        timer churn. */
-    window.addEventListener('scroll', () => {
+    on(window, 'scroll', () => {
       if (isMagnetDisabled || isMagnetized) return;
       if (linksOnScreen()) pullWhenStill();
     }, { passive: true, capture: true });
@@ -404,18 +455,18 @@ const { isInverted = false, disableMagnet = false } = Astro.props;
 
     // Captured on window so a gesture is seen before the carousel's own handlers
     // act on it, whatever part of the page it starts on.
-    window.addEventListener('pointerdown', onGestureStart, { passive: true, capture: true });
-    window.addEventListener('pointerup', onGestureEnd, { passive: true, capture: true });
-    window.addEventListener('pointercancel', onGestureEnd, { passive: true, capture: true });
+    on(window, 'pointerdown', onGestureStart, { passive: true, capture: true });
+    on(window, 'pointerup', onGestureEnd, { passive: true, capture: true });
+    on(window, 'pointercancel', onGestureEnd, { passive: true, capture: true });
     /* A pointer released off the window sends no pointerup, which would leave the
        pull held back for good. Only a leave with nowhere to point at counts,
        though: moving the page under a finger that has not lifted sends
        pointerleave for whatever was under it, and being read as the end of the
        gesture that would drop the hold and let the pull through a live drag. */
-    window.addEventListener('pointerleave', (e) => {
+    on(window, 'pointerleave', (e) => {
       if (!e.relatedTarget) onGestureEnd();
     }, { passive: true, capture: true });
-    window.addEventListener('blur', onGestureEnd);
+    on(window, 'blur', onGestureEnd);
 
     /* Two observers, because two different things are being watched. The
        footer's own arrival drives the reveal, which should happen as soon as
@@ -433,6 +484,7 @@ const { isInverted = false, disableMagnet = false } = Astro.props;
       });
     }, { threshold: 0 });
     revealObserver.observe(footer);
+    stoppers.push(() => revealObserver.disconnect());
 
     const magnetObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
@@ -451,6 +503,10 @@ const { isInverted = false, disableMagnet = false } = Astro.props;
       });
     }, { threshold: 0 });
     if (linksEnd) magnetObserver.observe(linksEnd);
+    stoppers.push(() => {
+      magnetObserver.disconnect();
+      clearTimeout(settleTimer);
+    });
   }
 
   initFooterReveals();
