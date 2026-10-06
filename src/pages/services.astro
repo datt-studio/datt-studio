@@ -40,40 +40,44 @@ import ServicesApproach from '../components/ServicesApproach.astro'; // Added Im
 </style>
 
 <style is:global>
-  /* --- TABLET: THE COPY HANGS OFF THE SERVICES ITEM IN THE NAV ---
-     Between 768px and 1023px these sections are split in two, and the copy ends
-     up in the right half of a tablet screen with only the page margin to its
-     left, while the top nav has a SERVICES item sitting much further right. The
-     copy is hung off that item instead, so the reading column starts where the
-     word SERVICES does. It is the same join the homepage's recognition table
-     makes with the same link.
+  /* --- THE COPY HANGS OFF THE SERVICES ITEM IN THE NAV ---
+     Every width where the top nav shows a SERVICES item (768px and up) has the
+     same split: a label on the left, copy in the rest of the row. The copy ends
+     up in the half of the screen with only the page margin to its left, while
+     the top nav has a SERVICES item sitting further right. The copy is hung off
+     that item instead, so the reading column starts where the word SERVICES
+     does. It is the same join the homepage's recognition table makes with the
+     same link.
 
      The label column takes the measured distance and the copy takes what is
      left, rather than the copy being shoved across with a margin: a margin
      would come out of the copy's own width and leave it a sliver, which is the
      thing this is meant to fix. The distance is capped at 55% of the container
-     so a wide nav on a narrow tablet cannot do that either, and 45% stands in
+     so a wide nav on a narrow screen cannot do that either, and 45% stands in
      until the script has measured it.
 
-     Nothing here applies at 1024px and up, where the split and its proportions
-     are left exactly as they were, or below 768px, where the nav has no SERVICES
-     item to line up with and the copy already runs the full width. */
-  @media (min-width: 768px) and (max-width: 1023px) {
+     Below 768px the nav has no SERVICES item to line up with and the copy
+     already runs the full width. */
+  @media (min-width: 768px) {
     #services-identities > div,
     #services-systems > div,
-    #services-digital > div {
+    #services-digital > div,
+    #services-approach > div {
       grid-template-columns: minmax(0, var(--services-copy-left, 45%)) 1fr;
     }
+  }
 
-    /* Our Approach gives up the split altogether on a tablet. The label and the
-       four steps are one reading column rather than two, so the steps get the
-       width of the section instead of the right-hand part of it and each one is
-       a comfortable measure rather than a column with the label beside it. The
-       column hangs off the SERVICES item like every other section here.
+  /* On a tablet Our Approach gives up the split altogether. The label and the
+     four steps are one reading column rather than two, so the steps get the
+     width of the section instead of the right-hand part of it and each one is
+     a comfortable measure rather than a column with the label beside it. The
+     column hangs off the SERVICES item like every other section here. At
+     1024px and up it keeps the two-column split like the other sections.
 
-       The label's own bottom margin is what the split needed, and md:mb-0 has
-       already taken it away at this width, so it is put back to keep the gap
-       between the label and the steps. */
+     The label's own bottom margin is what the split needed, and md:mb-0 has
+     already taken it away at this width, so it is put back to keep the gap
+     between the label and the steps. */
+  @media (min-width: 768px) and (max-width: 1023px) {
     #services-approach > div {
       grid-template-columns: minmax(0, 1fr);
       margin-left: var(--services-copy-left, 45%);
@@ -85,12 +89,11 @@ import ServicesApproach from '../components/ServicesApproach.astro'; // Added Im
 </style>
 
 <script is:inline>
-  /* Where the SERVICES item sits in the top nav, so the copy below the hero can
+  /* Where the SERVICES item sits in the top nav, so the copy on these pages can
      be hung off it. The nav gaps are fluid, so the offset is measured rather
-     than hard-coded. Set at every width and only read between 768px and 1023px,
-     which means the value is already right if the window is dragged across
-     either edge. */
-  function sizeTabletCopy() {
+     than hard-coded. Set at every width and read from 768px up, which means the
+     value is already right if the window is dragged across either edge. */
+  function sizeNavAlignedCopy() {
     const main = document.querySelector('main');
     const link = document.querySelector('#main-header a[href="/services"]');
     const anchor = document.getElementById('services-identities');
@@ -101,12 +104,12 @@ import ServicesApproach from '../components/ServicesApproach.astro'; // Added Im
     main.style.setProperty('--services-copy-left', `${Math.round(left)}px`);
   }
 
-  if (!window.__dattTabletCopy) {
-    window.__dattTabletCopy = true;
-    window.addEventListener('resize', sizeTabletCopy, { passive: true });
-    window.addEventListener('load', sizeTabletCopy);
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(sizeTabletCopy);
+  if (!window.__dattNavCopy) {
+    window.__dattNavCopy = true;
+    window.addEventListener('resize', sizeNavAlignedCopy, { passive: true });
+    window.addEventListener('load', sizeNavAlignedCopy);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(sizeNavAlignedCopy);
   }
-  sizeTabletCopy();
-  document.addEventListener('astro:after-swap', sizeTabletCopy);
+  sizeNavAlignedCopy();
+  document.addEventListener('astro:after-swap', sizeNavAlignedCopy);
 </script>
