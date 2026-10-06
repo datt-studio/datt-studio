@@ -254,9 +254,18 @@ const posterSrc = "/assets/video-poster-retina.webp";
     bgVideo.muted = true;
     portalVideo.muted = true;
 
+    // Reduced motion, whether from the OS or the site's /accessibility/ toggle,
+    // means the hero never starts a moving picture on its own - no warm-up, no
+    // hover autoplay (the dim-away of the other lines is part of that motion).
+    // Clicking "Made to hold." still opens the reel, because that is the reader
+    // asking for it.
+    const motionOff = () =>
+      document.documentElement.classList.contains('user-reduced-motion') ||
+      (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
     // Warm-start AFTER first paint (window load) so the video never
     // competes with the headline/fonts/poster for bandwidth
-    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches && !motionOff()) {
       const warmStart = () => {
         bgVideo.preload = 'auto';
         bgVideo.load();
@@ -271,8 +280,20 @@ const posterSrc = "/assets/video-poster-retina.webp";
     headline.innerHTML = parts.map((t, i) => {
       const text = t.trim();
       const isTrigger = text.toLowerCase().includes("made to hold");
-      return `<span class="brands-line-mask headline-line ${isTrigger ? 'has-trigger' : ''}"><span class="brands-line-inner ${isTrigger ? 'trigger-line' : ''}" style="transition-delay: ${i * 0.1}s">${text}</span></span>`;
+      return `<span class="brands-line-mask headline-line ${isTrigger ? 'has-trigger' : ''}"><span class="brands-line-inner ${isTrigger ? 'trigger-line' : ''}" style="transition-delay: ${i * 0.1}s${isTrigger ? '' : `; --ls-base: ${i * 0.1}s`}">${text}</span></span>`;
     }).join('');
+
+    /* Route the hero through the same per-line splitter as every other
+       component, so its plain segments reveal the same way the About hero
+       does. The --ls-base on each non-trigger segment keeps the hero's own
+       cascade (wordmark, then each line at 0.1s apart) once the splitter
+       writes its per-line delays. dattSplitLines is idempotent, so the
+       fonts-ready and resize replits later are safe. The .has-trigger
+       segment never reaches the splitter (see lsShouldSkip), so its underline
+       and this script's mouse bindings stay on the element they were written
+       for. */
+    const heroSection = document.getElementById('hero-section');
+    if (window.dattSplitLines && heroSection) window.dattSplitLines(heroSection);
 
     const trigger = headline.querySelector('.trigger-line');
     let isFullscreen = false;
@@ -280,10 +301,12 @@ const posterSrc = "/assets/video-poster-retina.webp";
     // 2. Interaction
     if (trigger) {
         trigger.onmouseenter = () => {
+            if (motionOff()) return;
             document.body.classList.add('video-active');
             bgVideo.play().catch(() => {});
         };
         trigger.onmouseleave = () => {
+            if (motionOff()) return;
             if (!isFullscreen) {
                 document.body.classList.remove('video-active');
                 setTimeout(() => { if (!document.body.classList.contains('video-active')) bgVideo.pause(); }, 800);

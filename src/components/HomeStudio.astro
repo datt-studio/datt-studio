@@ -628,6 +628,16 @@ const previews = [
     const open = (index) => {
       if (!isDesktop()) return;
       show();
+      /* Reduced motion: the still sits under the row, but no clip starts and
+         nothing follows the pointer - both are movement, which the site-wide
+         motion kill turns off. The poster is applied so the preview is a still
+         rather than a black panel. */
+      if (motionOff()) {
+        const n = node();
+        const layer = n && n.querySelectorAll('.recognition-video-layer')[index];
+        applyPoster(layer);
+        return;
+      }
       setLayers(index);
     };
 
@@ -658,7 +668,7 @@ const previews = [
 
     function follow() {
       const n = node();
-      if (n && isDesktop() && n.classList.contains('is-visible')) {
+      if (n && isDesktop() && !motionOff() && n.classList.contains('is-visible')) {
         cX += (tX - cX) * 0.15;
         cY += (tY - cY) * 0.15;
         n.style.transform = `translate3d(${cX - n.offsetWidth / 2}px, ${cY - n.offsetHeight / 2}px, 0)`;
@@ -827,7 +837,7 @@ const previews = [
 
         if (on) {
           warmAhead(i);
-          playIfBuffered(video);
+          if (!motionOff()) playIfBuffered(video);
         } else if (prev >= 0) {
           video.pause();
         }

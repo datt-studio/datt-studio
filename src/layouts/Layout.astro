@@ -483,10 +483,13 @@ const videoLd = {
         // and the article stylesheet keeps the generated line masks closed until
         // their block enters. See news/[...slug].astro.
 
-        // The hero manages its own cascade from data-text and binds a mouseenter
-        // handler to .trigger-line. It is already one segment per line, so
-        // splitting it would only fight with that script.
-        if (el.closest('.headline-line')) return true;
+        // The hero binds a mouseenter handler to .trigger-line on its own
+        // "Made to hold." segment, and .has-trigger carries the underline and
+        // hover rules this script wrote onto a specific element. That segment
+        // must stay exactly as authored, so it is kept out of the split. The
+        // other hero segments are plain single-line text and go through the
+        // shared splitter like every other component on the site.
+        if (el.closest('.headline-line.has-trigger')) return true;
 
         return false;
       }
@@ -612,10 +615,16 @@ const videoLd = {
         // The split container no longer animates; its line masks do.
         el.classList.add('ls-split-host');
 
-        // The new masks must inherit whatever the parent already had, or they
-        // stay closed after the section has revealed.
+        // If the split lands after the section already revealed -- fonts and
+        // resize both rebuild the masks after first paint -- creating them
+        // already active would skip the transition entirely and the lines would
+        // snap in as one block. Creating them closed and adding is-active on
+        // the next frame lets the one transition this split exists to produce
+        // actually play.
         if (el.classList.contains('is-active') || el.closest('.is-active')) {
-          el.querySelectorAll('.brands-line-mask').forEach(m => m.classList.add('is-active'));
+          requestAnimationFrame(() => {
+            el.querySelectorAll('.brands-line-mask').forEach(m => m.classList.add('is-active'));
+          });
         }
       }
 
