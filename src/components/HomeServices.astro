@@ -90,13 +90,17 @@ const items = [
   .link-underline.animate-flow::after { animation: global-underline-flow 0.8s var(--ease-mechanical) forwards; }
 
 
-  /* 2. REVEAL ENGINE */
+  /* 2. REVEAL ENGINE
+     The transition must stay non-important: the per-line splitter writes each
+     generated line's stagger as an inline transition-delay, and an !important
+     transition shorthand here would override every inline delay on the homepage
+     and collapse the line-by-line cascade back into one block reveal. */
   .hs-cube-reveal-mask, .brands-line-mask { display: block; overflow: hidden; perspective: 1200px; }
   .hs-cube-reveal-inner, .brands-line-inner {
     display: block; opacity: 0 !important;
     transform: translateY(115%) rotateX(-60deg) !important;
     transform-origin: top center !important;
-    transition: transform 1.3s var(--ease-mechanical), opacity 0.9s var(--ease-mechanical) !important;
+    transition: transform 1.3s var(--ease-mechanical), opacity 0.9s var(--ease-mechanical);
   }
   #services-interactive-node.is-active .hs-cube-reveal-inner,
   #cursor-video-node.is-fullscreen .brands-line-inner {
@@ -108,7 +112,10 @@ const items = [
   .service-nav-item-node {
     font-size: clamp(72px, 12vw, 140px); font-weight: 600; line-height: 0.8 !important;
     letter-spacing: var(--track-tighter); color: rgba(255, 255, 255, 0.4);
-    transition: color 0.5s var(--ease-mechanical); background: transparent; border: none; cursor: pointer; padding: 0.1em 0; width: 100%;
+    /* The reveal transition is repeated alongside the hover color, because this
+       class is declared after .hs-cube-reveal-inner and its shorthand would
+       otherwise swallow the transform/opacity reveal on these buttons. */
+    transition: color 0.5s var(--ease-mechanical), transform 1.3s var(--ease-mechanical), opacity 0.9s var(--ease-mechanical); background: transparent; border: none; cursor: pointer; padding: 0.1em 0; width: 100%;
   }
   .service-nav-item-node.is-active-hover { color: #fff !important; mix-blend-mode: difference; }
 
@@ -160,7 +167,13 @@ const items = [
 
 
   /* 6. CTA INVERTED STYLE */
-  #services-interactive-node .cta-link.inverted-cta { color: #FFFFFF !important; }
+  #services-interactive-node .cta-link.inverted-cta {
+    color: #FFFFFF !important;
+    /* Re-declared so the reveal transition survives: .cta-link's own shorthand
+       (also non-important) would otherwise override the transform/opacity
+       reveal on this element and make it snap in instead of turning up. */
+    transition: color 0.4s var(--ease-mechanical), transform 1.3s var(--ease-mechanical), opacity 0.9s var(--ease-mechanical);
+  }
   #services-interactive-node .cta-link.inverted-cta::after { background-color: #FFFFFF !important; }
 
 

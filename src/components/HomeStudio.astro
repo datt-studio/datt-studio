@@ -326,18 +326,16 @@ const previews = [
      clip as the outgoing one scrolls away. Nothing crossfades and nothing waits
      on a timer, which is what keeps a fast swipe from queueing up handoffs. */
   @media (max-width: 1023px), (hover: none) {
-    /* Sticky cards need a scrollport they can travel in. The reveal wrapper is
-       a mask with overflow hidden and a perspective, and both of those trap a
-       sticky descendant, so on this layout the wrapper stands aside and the
-       table fades in flat instead of turning. */
+    /* Sticky cards need a scrollport they can travel in. Plain overflow: hidden
+       would make the mask a scroll container and trap a sticky descendant, so
+       the clip is done with overflow: clip instead: it clips the turning table
+       during the reveal without ever becoming a scroll container, and the
+       cards keep their travel to the stack line. The base .brands-line-inner
+       reveal is left intact, so the table turns up like every other component
+       instead of fading in flat. */
     .home-studio .recognition-reveal {
-      overflow: visible;
-      perspective: none;
+      overflow: clip;
       padding-top: 0;
-    }
-    .home-studio .recognition-reveal .brands-line-inner {
-      transform: none !important;
-      will-change: opacity;
     }
 
     /* The copy and the table sit one above the other, with the same gap they
