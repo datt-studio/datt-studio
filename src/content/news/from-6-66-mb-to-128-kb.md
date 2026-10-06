@@ -7,7 +7,7 @@ cover: /assets/news/performance-cover.webp
 coverAlt: "Performance measurements taken while the homepage was being rebuilt."
 ---
 
-The homepage used to transfer 6.66 MB on a phone. It now transfers 128,563 B — 125.5 KiB, or 128.6 KB in the decimal units the headline uses. This is what happened in between, what we left in place on purpose, and what we would do differently.
+The homepage used to transfer 6.66 MB on a phone. It now transfers 128,079 B over a compressed connection — 125.1 KiB, or 128.1 KB in the decimal units the headline uses. In raw file bytes, the same page weighs 264,774 B (258.6 KiB); gzip is the difference, and the site does it on every connection. This is what happened in between, what we left in place on purpose, and what we would do differently.
 
 ## Where it started
 
@@ -15,7 +15,7 @@ The first version of this site was a portfolio with a full-screen video hero, a 
 
 Most of the weight sat in three places. An unoptimised hero video that loaded on page view, fonts pulled from a third-party CDN covering every glyph the font designer shipped, and the hero poster as a large JPEG. Every one of those was a decision someone made and nobody revisited.
 
-What the browser transfers during a page load can differ from total file sizes — especially for large media that may not fully buffer during measurement. The headline figure reflects what was transferred, not the total asset weight.
+What the browser transfers during a page load can differ from total file sizes — especially for large media that may not fully buffer during measurement, or when the server compresses what it sends. The headline figure is what the browser actually downloaded, not what the files weigh on disk. Both numbers are reported here because confusing them is how the figure kept drifting.
 
 The scores were not a mystery. They were the arithmetic of those files.
 
@@ -76,7 +76,7 @@ It was wrong for a studio whose position is clarity. A translucent, floating nav
 <tr><th></th><th scope="col">Before</th><th scope="col">After</th></tr>
 </thead>
 <tbody>
-<tr><th scope="row">Transferred, mobile</th><td>6.66 MB</td><td>128,563 B (125.5 KiB)</td></tr>
+<tr><th scope="row">Transferred, mobile</th><td>6.66 MB</td><td>128,079 B (125.1 KiB)</td></tr>
 <tr><th scope="row">Performance, mobile</th><td>94</td><td>100</td></tr>
 <tr><th scope="row">Performance, desktop</th><td>100</td><td>100</td></tr>
 <tr><th scope="row">Best practices</th><td>100</td><td>100</td></tr>
@@ -88,11 +88,11 @@ It was wrong for a studio whose position is clarity. A translucent, floating nav
 
 Both columns are Lighthouse 13.5.0 runs against a local build, served on localhost and measured on mobile. The before column is the previous version, the version with the video hero. The after column is the current build.
 
-A few requests make up most of the after figure, and there are only seven of them. The font is the largest single one at 53,292 bytes. The document is 40,786, the favicon is 16,603, the hero poster is 10,072 and the reveal script is 5,652, with the two wordmark files at 1,431 and 727 between them.
+A few requests make up most of the after figure, and there are only seven of them. The document is now the largest, at 167,390 bytes on disk and 42,113 over the wire, because the styles and the small scripts that used to travel as separate files are inlined into it. The font follows at 52,972 — already compressed, so it does not shrink again on the wire. The favicon is 16,333, the client script is 15,362 on disk (5,280 over the wire), the hero poster is 9,806, and the two wordmark files are 2,451 and 460 on disk (1,115 and 460 over the wire). The raw total is 264,774 bytes. Over a gzip connection the browser downloads 128,079, and the listed wire sizes add up to exactly that.
 
-Repeated runs gave the same total, 128,563 bytes, every time, because the page requests a fixed set of files. One exception is worth naming rather than hiding. The Recognition clips are fetched when that section approaches, two screens ahead, and a run that scrolls far enough to reach it records them as well. We measured the boundary directly: a load that stops before Recognition issues no video requests at all, and a run that scrolls through it issues five distinct clips, one per card, and no clip is fetched twice for the same card. That is the intended behaviour and not a regression: the clips are not part of what the page costs to arrive, and a reader who never scrolls to Recognition never pays for them. The performance score did not move when it happened, which is the part that matters.
+Repeated runs gave the same totals every time — 128,079 B over the wire and 264,774 B in file bytes — because the page requests a fixed set of files. One exception is worth naming rather than hiding. The Recognition clips are fetched when that section approaches, two screens ahead, and a run that scrolls far enough to reach it records them as well. We measured the boundary directly: a load that stops before Recognition issues no video requests at all, and a run that scrolls through it issues five distinct clips, one per card, and no clip is fetched twice for the same card. That is the intended behaviour and not a regression: the clips are not part of what the page costs to arrive, and a reader who never scrolls to Recognition never pays for them. The performance score did not move when it happened, which is the part that matters.
 
-The Best Practices row can move depending on where the run happens. Our own build reports 100. Measured against the public edge it reads 77, and the two audits that fail there are `deprecations` and `inspector-issues`: both belong to what the edge puts in front of the page rather than to the page. An edge run costs more to load for the same reason, 138,697 B over 10 requests against 128,563 B over 7 on our own build. Neither number describes the site we are shipping.
+The Best Practices row can move depending on where the run happens. Our own build reports 100. Measured against the public edge it reads 77, and the two audits that fail there are `deprecations` and `inspector-issues`: both belong to what the edge puts in front of the page rather than to the page. An edge run encodes the same page slightly smaller for that reason — around 123 KB over 7 requests against 128 KB over 7 on our own gzip-only build, because the edge compresses harder. The edge figure moves by a few hundred bytes between runs, so it is reported rounded here. Neither number describes the site we are shipping.
 
 ## Desktop, and what we left on the table
 
@@ -100,7 +100,7 @@ There is no desktop payload row in that table, and the reason is a decision rath
 
 Desktop still fetches the hero reel, but it loads after the key performance metrics are recorded, so it doesn’t negatively impact the scores. The score was never going to show this. Only the byte count did.
 
-Without the hero reel, desktop transfers exactly what mobile transfers: 128,563 B, the same seven files, the same bytes. That is worth stating precisely rather than as "a similar amount", because it was measured rather than estimated, and it is the clearest argument for the trade-off above. The desktop total varies between runs — 3.21 MB, 3.23 MB and 3.50 MB across three of them — and none of that variation is the page. It is the reel, still downloading when the audit ends, which is the same effect described under Where it started.
+Without the hero reel, desktop transfers exactly what mobile transfers: 128,079 B over the wire, the same seven files, the same bytes. That is worth stating precisely rather than as "a similar amount", because it was measured rather than estimated, and it is the clearest argument for the trade-off above. The desktop total varies between runs — 3.21 MB, 3.23 MB and 3.50 MB across three of them — and none of that variation is the page. It is the reel, still downloading when the audit ends, which is the same effect described under Where it started.
 
 On larger viewports, we preload the hero video to avoid a visible delay. On smaller devices, we keep it interaction-gated as a deliberate trade-off between presentation and performance.
 
@@ -140,7 +140,7 @@ Check the network log before writing about the fonts. We believed we had replace
 
 Quote the number a reader will reproduce. We first wrote this article at 95 KiB from a hand measurement. We then wrote it at 4.6 MB, also by hand, and called that a measurement. Both were wrong. The transferred figure is 6,658,776 bytes on a phone, and we only had it after rebuilding the page and running the audit again.
 
-Keep the headline honest when the number moves. This article has been corrected three times since it was written, each time because the build moved underneath a figure we had already published: once for a slug we had changed, once when a footer fix added 919 bytes, and once when removing the footer's pull took 3,311 bytes back off. A performance article that goes stale is worse than one that was never precise, because it is still being read.
+Keep the headline honest when the number moves. This article has been corrected four times since it was written, each time because the build moved underneath a figure we had already published: once for a slug we had changed, once when a footer fix added 919 bytes, once when removing the footer's pull took 3,311 bytes back off, and once when the two totals stopped matching because we had been mixing file sizes and wire sizes — the current build measures 128,079 B over the wire and 264,774 B in file bytes, and both are stated separately now. A performance article that goes stale is worse than one that was never precise, because it is still being read.
 
 Rebuild the before state before writing about it. An earlier draft recorded 6.3 MB from memory. The measured figure was 6,658,776 bytes, so the memory was within a few percent, but we only knew that after checking out the old commit and running the audit again.
 
@@ -148,4 +148,4 @@ Rebuild the before state before writing about it. An earlier draft recorded 6.3 
 
 Every figure here came from a Lighthouse 13.5.0 run or from a byte count taken on the file. The after column is the current production build served on localhost, measured three times on mobile and three times on desktop; every mobile run returned the same total and every desktop run returned the same total once the hero reel is excluded. The before column is the previous version. Where a figure is a file size rather than a transfer, the text says so.
 
-We report transfer sizes in KiB (1,024 bytes). The 6.66 MB before figure is given in decimal MB for readability, and the headline's "128 KB" is the current figure in decimal KB, truncated; in the binary units used everywhere else in this article the same number is 125.5 KiB. The improvement is clear regardless of unit.
+We report wire sizes in KiB (1,024 bytes), and raw file sizes in bytes where the two differ, because the difference between them is what kept moving the figure. The 6.66 MB before figure is given in decimal MB for readability, and the headline's "128 KB" is the wire figure in decimal KB, truncated; in the binary units used everywhere else in this article the same number is 125.1 KiB. The improvement is clear regardless of unit.

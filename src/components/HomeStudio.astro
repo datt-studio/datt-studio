@@ -569,6 +569,11 @@ const previews = [
       if (!n) return;
       n.classList.add('is-visible');
       n.style.opacity = '1';
+      // Cache the node's size at show time. Reading it in follow() every frame
+      // is a layout query; the element keeps its size for the whole hover.
+      nodeW = n.offsetWidth || 0;
+      nodeH = n.offsetHeight || 0;
+      startFollow();
     };
 
     const hide = () => {
@@ -576,6 +581,7 @@ const previews = [
       if (!n) return;
       n.classList.remove('is-visible');
       n.style.opacity = '0';
+      stopFollow();
     };
 
     /* Attaches a layer's poster at the moment it is opened.
@@ -662,18 +668,32 @@ const previews = [
     // Follow the cursor with the same easing as the Services portal.
     let tX = window.innerWidth / 2, tY = window.innerHeight / 2;
     let cX = tX, cY = tY;
+    let followRaf = 0;
+    let nodeW = 0, nodeH = 0;
     window.addEventListener('mousemove', (e) => { tX = e.clientX; tY = e.clientY; }, { passive: true });
 
+    /* The loop only runs while it has work: on a desktop with motion on while
+       the preview is open. Without the gate an empty requestAnimationFrame
+       chain ran unconditionally, every frame, on phones and tablets too, where
+       it could never draw anything — a constant slice of the main thread on the
+       devices that need it for scrolling instead. */
     function follow() {
+      followRaf = 0;
       const n = node();
       if (n && isDesktop() && !motionOff() && n.classList.contains('is-visible')) {
         cX += (tX - cX) * 0.15;
         cY += (tY - cY) * 0.15;
-        n.style.transform = `translate3d(${cX - n.offsetWidth / 2}px, ${cY - n.offsetHeight / 2}px, 0)`;
+        n.style.transform = `translate3d(${cX - nodeW / 2}px, ${cY - nodeH / 2}px, 0)`;
+        followRaf = requestAnimationFrame(follow);
       }
-      requestAnimationFrame(follow);
     }
-    follow();
+    function startFollow() {
+      if (followRaf) return;
+      followRaf = requestAnimationFrame(follow);
+    }
+    function stopFollow() {
+      if (followRaf) { cancelAnimationFrame(followRaf); followRaf = 0; }
+    }
 
     /* --- SCROLL: the card on top of the stack owns the clip ---
 
@@ -926,6 +946,7 @@ const previews = [
         n.style.opacity = '0';
         n.style.width = '';
         n.style.transform = '';
+        stopFollow();
         pauseAll();
       }
       rows().forEach((row) => {

@@ -241,6 +241,7 @@ const items = [
       cursorVideo.classList.remove('is-visible', 'is-fullscreen');
       cursorVideo.style.opacity = "0";
       videoFlip.style.transform = '';
+      stopRender();
       navItems.forEach(n => n.classList.remove('is-active-hover'));
       layers.forEach(l => l.querySelector('video').pause());
     };
@@ -253,6 +254,7 @@ const items = [
         if (motionOff()) return;
         if (!isFullscreen && window.innerWidth >= 768) {
           openVideo(index);
+          startRender();
         }
       });
 
@@ -283,6 +285,7 @@ const items = [
         cursorVideo.classList.remove('is-visible');
         cursorVideo.style.opacity = "0";
         navItems.forEach(n => n.classList.remove('is-active-hover'));
+        stopRender();
       }
     });
 
@@ -334,15 +337,30 @@ const items = [
 
     // --- RENDER ENGINE (Follow Cursor) ---
     let tX = window.innerWidth/2, tY = window.innerHeight/2, cX = tX, cY = tY;
+    let renderRaf = 0, renderW = 600, renderH = 338;
+
+    /* The loop only runs while it has work: on a desktop, with motion on, while
+       the portal is not fullscreen. Without the gate an empty rAF chain ran
+       every frame on every device — including the phones that never could draw
+       it — taking part of the main thread on the devices that need it for
+       scrolling instead. */
     function render() {
-      if (!isFullscreen && !motionOff() && window.innerWidth >= 768) {
-        cX += (tX - cX) * 0.15; // Smoothness
-        cY += (tY - cY) * 0.15;
-        cursorVideo.style.transform = `translate3d(${cX - cursorVideo.offsetWidth / 2}px, ${cY - cursorVideo.offsetHeight / 2}px, 0)`;
-      }
-      requestAnimationFrame(render);
+      renderRaf = 0;
+      if (isFullscreen || motionOff() || window.innerWidth < 768) return;
+      cX += (tX - cX) * 0.15; // Smoothness
+      cY += (tY - cY) * 0.15;
+      cursorVideo.style.transform = `translate3d(${cX - renderW / 2}px, ${cY - renderH / 2}px, 0)`;
+      renderRaf = requestAnimationFrame(render);
     }
-    render();
+    function startRender() {
+      if (renderRaf) return;
+      renderW = cursorVideo.offsetWidth || 600;
+      renderH = cursorVideo.offsetHeight || Math.round(renderW * 9 / 16);
+      renderRaf = requestAnimationFrame(render);
+    }
+    function stopRender() {
+      if (renderRaf) { cancelAnimationFrame(renderRaf); renderRaf = 0; }
+    }
     window.addEventListener('mousemove', (e) => { if(!isFullscreen) { tX = e.clientX; tY = e.clientY; } });
 
 

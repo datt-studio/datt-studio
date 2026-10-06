@@ -671,6 +671,21 @@ const videoLd = {
         });
       }
 
+      /* Once a line's reveal transition has finished, drop the will-change hint
+         so the composited line layers are released instead of staying promoted
+         forever. Every revealed line kept a will-change of transform+opacity
+         for the life of the page, which leaves the phone or tablet GPU holding
+         and re-syncing dozens of layers on every scroll for lines that stopped
+         moving long ago. The hint only needs to exist while a line animates;
+         the splitter's longest property is transform, so when that has ended
+         the line has arrived and nothing else on it animates again. */
+      document.addEventListener('transitionend', (e) => {
+        const t = e.target;
+        if (!(t instanceof Element) || !t.classList.contains('brands-line-inner')) return;
+        if (t.classList.contains('ls-split-host')) return;
+        if (e.propertyName === 'transform') t.style.willChange = 'auto';
+      }, { passive: true });
+
       let lsTimer;
       window.addEventListener('resize', () => {
         if (!lsOn()) return;
