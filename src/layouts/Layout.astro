@@ -372,6 +372,17 @@ const videoLd = {
         body[data-linesplit="on"] .brands-line-inner {
           transform: none !important; transition: none !important; opacity: 1 !important;
         }
+        /* The head-scoped guard keeps the underline in lockstep with the line:
+           only where that split state actually zeroes the reveal does the
+           underline draw instantly. The class-based rule above is the primary
+           reduced-motion path (the /accessibility/ toggle). */
+        body[data-linesplit="on"] .brands-line-mask .cta-link::after,
+        body[data-linesplit="on"] .brands-line-mask.cta-link::after,
+        body[data-linesplit="on"] .hs-cube-reveal-mask .cta-link::after,
+        body[data-linesplit="on"] .hs-cube-reveal-mask.cta-link::after {
+          transform: scaleX(1) !important;
+          transition: none !important;
+        }
       }
 
 
@@ -388,6 +399,54 @@ const videoLd = {
         transition: transform 0.6s var(--ease-mechanical);
       }
       .cta-link:hover::after { animation: global-underline-flow 0.8s var(--ease-mechanical) forwards; }
+
+
+      /* CTA UNDERLINES WAIT FOR THEIR LINE'S REVEAL
+
+         An underline drawn at rest while its words are still rising would sit
+         alone under a closed mask. So a .cta-link underline inside a reveal
+         mask is held at scaleX(0), and draws itself only once its line has
+         fully transitioned in: one settling beat after the line's own reveal
+         completes. The delay is computed from the line's real timing
+         (--ls-dur + --ls-delay, mirrored onto every line inner by the reveal
+         script below), so a block with any delay or stagger schedules its
+         underline correctly without a hardcoded value per CTA.
+
+         The Footer's "Let's talk." addresses are this exact rule; their own
+         id-scoped rules out-specify it and keep the original timing, which is
+         already one beat after those lines arrive. */
+      .brands-line-mask .cta-link::after,
+      .brands-line-mask.cta-link::after,
+      .hs-cube-reveal-mask .cta-link::after,
+      .hs-cube-reveal-mask.cta-link::after {
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: none;
+      }
+      .is-active .brands-line-mask .cta-link::after,
+      .is-active .brands-line-mask.cta-link::after,
+      .is-active .hs-cube-reveal-mask .cta-link::after,
+      .is-active .hs-cube-reveal-mask.cta-link::after,
+      .prose-in .brands-line-mask .cta-link::after,
+      .prose-in .brands-line-mask.cta-link::after,
+      .prose-in .hs-cube-reveal-mask .cta-link::after,
+      .prose-in .hs-cube-reveal-mask.cta-link::after {
+        transform: scaleX(1);
+        transition: transform 0.6s var(--ease-mechanical)
+          calc(var(--ls-dur, 1.3s) + var(--ls-delay, 0s) + var(--ls-beat, 0.15s));
+      }
+      /* Motion off: the line is drawn instantly, so the underline is drawn
+         with it. The kill-switch above shortens every transition to 0.01ms
+         but leaves transition-delay at the full reveal time, so without this
+         rule a reduced-motion reader would wait seconds for a line they can
+         already see. */
+      html.user-reduced-motion .brands-line-mask .cta-link::after,
+      html.user-reduced-motion .brands-line-mask.cta-link::after,
+      html.user-reduced-motion .hs-cube-reveal-mask .cta-link::after,
+      html.user-reduced-motion .hs-cube-reveal-mask.cta-link::after {
+        transform: scaleX(1) !important;
+        transition: none !important;
+      }
 
 
       @keyframes global-underline-flow {
@@ -655,6 +714,46 @@ const videoLd = {
         else document.body.removeAttribute('data-linesplit');
       }
 
+      /* CTA underlines draw one beat after their line's reveal finishes, and
+         the reveal writes each line's timing inline — static markup and the
+         per-line splitter alike. Mirror the real numbers onto custom
+         properties so the underline rule schedules itself from the same
+         transition the line uses, instead of a hardcoded delay per component.
+         The duration list reads as "1.3s, 0.9s"; only the transform lead is
+         kept, because transform is what the rotation runs on. */
+      function syncRevealTiming() {
+        const els = document.querySelectorAll('.brands-line-inner, .hs-cube-reveal-inner');
+        const next = [];
+        els.forEach((el) => {
+          /* A split host stops animating itself (transition: none) and hands
+             the timing to the generated per-line inners underneath it, so the
+             block's real arrival is the last generated line's end. Read the
+             timing from that line and put it on the host, where descendants
+             inherit it for the underline rule. */
+          const masks = el.classList.contains('ls-split-host')
+            ? el.querySelectorAll('.ls-mask > .brands-line-inner')
+            : null;
+          const src = masks && masks.length ? masks.item(masks.length - 1) : el;
+          const cs = getComputedStyle(src);
+          /* .cta-link classes prepend a color transition (0.4s), so the first
+             list entry is not the rotation's. Align duration and delay to the
+             "transform" entry the reveal actually runs on. */
+          const props = (cs.transitionProperty || '').split(',');
+          const durs = (cs.transitionDuration || '').split(',');
+          const delays = (cs.transitionDelay || '').split(',');
+          const idx = props.findIndex((p) => p.trim() === 'transform');
+          /* A single declared delay serializes as one entry even when several
+             properties share it, so clamp the index into the list length. */
+          const at = (list) => ((idx !== -1 ? list[Math.min(idx, list.length - 1)] : list[0]) || '0s').trim();
+          next.push([el, at(durs), at(delays)]);
+        });
+        /* Reads (above) then writes, so the loop does not thrash style recalcs. */
+        next.forEach(([el, dur, delay]) => {
+          el.style.setProperty('--ls-dur', dur);
+          el.style.setProperty('--ls-delay', delay);
+        });
+      }
+
       function lsApply() {
         lsFlag(lsOn());
         if (!lsOn()) return;
@@ -693,6 +792,7 @@ const videoLd = {
         lsTimer = setTimeout(() => {
           lsReset();
           lsApply();
+          syncRevealTiming();
         }, 200);
       });
 
@@ -702,6 +802,7 @@ const videoLd = {
           if (!lsOn()) return;
           lsReset();
           lsApply();
+          syncRevealTiming();
         });
       }
 
@@ -716,6 +817,7 @@ const videoLd = {
         root.querySelectorAll(
           '.brands-line-mask > .brands-line-inner'
         ).forEach(lsSplit);
+        syncRevealTiming();
       };
 
       function initLayout() {
@@ -723,6 +825,7 @@ const videoLd = {
         document.body.classList.remove('video-active');
         initUniversalReveal();
         lsApply();
+        syncRevealTiming();
       }
 
 
