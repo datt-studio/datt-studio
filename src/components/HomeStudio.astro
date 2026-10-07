@@ -119,6 +119,7 @@ const previews = [
                       <video muted loop playsinline preload="none" class="h-full w-full object-cover">
                         <source src={previews[item.video].card || previews[item.video].src} type="video/mp4" />
                       </video>
+                      <div class="recognition-card-curtain"></div>
                     </div>
                     <div class="recognition-card-label">{item.label}</div>
                   </div>
@@ -446,13 +447,30 @@ const previews = [
          it collapsed to a vertical squash, which is how the handover lost its
          rotation.
 
-         The clip-path wipe this box used to carry is gone with it. Animating a
-         clip over a playing clip re-rasterised the card every frame: measured
-         30fps with a 167ms stall on a phone, against 60fps with the clip off.
-         The wipe also had nothing left to do — the incoming card's black
-         background is what masks the outgoing clip on a handover, and the
-         incoming clip now arrives by turning up. */
+         The mask itself moved into the curtain below: an animated clip-path
+         here re-rasterised the playing video every frame — measured 30fps with
+         a 167ms stall on a phone, against 60fps with the clip off. */
       perspective: calc(var(--recognition-card-h, 480px) * 4.5);
+    }
+
+    /* The mask, as a panel. The handover's wipe used to be a clip-path running
+       across this box; a clip moving over a playing clip forced a full
+       re-raster every frame. This is the same wipe with that cost taken out: a
+       black curtain that slides down out of the box as the card opens and
+       rises back as it closes — one composited transform, so the video
+       underneath is never touched. Closed at rest, it also makes the card
+       opaque black from the frame a card takes the line, which is what covers
+       the outgoing clip on a handover. */
+    .recognition-card-curtain {
+      position: absolute;
+      inset: 0;
+      background: #000;
+      transform: translateY(0);
+      transition: transform 0.6s var(--ease-mechanical);
+      pointer-events: none;
+    }
+    .recognition-card.is-active .recognition-card-curtain {
+      transform: translateY(100%);
     }
     .recognition-card-media video {
       display: block;
@@ -474,14 +492,14 @@ const previews = [
 
     /* The card leaving the top on the way down does not close; it is simply
        put out of sight. The card taking over has reached the line by then and
-       covers the band exactly — the label's black band hides even the two
-       pixels they overlap — so nothing of it is on screen either way, while
-       the fade-and-flip it would otherwise run was painted on every handover
-       and held the stack to 30fps on a phone (60fps with it gone). The
-       tucked, faded state is the base rule's own, taken with no transition:
-       scrolling back down through the stack, the card flips up from it like
-       any other arrival. Upward — where the card is uncovered and descending
-       in view — it keeps the real close. */
+       covers the band — its curtain is still down, black from the frame it
+       activates — so nothing of it is on screen either way, while the
+       fade-and-flip it would otherwise run was painted on every handover and
+       held the stack to 30fps on a phone (60fps with it gone). The tucked,
+       faded state is the base rule's own, taken with no transition: scrolling
+       back down through the stack, the card flips up from it like any other
+       arrival. Upward — where the card is uncovered and descending in view —
+       it keeps the real close. */
     .recognition-card.is-hidden .recognition-card-media video {
       opacity: 0;
       transition: none;
@@ -490,8 +508,11 @@ const previews = [
     /* Entering the stack on the first card opens it outright. The turn exists to
        carry one clip into the next; arriving there is nothing to carry from, and
        a clip that turns up on entrance reads as a card that had to load. Held for
-       two frames, which is all the transition needs to be absent. */
-    .recognition-card.is-instant .recognition-card-media video {
+       two frames, which is all the transition needs to be absent — the curtain
+       jumps open with it, mask and all, the way it did before the handover had a
+       curtain to hide behind. */
+    .recognition-card.is-instant .recognition-card-media video,
+    .recognition-card.is-instant .recognition-card-curtain {
       transition: none;
     }
 
