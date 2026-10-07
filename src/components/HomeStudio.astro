@@ -439,15 +439,20 @@ const previews = [
       width: 100%;
       aspect-ratio: 16 / 9;
       overflow: hidden;
-      /* Closed from the bottom, so the clip opens downward from the label and
-         the two clips in a handover meet where the handover is. Masked rather
-         than scaled so the video is always at its own size and is never squashed
-         part-way through the reveal. */
-      clip-path: inset(0 0 100% 0);
-      transition: clip-path 0.6s var(--ease-mechanical);
-    }
-    .recognition-card.is-active .recognition-card-media {
-      clip-path: inset(0 0 0 0);
+      /* The depth the turn turns on. The desktop preview node carries the same
+         900/169 perspective-to-box ratio; this scales that ratio to the card's
+         own clip height so the flip reads the same on a phone and on a tablet.
+         Without a perspective on this box the video's rotateX projected flat —
+         it collapsed to a vertical squash, which is how the handover lost its
+         rotation.
+
+         The clip-path wipe this box used to carry is gone with it. Animating a
+         clip over a playing clip re-rasterised the card every frame: measured
+         30fps with a 167ms stall on a phone, against 60fps with the clip off.
+         The wipe also had nothing left to do — the incoming card's black
+         background is what masks the outgoing clip on a handover, and the
+         incoming clip now arrives by turning up. */
+      perspective: calc(var(--recognition-card-h, 480px) * 4.5);
     }
     .recognition-card-media video {
       display: block;
@@ -456,8 +461,7 @@ const previews = [
       aspect-ratio: 16 / 9;
       object-fit: cover;
       /* The desktop flip, on the same easing: the clip turns up into place as
-         the card opens and tucks back down as it closes, so a handover reads as
-         one clip leaving the way the next arrives. */
+         the card opens. */
       transform: translateY(30%) rotateX(-54deg);
       transform-origin: bottom center;
       opacity: 0;
@@ -468,11 +472,25 @@ const previews = [
       opacity: 1;
     }
 
+    /* The card leaving the top on the way down does not close; it is simply
+       put out of sight. The card taking over has reached the line by then and
+       covers the band exactly — the label's black band hides even the two
+       pixels they overlap — so nothing of it is on screen either way, while
+       the fade-and-flip it would otherwise run was painted on every handover
+       and held the stack to 30fps on a phone (60fps with it gone). The
+       tucked, faded state is the base rule's own, taken with no transition:
+       scrolling back down through the stack, the card flips up from it like
+       any other arrival. Upward — where the card is uncovered and descending
+       in view — it keeps the real close. */
+    .recognition-card.is-hidden .recognition-card-media video {
+      opacity: 0;
+      transition: none;
+    }
+
     /* Entering the stack on the first card opens it outright. The turn exists to
        carry one clip into the next; arriving there is nothing to carry from, and
        a clip that turns up on entrance reads as a card that had to load. Held for
        two frames, which is all the transition needs to be absent. */
-    .recognition-card.is-instant .recognition-card-media,
     .recognition-card.is-instant .recognition-card-media video {
       transition: none;
     }
@@ -801,8 +819,8 @@ const previews = [
     /* Opens the card on its clip rather than on a still, where that can be done
        honestly.
 
-       The clip-path reveal takes 0.6s, so a card that has reached the stack line
-       is still opening while the reader is already looking straight at it. When
+       The turn takes 0.6s, so a card that has reached the stack line is still
+       opening while the reader is already looking straight at it. When
        its clip is already buffered, playing it now means the movement is there
        under the opening clip; when it is not, playing now would restart the
        clip from zero every time the card is opened and the handover would read
@@ -839,6 +857,13 @@ const previews = [
 
         const on = i === next;
         card.classList.toggle('is-active', on);
+
+        /* The card that was on top, losing the line: hidden at once when a
+           card above it takes over (it is behind the new card — see
+           .is-hidden), left to close for real when it leaves downward or with
+           nothing taking over, because then it is uncovered and in view. */
+        if (i === prev && next > prev) card.classList.add('is-hidden');
+        if (on) card.classList.remove('is-hidden');
 
         /* Arriving at the stack on the first card, from either direction. The
            clip goes straight to open: there is no card underneath it to slide
@@ -914,7 +939,14 @@ const previews = [
       if (!table) return;
       if (isDesktop()) { table.style.removeProperty('--recognition-card-h'); return; }
       if (!card) return;
-      const h = Math.round(card.getBoundingClientRect().height);
+      /* offsetHeight, not getBoundingClientRect: the card is first measured at
+         load, while its table is still closed inside the reveal — translated
+         115% down and rotated -60deg under the mask's perspective. The
+         transformed rect came back as 2px on a phone and 195px of 486 on a
+         tablet, so the stack line sat at the viewport's middle with the label
+         on it and the clip running off below, then jumped whenever a resize
+         re-measured. offsetHeight is layout: the same number whenever read. */
+      const h = Math.round(card.offsetHeight);
       if (h > 0) table.style.setProperty('--recognition-card-h', h + 'px');
     }
 
@@ -952,7 +984,7 @@ const previews = [
       rows().forEach((row) => {
         const card = row.querySelector('.recognition-card');
         const video = card && card.querySelector('video');
-        if (card) card.classList.remove('is-active');
+        if (card) card.classList.remove('is-active', 'is-hidden');
         if (video) video.pause();
       });
     }
@@ -965,6 +997,12 @@ const previews = [
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', () => { syncMode(); measureCard(); onScroll(); }, { passive: true });
     window.addEventListener('load', () => { measureCard(); onScroll(); });
+    // Inter lands after first paint and the label's height moves with it, so the
+    // line is re-read once the real font has arrived rather than staying on the
+    // fallback's measurement.
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => { measureCard(); onScroll(); });
+    }
     syncMode();
     measureCard();
     onScroll();
