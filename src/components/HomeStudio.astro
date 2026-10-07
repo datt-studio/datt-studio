@@ -1126,4 +1126,148 @@ const previews = [
   document.addEventListener('astro:after-swap', sizeRecognitionTable);
   sizeRecognitionTable();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(sizeRecognitionTable);
+
+  /* The handover, read back off the device it goes wrong on.
+
+     DevTools can wear a phone's viewport but not its processor, so the one
+     state that matters — the card flagged, the curtain and flip where they
+     actually rest, the rows on the line, the transitions still running and
+     the frames a second being spent — can only be seen on the phone itself.
+     Opened with ?dbg=1 the page draws that over itself; without the
+     parameter nothing here runs and nothing is drawn. */
+  (function recognitionDebug() {
+    if (!/(^|[?&])dbg(&|=|$)/.test(location.search)) return;
+
+    const panel = document.createElement('pre');
+    panel.style.cssText = 'position:fixed;top:0;left:0;z-index:2147483647;margin:0;' +
+      'padding:6px 8px;background:rgba(0,0,0,.85);color:#7cfc00;' +
+      'font:11px/1.4 ui-monospace,Menlo,monospace;white-space:pre-wrap;word-break:break-all;' +
+      'pointer-events:none;max-width:100vw';
+    const mount = () => { if (!panel.isConnected && document.body) document.body.appendChild(panel); };
+    mount();
+    window.addEventListener('DOMContentLoaded', mount);
+
+    /* Frames counted on their own, away from the readout, so a slow phone is
+       measured rather than made slower by the measuring. */
+    let frames = 0;
+    let fps = 0;
+    let marked = performance.now();
+    (function count(now) {
+      frames++;
+      if (now - marked >= 1000) {
+        fps = Math.round((frames * 1000) / (now - marked));
+        frames = 0;
+        marked = now;
+      }
+      requestAnimationFrame(count);
+    })(marked);
+
+    /* The small feature floor, checked rather than assumed: a report that
+       says the page got svh, clip and :has from this build of the OS rules
+       the whole question of support out in one line. */
+    const supports = (v, x) => (window.CSS && CSS.supports ? (CSS.supports(v, x) ? 1 : 0) : '?');
+    const floor = 'svh:' + supports('height', '100svh') +
+      ' clip:' + supports('overflow', 'clip') +
+      ' has:' + supports('selector(:has(*))');
+
+    let svh = '?';
+    const probeSvh = () => {
+      const probe = document.createElement('div');
+      probe.style.cssText = 'position:absolute;visibility:hidden;height:100svh';
+      document.body.appendChild(probe);
+      svh = probe.offsetHeight || 'none';
+      probe.remove();
+    };
+    if (document.body) probeSvh();
+    else window.addEventListener('DOMContentLoaded', probeSvh, { once: true });
+
+    /* Where a transform actually sits, in the units the eye cares about:
+       none is the resting state, the rest is how far it has been moved —
+       a curtain at m(0,190) is fully open, one at m(0,60) is stopped
+       three of the way down its box. */
+    const moved = (el) => {
+      if (!el) return '-';
+      const t = getComputedStyle(el).transform;
+      if (t === 'none') return 'id';
+      const m3 = t.indexOf('matrix3d(') === 0;
+      const p = (m3 ? t.slice(9, -1) : t.slice(7, -1)).split(',');
+      const tx = Math.round(m3 ? +p[12] : +p[4]);
+      const ty = Math.round(m3 ? +p[13] : +p[5]);
+      return 't(' + tx + ',' + ty + ')';
+    };
+
+    /* How open a curtain is, as the percentage of its own box it has moved
+       down: the number the CSS transitions between, read back at the moment
+       the screenshot is taken. */
+    const openPct = (el) => {
+      if (!el || !el.offsetHeight) return '-';
+      const t = getComputedStyle(el).transform;
+      if (t === 'none') return '0%';
+      const m3 = t.indexOf('matrix3d(') === 0;
+      const p = (m3 ? t.slice(9, -1) : t.slice(7, -1)).split(',');
+      const ty = m3 ? +p[13] : +p[5];
+      return Math.round((ty / el.offsetHeight) * 100) + '%';
+    };
+
+    const rect = (el) => {
+      if (!el) return '-';
+      const r = el.getBoundingClientRect();
+      return Math.round(r.top) + '/' + Math.round(r.height);
+    };
+
+    /* What is mid-flight right now. A curtain stopped at 40% with a
+       transition whose progress is still crawling says something entirely
+       different from one stopped at 40% with no transition at all: the first
+       is a phone too slow to paint the movement, the second is state the
+       script got wrong. */
+    const anims = () => {
+      if (!document.getAnimations) return 'n/a';
+      const list = document.getAnimations().slice(0, 8);
+      if (!list.length) return 'none';
+      return list.map((a) => {
+        const prop = a.transitionProperty || a.animationName || '?';
+        let p = '?';
+        try {
+          const c = a.effect && a.effect.getComputedTiming ? a.effect.getComputedTiming().progress : null;
+          p = c == null ? '-' : Math.round(c * 100);
+        } catch (e) {}
+        return prop + ' ' + p + '%';
+      }).join(', ');
+    };
+
+    const update = () => {
+      if (!panel.isConnected || !document.body) return;
+      const first = document.querySelector('.home-studio-table tbody tr');
+      const line = first ? Math.round(parseFloat(getComputedStyle(first).top) || 0) : '?';
+      const reveal = document.querySelector('.recognition-reveal .brands-line-inner');
+      const section = document.querySelector('.home-studio');
+      const revealMask = document.querySelector('.recognition-reveal');
+      let s = 'os ' + ((navigator.userAgent.match(/OS (\d+_[\d_]+)/) || ['?', '?'])[1]).replace(/_/g, '.') +
+        ' dpr ' + devicePixelRatio + ' vp ' + innerWidth + 'x' + innerHeight +
+        ' svh ' + svh + ' [' + floor + ']\n';
+      s += 'fps ' + fps + ' scroll ' + Math.round(scrollY) + ' line ' + line +
+        ' reveal ' + (reveal ? moved(reveal) : '-') + '\n';
+      s += 'anim ' + anims() + '\n';
+      s += 'sec [' + (section ? section.className : '-') + '] mask [' +
+        (revealMask ? revealMask.className : '-') + ']\n';
+      document.querySelectorAll('.home-studio-table tbody tr').forEach((row, i) => {
+        const card = row.querySelector('.recognition-card');
+        if (!card) return;
+        const video = card.querySelector('video');
+        const flags = (card.classList.contains('is-active') ? 'A' : '-') +
+          (card.classList.contains('is-hidden') ? 'H' : '-') +
+          (card.classList.contains('is-instant') ? 'I' : '-');
+        const top = Math.round(row.getBoundingClientRect().top);
+        s += 'c' + i + ' ' + (top === line ? 'PIN' : 'row' + top) + ' [' + flags + ']' +
+          ' cur ' + openPct(card.querySelector('.recognition-card-curtain')) +
+          ' flip ' + moved(card.querySelector('.recognition-card-flip')) +
+          ' med ' + rect(card.querySelector('.recognition-card-media')) +
+          ' vid ' + rect(video) +
+          (video ? ' rs' + video.readyState + (video.paused ? ' pause' : ' play') : '') + '\n';
+      });
+      panel.textContent = s;
+    };
+    update();
+    setInterval(update, 200);
+  })();
 </script>
