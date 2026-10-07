@@ -116,9 +116,18 @@ const previews = [
                       video is never shown or fetched. */}
                   <div class="recognition-card" data-poster={previews[item.video].poster}>
                     <div class="recognition-card-media" aria-hidden="true">
-                      <video muted loop playsinline preload="none" class="h-full w-full object-cover">
-                        <source src={previews[item.video].card || previews[item.video].src} type="video/mp4" />
-                      </video>
+                      {/* The turn sits on a wrapper div, never on the video
+                          element itself: the video's layer belongs to the media
+                          pipeline, and a transform transition on it has no
+                          reliable compositor path — on iOS it did not animate at
+                          all, which is how the handover lost its rotation. This
+                          is the desktop preview node's architecture, at the
+                          card's scale. */}
+                      <div class="recognition-card-flip">
+                        <video muted loop playsinline preload="none" class="h-full w-full object-cover">
+                          <source src={previews[item.video].card || previews[item.video].src} type="video/mp4" />
+                        </video>
+                      </div>
                       <div class="recognition-card-curtain"></div>
                     </div>
                     <div class="recognition-card-label">{item.label}</div>
@@ -443,7 +452,7 @@ const previews = [
       /* The depth the turn turns on. The desktop preview node carries the same
          900/169 perspective-to-box ratio; this scales that ratio to the card's
          own clip height so the flip reads the same on a phone and on a tablet.
-         Without a perspective on this box the video's rotateX projected flat —
+         Without a perspective on this box the turn's rotateX projected flat —
          it collapsed to a vertical squash, which is how the handover lost its
          rotation.
 
@@ -472,22 +481,28 @@ const previews = [
     .recognition-card.is-active .recognition-card-curtain {
       transform: translateY(100%);
     }
-    .recognition-card-media video {
-      display: block;
-      width: 100%;
-      height: auto;
-      aspect-ratio: 16 / 9;
-      object-fit: cover;
-      /* The desktop flip, on the same easing: the clip turns up into place as
-         the card opens. */
+    /* The turn, on the wrapper: perspective stays on this box (the desktop
+       node carries the same 900/169 perspective-to-box ratio, scaled here to
+       the card's own clip height), while the transform runs on a plain div —
+       a composited path that iOS takes reliably, unlike a transform on the
+       video element itself. */
+    .recognition-card-flip {
+      position: absolute;
+      inset: 0;
       transform: translateY(30%) rotateX(-54deg);
       transform-origin: bottom center;
       opacity: 0;
       transition: transform 0.6s var(--ease-mechanical), opacity 0.5s ease;
     }
-    .recognition-card.is-active .recognition-card-media video {
+    .recognition-card.is-active .recognition-card-flip {
       transform: translateY(0) rotateX(0deg);
       opacity: 1;
+    }
+    .recognition-card-flip video {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     /* The card leaving the top on the way down does not close; it is simply
@@ -500,7 +515,7 @@ const previews = [
        back down through the stack, the card flips up from it like any other
        arrival. Upward — where the card is uncovered and descending in view —
        it keeps the real close. */
-    .recognition-card.is-hidden .recognition-card-media video {
+    .recognition-card.is-hidden .recognition-card-flip {
       opacity: 0;
       transition: none;
     }
@@ -511,7 +526,7 @@ const previews = [
        two frames, which is all the transition needs to be absent — the curtain
        jumps open with it, mask and all, the way it did before the handover had a
        curtain to hide behind. */
-    .recognition-card.is-instant .recognition-card-media video,
+    .recognition-card.is-instant .recognition-card-flip,
     .recognition-card.is-instant .recognition-card-curtain {
       transition: none;
     }
@@ -913,17 +928,62 @@ const previews = [
        arrive is the one covering the others and "highest index that has reached
        the line" is the card the visitor is looking at. Reading it this way rather
        from the midpoint is what makes it symmetric: the same test describes the
-       card on the way down and on the way back up. */
+       card on the way down and on the way back up.
+
+       The tops are layout, measured once, not rects read off the screen.
+       getBoundingClientRect reads THROUGH the reveal: the table sits inside the
+       mask's translateY(115%) rotateX(-60deg) until the section activates, and
+       while that runs every rect on screen is that transform's output — a pass
+       during arrival chose the last row as active while the stack was still
+       travelling in, so a mask could open on one card while its label was
+       somewhere else entirely. offsetTop is layout: the same number whether an
+       ancestor is transformed or not, and sticky does not touch it, because the
+       pinned position is not the laid-out one. Against the same line as before,
+       the two readings only ever differed while the reveal was still running —
+       which is exactly the moment that needed them to agree. */
+    let rowTops = null;
+    function measureRows() {
+      const tops = [];
+      rows().forEach((row) => {
+        let y = 0;
+        for (let n = row; n; n = n.offsetParent) y += n.offsetTop;
+        tops.push(y);
+      });
+      rowTops = tops;
+    }
+
+    /* The reveal, still turning: the table is inside the mask's
+       translateY(115%) rotateX(-60deg) until the section activates, and until
+       it settles there is no honest reading of where anything is on screen.
+       Rects come back mid-rotation — clustered, squashed to a pixel or two —
+       and layout is still more than a card's height away from what is being
+       shown, so both readings pick a wrong card and flicker between them,
+       opening a curtain halfway on one card and cutting another's clip. Hold
+       the stack closed while the table is still arriving; the first scroll
+       after it settles places it, and the card at the line turns up with the
+       flip it is supposed to arrive with. */
+    function revealBusy() {
+      const el = document.querySelector('.recognition-reveal .brands-line-inner');
+      if (!el) return false;
+      const t = getComputedStyle(el).transform;
+      return t !== 'none' &&
+        t !== 'matrix(1, 0, 0, 1, 0, 0)' &&
+        t !== 'matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)';
+    }
+
     function activeRow() {
       const list = rows();
       if (!list.length) return -1;
+      if (revealBusy()) return -1;
+      if (!rowTops || rowTops.length !== list.length) measureRows();
       const line = stackLine();
+      const y = window.scrollY;
       let best = -1;
       for (let i = 0; i < list.length; i++) {
         // The card's own top, not its bottom: a card that has reached the line
         // and grown now hangs below it, and reading the bottom would keep it
         // active until its clip had scrolled clear of the header.
-        if (list[i].getBoundingClientRect().top <= line + 2) best = i;
+        if (rowTops[i] - y <= line + 2) best = i;
       }
       return best;
     }
@@ -1016,16 +1076,17 @@ const previews = [
     }
 
     window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', () => { syncMode(); measureCard(); onScroll(); }, { passive: true });
-    window.addEventListener('load', () => { measureCard(); onScroll(); });
+    window.addEventListener('resize', () => { syncMode(); measureCard(); measureRows(); onScroll(); }, { passive: true });
+    window.addEventListener('load', () => { measureCard(); measureRows(); onScroll(); });
     // Inter lands after first paint and the label's height moves with it, so the
     // line is re-read once the real font has arrived rather than staying on the
     // fallback's measurement.
     if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(() => { measureCard(); onScroll(); });
+      document.fonts.ready.then(() => { measureCard(); measureRows(); onScroll(); });
     }
     syncMode();
     measureCard();
+    measureRows();
     onScroll();
   }
 
