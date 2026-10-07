@@ -13,6 +13,10 @@
 /terms-of-use /terms-of-use/ 301
 /about /about/ 301
 
+# The old flat sitemap name predates the sitemap-index split and is now a 404;
+# keep any old references pointing at the live sitemap index.
+/sitemap.xml /sitemap-index.xml 301
+
 # Old slugs for "From 6.66 MB to 128 KB", kept so existing links and search
 # results keep working across the title changes. Each hop is a single 301, so a
 # link written two renames ago still arrives through one redirect per step
