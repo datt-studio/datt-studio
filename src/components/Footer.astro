@@ -57,10 +57,10 @@ const { isInverted = false } = Astro.props;
         <div class="brands-line-inner" style="transition-delay: 0.3s;">
           <p class="text-label text-transform: uppercase mb-2">Legal</p>
           <div class="flex flex-col gap-y-2">
-            <a href="/privacy-cookies-policy" class="text-label !text-clamp(14px, 3vw, 12px) opacity-60 hover:opacity-100 transition-opacity">Privacy & cookies</a>
-            <a href="/terms-of-use" class="text-label !text-clamp(14px, 3vw, 12px) opacity-60 hover:opacity-100 transition-opacity">Terms of use</a>
-            <a href="/accessibility" class="text-label !text-clamp(14px, 3vw, 12px) opacity-60 hover:opacity-100 transition-opacity">Accessibility</a>
-            <a href="/data-processing" class="text-label !text-clamp(14px, 3vw, 12px) opacity-60 hover:opacity-100 transition-opacity">Data processing</a>
+            <a href="/privacy-cookies-policy/" class="text-label !text-clamp(14px, 3vw, 12px) opacity-60 hover:opacity-100 transition-opacity">Privacy & cookies</a>
+            <a href="/terms-of-use/" class="text-label !text-clamp(14px, 3vw, 12px) opacity-60 hover:opacity-100 transition-opacity">Terms of use</a>
+            <a href="/accessibility/" class="text-label !text-clamp(14px, 3vw, 12px) opacity-60 hover:opacity-100 transition-opacity">Accessibility</a>
+            <a href="/data-processing/" class="text-label !text-clamp(14px, 3vw, 12px) opacity-60 hover:opacity-100 transition-opacity">Data processing</a>
           </div>
         </div>
       </div>
@@ -306,7 +306,7 @@ const { isInverted = false } = Astro.props;
   function sizeFooterColumns() {
     const grid = document.querySelector('#site-footer .footer-info');
     if (!grid) return;
-    const services = document.querySelector('#main-header a[href="/services"]');
+    const services = document.querySelector('#main-header a[href="/services/"]');
     if (!services || window.innerWidth < 768) {
       grid.style.removeProperty('--services-left');
       grid.style.removeProperty('--about-left');
@@ -318,8 +318,8 @@ const { isInverted = false } = Astro.props;
     const servicesLeft = Math.round(services.getBoundingClientRect().left - g.left);
     grid.style.setProperty('--services-left', servicesLeft + 'px');
     // The other two links only matter to the four-column grid at 1024px and up.
-    const about = document.querySelector('#main-header a[href="/info"]');
-    const news = document.querySelector('#main-header a[href="/news"]');
+    const about = document.querySelector('#main-header a[href="/about/"]');
+    const news = document.querySelector('#main-header a[href="/news/"]');
     if (!about || !news || window.innerWidth < 1024) {
       grid.style.removeProperty('--about-left');
       grid.style.removeProperty('--legal-left');

@@ -95,7 +95,7 @@ import ServicesApproach from '../components/ServicesApproach.astro'; // Added Im
      value is already right if the window is dragged across either edge. */
   function sizeNavAlignedCopy() {
     const main = document.querySelector('main');
-    const link = document.querySelector('#main-header a[href="/services"]');
+    const link = document.querySelector('#main-header a[href="/services/"]');
     const anchor = document.getElementById('services-identities');
     if (!main || !link || !anchor) return;
     const container = anchor.firstElementChild.getBoundingClientRect();

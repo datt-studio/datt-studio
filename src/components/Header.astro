@@ -21,10 +21,10 @@ const { isInverted = false } = Astro.props;
       DATT STUDIO
     </a>
 
-    <a href="/info" class="desktop-nav-link hidden md:block">About</a>
-    <a href="/services" class="desktop-nav-link hidden md:block">Services</a>
-    <a href="/news" class="desktop-nav-link hidden md:block">News</a>
-    <a href="/contact" class="desktop-nav-link hidden md:block">Contact</a>
+    <a href="/about/" class="desktop-nav-link hidden md:block">About</a>
+    <a href="/services/" class="desktop-nav-link hidden md:block">Services</a>
+    <a href="/news/" class="desktop-nav-link hidden md:block">News</a>
+    <a href="/contact/" class="desktop-nav-link hidden md:block">Contact</a>
 
     <!-- MOBILE TOGGLE: Hooked into global .cta-link -->
     <button id="menu-toggle" class:list={[
@@ -46,10 +46,10 @@ const { isInverted = false } = Astro.props;
   <nav class="flex flex-col items-stretch mt-9 gap-y-3">
     {[
       { label: 'Home', href: '/' },
-      { label: 'About', href: '/info' },
-      { label: 'Services', href: '/services' },
-      { label: 'News', href: '/news' },
-      { label: 'Contact', href: '/contact' },
+      { label: 'About', href: '/about/' },
+      { label: 'Services', href: '/services/' },
+      { label: 'News', href: '/news/' },
+      { label: 'Contact', href: '/contact/' },
     ].map((link, i) => (
       <div class="brands-line-mask">
         <a

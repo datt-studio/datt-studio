@@ -2,11 +2,11 @@
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import InfoHero from '../components/InfoHero.astro';
-import InfoNaming from '../components/InfoNaming.astro';
-import InfoPerspective from '../components/InfoPerspective.astro';
-import InfoThinking from '../components/InfoThinking.astro';
-import InfoPhilosophy from '../components/InfoPhilosophy.astro';
+import AboutHero from '../components/AboutHero.astro';
+import AboutNaming from '../components/AboutNaming.astro';
+import AboutPerspective from '../components/AboutPerspective.astro';
+import AboutThinking from '../components/AboutThinking.astro';
+import AboutPhilosophy from '../components/AboutPhilosophy.astro';
 ---
 
 <Layout
@@ -17,11 +17,11 @@ import InfoPhilosophy from '../components/InfoPhilosophy.astro';
   <Header isInverted={true} />
 
   <main class="bg-black">
-    <InfoHero />
-    <InfoNaming />
-    <InfoPerspective />
-    <InfoThinking />
-    <InfoPhilosophy />
+    <AboutHero />
+    <AboutNaming />
+    <AboutPerspective />
+    <AboutThinking />
+    <AboutPhilosophy />
   </main>
 
   <Footer isInverted={true} />
@@ -176,7 +176,7 @@ import InfoPhilosophy from '../components/InfoPhilosophy.astro';
      value is already right if the window is dragged across either edge. */
   function sizeNavAlignedCopy() {
     const main = document.querySelector('main');
-    const link = document.querySelector('#main-header a[href="/services"]');
+    const link = document.querySelector('#main-header a[href="/services/"]');
     const anchor = document.getElementById('naming-section');
     if (!main || !link || !anchor) return;
     const container = anchor.firstElementChild.getBoundingClientRect();

@@ -1,3 +1,18 @@
+# Trailing slash is canonical (the emitted pages are directory index files).
+# Cloudflare Pages' built-in handling otherwise answers non-slash requests with
+# a *temporary* 307 to the slash URL; these explicit permanent 301s consolidate
+# the variants so search engines converge on one indexed URL per page quickly.
+/services /services/ 301
+/info /about/ 301
+/info/ /about/ 301
+/news /news/ 301
+/contact /contact/ 301
+/accessibility /accessibility/ 301
+/data-processing /data-processing/ 301
+/privacy-cookies-policy /privacy-cookies-policy/ 301
+/terms-of-use /terms-of-use/ 301
+/about /about/ 301
+
 # Old slugs for "From 6.66 MB to 128 KB", kept so existing links and search
 # results keep working across the title changes. Each hop is a single 301, so a
 # link written two renames ago still arrives through one redirect per step

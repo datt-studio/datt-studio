@@ -1,5 +1,5 @@
 ---
-// InfoHero.astro
+// AboutHero.astro
 // The body of the intro is one flowing paragraph. Only the closing beat sits
 // on a line of its own, so the copy wraps naturally instead of breaking into a
 // stack of short fragments.
@@ -77,7 +77,7 @@ const lines = [intro, closing];
 </style>
 
 <script is:inline>
-  function initInfoHero() {
+  function initAboutHero() {
     const section = document.querySelector('.info-hero-section');
     if (section) {
       // Small delay to allow layout to settle before reveal
@@ -86,6 +86,6 @@ const lines = [intro, closing];
       });
     }
   }
-  initInfoHero();
-  document.addEventListener('astro:after-swap', initInfoHero);
+  initAboutHero();
+  document.addEventListener('astro:after-swap', initAboutHero);
 </script>

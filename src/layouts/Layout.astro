@@ -841,7 +841,7 @@ const videoLd = {
       function sizeLegalSidebar() {
         const aside = document.querySelector('#main-content .legal-sidebar');
         if (!aside) return;
-        const news = document.querySelector('#main-header a[href="/news"]');
+        const news = document.querySelector('#main-header a[href="/news/"]');
         if (!news || window.innerWidth < 1024) {
           aside.style.removeProperty('--legal-sidebar-left');
           return;
