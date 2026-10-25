@@ -10,6 +10,11 @@ interface Props {
   description?: string;
   isDark?: boolean;
   robots?: string;
+  /* A page can name the image a share card should show. News articles pass
+     their cover, so a shared link previews the article rather than the studio
+     poster that fronts every other page. */
+  image?: string;
+  imageAlt?: string;
 }
 
 
@@ -18,6 +23,8 @@ const {
   description = "DATT STUDIO is a creative studio for brands built to last. Identity, systems, and digital work made to hold.",
   isDark = false,
   robots = "index, follow",
+  image,
+  imageAlt = "DATT STUDIO",
 } = Astro.props;
 
 
@@ -29,7 +36,10 @@ const canonicalPath = Astro.url.pathname.endsWith('/') ? Astro.url.pathname : `$
    script below still wins, so a single page can be turned off while comparing. */
 const lineSplit = true;
 const canonicalUrl = `https://dattstudio.com${canonicalPath}`;
-const ogImage = "https://dattstudio.com/assets/video-poster-retina.jpg";
+const defaultOgImage = "https://dattstudio.com/assets/video-poster-retina.jpg";
+/* Covers are stored as site-root paths, so they are resolved against the
+   canonical origin. An absolute URL passes through unchanged. */
+const ogImage = image ? new URL(image, "https://dattstudio.com").href : defaultOgImage;
 
 
 // === JSON-LD: ORGANIZATION SCHEMA ===
@@ -120,13 +130,14 @@ const videoLd = {
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:image" content={ogImage} />
-    <meta property="og:image:alt" content="DATT STUDIO" />
+    <meta property="og:image:alt" content={imageAlt} />
 
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={imageAlt} />
 
 
     <link rel="icon" href="/favicon.ico" />

@@ -19,6 +19,34 @@ const { Content } = await render(post);
 const fmt = (d: Date) =>
   d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 
+/* Absolute, canonical form of this article, used by the share row. Matches the
+   URL the layout puts in <link rel="canonical">, trailing slash and all. */
+const shareUrl = `https://dattstudio.com${Astro.url.pathname.endsWith('/') ? Astro.url.pathname : `${Astro.url.pathname}/`}`;
+const shareTitle = post.data.title;
+
+const shareLinks = [
+  {
+    label: 'IG',
+    name: 'Instagram',
+    href: null,
+  },
+  {
+    label: 'IN',
+    name: 'LinkedIn',
+    href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`,
+  },
+  {
+    label: 'TH',
+    name: 'Threads',
+    href: `https://www.threads.net/intent/post?text=${encodeURIComponent(`${shareTitle} ${shareUrl}`)}`,
+  },
+  {
+    label: 'X (TW)',
+    name: 'X',
+    href: `https://x.com/intent/post?text=${encodeURIComponent(shareTitle)}&url=${encodeURIComponent(shareUrl)}`,
+  },
+];
+
 const articleLd = {
   '@context': 'https://schema.org',
   '@type': 'Article',
@@ -42,6 +70,8 @@ const articleLd = {
   isDark={true}
   title={`${post.data.title} — DATT STUDIO`}
   description={post.data.summary}
+  image={post.data.cover}
+  imageAlt={post.data.coverAlt ?? 'DATT STUDIO'}
 >
   <div class="flex flex-col bg-black">
     <Header isInverted={true} />
@@ -85,6 +115,43 @@ const articleLd = {
           <Content />
         </div>
       </article>
+
+      <!-- SHARE ROW
+           Sits on the News column line on desktop rather than the page margin,
+           so it reads as part of the header grid. The offset is measured from
+           that link in the script below; without it the row falls back to the
+           page margin, which is where it sits on mobile. -->
+      <div
+        class="article-share"
+        data-share-row
+        data-share-url={shareUrl}
+        data-share-title={shareTitle}
+      >
+        <div class="article-share-inner">
+          <div class="article-share-row">
+            <span class="text-label article-share-label">Share</span>
+            {shareLinks.map((link) =>
+              link.href ? (
+                <a
+                  class="text-label article-share-item"
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Share on ${link.name}`}
+                >{link.label}</a>
+              ) : (
+                <button
+                  type="button"
+                  class="text-label article-share-item"
+                  data-share-instagram
+                  aria-label="Share on Instagram"
+                >{link.label}</button>
+              )
+            )}
+          </div>
+          <p class="article-share-status" data-share-status role="status" aria-live="polite"></p>
+        </div>
+      </div>
       </section>
     </main>
 
@@ -259,6 +326,76 @@ const articleLd = {
   .inverted-cta {
     color: #ffffff !important;
   }
+
+  /* SHARE ROW
+     Ends the article on mobile, and on desktop takes its right edge from the
+     News link in the header (--share-align, measured in the script below).
+     Without that value it falls back to the page margin, which is where it
+     sits on mobile, so the row still reads as intended with no JS. */
+  .article-share {
+    margin-top: clamp(4.5rem, 9vw, 9rem);
+  }
+  .article-share-inner {
+    position: relative;
+  }
+  .article-share-row {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  .article-share-label {
+    color: rgba(255, 255, 255, 0.35);
+    margin-right: 0.25rem;
+  }
+  .article-share-item {
+    color: rgba(255, 255, 255, 0.62);
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.4s var(--ease-mechanical);
+  }
+  .article-share-item:hover {
+    color: #ffffff;
+  }
+  .article-share-item:focus-visible {
+    outline: 1px solid rgba(255, 255, 255, 0.6);
+    outline-offset: 4px;
+  }
+  .article-share-status {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 0.7rem);
+    margin: 0;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.45);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s var(--ease-mechanical);
+  }
+  .article-share-status.is-visible {
+    opacity: 1;
+  }
+  @media (min-width: 768px) {
+    .article-share-inner {
+      padding-right: var(--share-align, 0px);
+    }
+    .article-share-row {
+      justify-content: flex-end;
+      gap: 2rem;
+    }
+    .article-share-label {
+      margin-right: 0.5rem;
+    }
+    .article-share-status {
+      right: var(--share-align, 0px);
+    }
+  }
 </style>
 
 <script is:inline>
@@ -381,4 +518,104 @@ const articleLd = {
 
   wireVideos();
   document.addEventListener('astro:after-swap', wireVideos);
+
+  /* SHARE ROW
+     Its right edge is the right edge of the News link in the header, not the
+     page margin. Nothing in CSS can know where that link lands, because the nav
+     is spaced by its own labels, so the distance is measured. The row is laid
+     out at the margin first, and the offset is the gap between the two right
+     edges. Clearing the property before reading keeps a resize from measuring
+     the offset it is about to replace. */
+  function alignShareRow() {
+    const row = document.querySelector('[data-share-row]');
+    if (!row) return;
+    const inner = row.querySelector('.article-share-inner');
+    const news = document.querySelector('#main-header a[href="/news/"]');
+    if (!inner || !news) return;
+
+    inner.style.removeProperty('--share-align');
+    if (!window.matchMedia('(min-width: 768px)').matches) return;
+
+    const offset = Math.round(
+      inner.getBoundingClientRect().right - news.getBoundingClientRect().right
+    );
+    if (offset > 0) inner.style.setProperty('--share-align', `${offset}px`);
+  }
+
+  /* Instagram has no web share intent, so the only route into the app is the
+     native share sheet. Where that does not exist the link is copied instead,
+     which is the honest thing to do rather than send the reader to a profile. */
+  function wireShare() {
+    document.querySelectorAll('[data-share-row]').forEach((row) => {
+      if (row.dataset.shareWired === 'true') return;
+      row.dataset.shareWired = 'true';
+
+      const url = row.dataset.shareUrl;
+      const title = row.dataset.shareTitle;
+      const status = row.querySelector('[data-share-status]');
+      const instagram = row.querySelector('[data-share-instagram]');
+      let statusTimer = 0;
+
+      function say(message) {
+        if (!status) return;
+        status.textContent = message;
+        status.classList.add('is-visible');
+        clearTimeout(statusTimer);
+        statusTimer = setTimeout(() => status.classList.remove('is-visible'), 4000);
+      }
+
+      if (!instagram) return;
+
+      instagram.addEventListener('click', async () => {
+        if (navigator.share) {
+          try {
+            await navigator.share({ title, url });
+            return;
+          } catch (error) {
+            if (error && error.name === 'AbortError') return;
+          }
+        }
+
+        try {
+          await navigator.clipboard.writeText(url);
+          say('Link copied');
+        } catch (error) {
+          const field = document.createElement('textarea');
+          field.value = url;
+          field.setAttribute('readonly', '');
+          field.style.position = 'fixed';
+          field.style.top = '-1000px';
+          document.body.appendChild(field);
+          field.select();
+          try {
+            document.execCommand('copy');
+            say('Link copied');
+          } catch (fallbackError) {
+            say('Copy the link from the address bar');
+          }
+          field.remove();
+        }
+      });
+    });
+  }
+
+  alignShareRow();
+  wireShare();
+
+  if (!window.dattShareBound) {
+    window.dattShareBound = true;
+    document.addEventListener('astro:after-swap', () => {
+      alignShareRow();
+      wireShare();
+    });
+    document.addEventListener('astro:page-load', alignShareRow);
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(alignShareRow);
+    }
+    let shareFrame = 0;
+    window.addEventListener('resize', () => {
+      cancelAnimationFrame(shareFrame);
+      shareFrame = requestAnimationFrame(alignShareRow);
+    });
+  }
 </script>
