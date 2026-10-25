@@ -332,6 +332,12 @@ const articleLd = {
   .news-prose .prose-block > .brands-line-inner > * { margin-top: 0; margin-bottom: 0; }
   .news-prose .prose-block-h2 { margin-top: 2.6em; }
   .news-prose .prose-block-h3 { margin-top: 2.2em; }
+  /* The gap under a section heading is the 40px under the article title
+     (mb-10), so a heading and the copy beneath it read as one pair throughout
+     the piece. The heading's own margin is zeroed inside the mask, so the
+     space has to sit here, on the block. */
+  .news-prose .prose-block-h2,
+  .news-prose .prose-block-h3 { margin-bottom: 2.5rem; }
   .news-prose .prose-block-p,
   .news-prose .prose-block-ul,
   .news-prose .prose-block-ol { margin-bottom: 1.4em; }
