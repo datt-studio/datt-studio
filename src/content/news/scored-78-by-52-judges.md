@@ -34,7 +34,7 @@ What 52 scores tell us is not that the site is any less. It is that the work hol
 
 Fifty-two jury members gave their time to score an entry that was never going to be published on their site. That is the part we find remarkable. The jury did work with no coverage, no link, no badge, because the work was the point.
 
-So thank you. To every member of The FWA jury who opened the site, spent time with it, and scored it, thank you for the time and the consideration. A score of 78 from 52 judges is a serious measure of the work, and we do not take it lightly.
+So thank you. To every member of The FWA jury who opened the site, spent time with it, and scored it, we are grateful for the time and the consideration. A score of 78 from 52 judges is a serious measure of the work, and we do not take it lightly.
 
 ## The same work, a second jury
 
@@ -45,8 +45,6 @@ Our community votes are in. Thank you to everyone who took the time to support D
 ## What happens next
 
 We are proud of what we have built, and proud of the outcome. Not because a number is high, but because the work is good, and because it was built properly, by us, with restraint and intent.
-
-To everyone who has supported us on this journey, thank you. To the community, the jury, and everyone who visited, read, shared, or wrote to us, we are grateful.
 
 We remain hopeful about what comes next. And whatever the results say, the direction does not change. We will keep building great work, doing it properly, and getting better at it as we grow.
 
