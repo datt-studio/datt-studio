@@ -95,7 +95,7 @@ const articleLd = {
     <Header isInverted={true} />
 
     <main class="flex-none w-full">
-      <section class="news-hero reveal-trigger w-full px-[var(--page-padding)] pt-[120px] pb-20 md:pb-40 bg-black">
+      <section class="news-hero reveal-trigger relative w-full px-[var(--page-padding)] pt-[120px] pb-20 md:pb-40 bg-black">
       <article class="max-w-[720px] w-full">
         <div class="brands-line-mask block">
           <div class="brands-line-inner block" style="transition-delay: 0s">
@@ -134,11 +134,12 @@ const articleLd = {
         </div>
       </article>
 
-      <!-- SHARE ROW
-           Sits on the News column line on desktop rather than the page margin,
-           so it reads as part of the header grid. The offset is measured from
-           that link in the script below; without it the row falls back to the
-           page margin, which is where it sits on mobile. -->
+      <!-- SHARE
+           On desktop this becomes a sticky rail on the News column line, so it
+           stays with the reader through the article, as the legal pages do with
+           their section links. On mobile and tablet it ends the article, left
+           aligned. The horizontal offset is measured from the News link in the
+           script below; without it the rail falls back to the page margin. -->
       <div
         class="article-share"
         data-share-row
@@ -344,11 +345,14 @@ const articleLd = {
     color: #ffffff !important;
   }
 
-  /* SHARE ROW
-     Ends the article on mobile, and on desktop takes its right edge from the
-     News link in the header (--share-align, measured in the script below).
-     Without that value it falls back to the page margin, which is where it
-     sits on mobile, so the row still reads as intended with no JS. */
+  /* SHARE
+     Mobile and tablet: the links end the article, left aligned to the page
+     margin. Desktop: they become a vertical rail on the News column line and
+     stay in view through the piece, the way the legal pages hold their section
+     links. --share-align is measured from that link in the script below, and
+     it is the distance from the section's right edge to the News right edge.
+     Without JS the rail sits at the page margin, which is where the row is on
+     mobile, so the layout still holds. */
   .article-share {
     margin-top: clamp(4.5rem, 9vw, 9rem);
   }
@@ -394,23 +398,41 @@ const articleLd = {
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s var(--ease-mechanical);
+    white-space: nowrap;
   }
   .article-share-status.is-visible {
     opacity: 1;
   }
-  @media (min-width: 1024px) {
+  /* 1100px is where the gap between the article column and the News column is
+     wide enough for the rail, with clearance, at every width above it. */
+  @media (min-width: 1100px) {
+    .article-share {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      right: calc(var(--page-padding) + var(--share-align, 0px));
+      margin-top: 0;
+    }
     .article-share-inner {
-      padding-right: var(--share-align, 0px);
+      position: sticky;
+      top: 132px;
     }
     .article-share-row {
-      justify-content: flex-end;
-      gap: 2rem;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.75rem;
     }
     .article-share-label {
-      margin-right: 0.5rem;
+      margin-right: 0;
+      margin-bottom: 0.5rem;
     }
+    /* The rail is narrow, so a long fallback message wraps down the News
+       column line instead of running back across the article text. */
     .article-share-status {
-      right: var(--share-align, 0px);
+      max-width: 100%;
+      white-space: normal;
+      text-align: right;
+      line-height: 1.5;
     }
   }
 </style>
@@ -536,43 +558,32 @@ const articleLd = {
   wireVideos();
   document.addEventListener('astro:after-swap', wireVideos);
 
-  /* SHARE ROW
+  /* SHARE
      Ends the article on mobile and tablet, left aligned to the page margin.
-     From 1024px up its right edge becomes the right edge of the News link in
-     the header, not the page margin. Nothing in CSS can know where that link
-     lands, because the nav is spaced by its own labels, so the distance is
-     measured. The row is laid out at the margin first, and the offset is the
-     gap between the two right edges. Clearing the property before reading keeps
-     a resize from measuring the offset it is about to replace. */
+     From 1100px up the links leave the flow and become a sticky rail on the
+     News column line. Nothing in CSS can know where that link lands, because
+     the nav is spaced by its own labels, so the distance is measured: the rail
+     is laid out at the margin first, and the offset is the gap between the two
+     right edges. Clearing the property before reading keeps a resize from
+     measuring the offset it is about to replace. */
   function alignShareRow() {
     const row = document.querySelector('[data-share-row]');
     if (!row) return;
-    const inner = row.querySelector('.article-share-inner');
     const news = document.querySelector('#main-header a[href="/news/"]');
-    if (!inner || !news) return;
+    if (!news) return;
 
-    inner.style.removeProperty('--share-align');
-    if (!window.matchMedia('(min-width: 1024px)').matches) return;
+    row.style.removeProperty('--share-align');
+    if (!window.matchMedia('(min-width: 1100px)').matches) return;
 
     const offset = Math.round(
-      inner.getBoundingClientRect().right - news.getBoundingClientRect().right
+      row.getBoundingClientRect().right - news.getBoundingClientRect().right
     );
-    if (offset > 0) inner.style.setProperty('--share-align', `${offset}px`);
+    if (offset > 0) row.style.setProperty('--share-align', `${offset}px`);
   }
 
   /* Instagram has no web share intent and no way to prefill a post with a
      link, so clicking it copies the article URL and opens Instagram, ready for
      the reader to paste. Every other network has a real composer. */
-  function copyToClipboard(text) {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      return navigator.clipboard.writeText(text).then(
-        () => true,
-        () => legacyCopy(text)
-      );
-    }
-    return Promise.resolve(legacyCopy(text));
-  }
-
   function legacyCopy(text) {
     const field = document.createElement('textarea');
     field.value = text;
@@ -612,14 +623,35 @@ const articleLd = {
       if (!instagram) return;
 
       instagram.addEventListener('click', () => {
-        // The tab is opened before the clipboard call because a window opened
-        // after an await counts as a popup and is blocked.
-        window.open('https://www.instagram.com/', '_blank', 'noopener');
-        copyToClipboard(url).then((copied) => {
-          say(copied
-            ? 'Link copied. Paste it into Instagram.'
-            : 'Copy the link from the address bar.');
-        });
+        const openInstagram = () =>
+          window.open('https://www.instagram.com/', '_blank', 'noopener');
+
+        // Copy first and open second. Opening the tab moves focus, and a
+        // clipboard write from an unfocused document is rejected, which is why
+        // this used to fall through to the address bar message. The synchronous
+        // copy also stays inside the click's user gesture, where it belongs.
+        if (legacyCopy(url)) {
+          openInstagram();
+          say('Link copied');
+          return;
+        }
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(url).then(
+            () => {
+              openInstagram();
+              say('Link copied');
+            },
+            () => {
+              openInstagram();
+              say('Copy the link from the address bar.');
+            }
+          );
+          return;
+        }
+
+        openInstagram();
+        say('Copy the link from the address bar.');
       });
     });
   }
