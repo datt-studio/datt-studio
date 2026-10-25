@@ -10,9 +10,16 @@
         We use cookies for site functionality and analytics.
       </p>
 
-      <div class="flex items-center gap-8 md:gap-12">
-        <!-- POLICY LINK: Styled like Legal Sidebar (Grey -> White, No Underline) -->
-        <a href="/privacy-cookies-policy/" class="banner-policy-link">Privacy & Cookie Policy</a>
+      <div class="flex flex-col md:flex-row md:items-center gap-4 md:gap-12">
+        <!-- MOBILE ROW 1 / DESKTOP INLINE: policy link and motion toggle.
+             md:contents removes this wrapper on desktop so both items sit in
+             the main row and inherit its exact gap. -->
+        <div class="flex items-center gap-8 md:contents">
+          <!-- POLICY LINK: Styled like Legal Sidebar (Grey -> White, No Underline) -->
+          <a href="/privacy-cookies-policy/" class="banner-policy-link">Privacy & Cookie Policy</a>
+
+          <button id="motion-toggle-banner" type="button" class="banner-policy-link banner-policy-button">Turn off motion</button>
+        </div>
 
         <div class="flex items-center gap-8">
             <!-- ACTION BUTTONS: Refined Underline Style -->
@@ -53,6 +60,26 @@
   }
   .banner-policy-link:hover {
     color: #ffffff !important;
+  }
+
+  /* The banner motion toggle is a <button> wearing the policy-link style.
+     Reset the native control so it renders exactly like the link. */
+  .banner-policy-button {
+    appearance: none;
+    -webkit-appearance: none;
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    font-family: inherit;
+    line-height: inherit;
+    text-align: left;
+  }
+  .banner-policy-button:focus-visible {
+    color: #ffffff !important;
+    outline: 1px solid currentColor;
+    outline-offset: 3px;
   }
 
   /* --- 2. ACTION LINK STYLE (Refined Underline) --- */
@@ -106,6 +133,32 @@
 <script is:inline>
   (function() {
     const CONSENT_KEY = 'datt_studio_consent_v10';
+    const MOTION_KEY = 'datt_studio_reduced_motion';
+
+    function paintMotionButton() {
+      const btn = document.getElementById('motion-toggle-banner');
+      if (!btn) return;
+      const reduced = document.documentElement.classList.contains('user-reduced-motion');
+      btn.textContent = reduced ? 'Turn motion on' : 'Turn off motion';
+    }
+
+    function initMotionToggle() {
+      const btn = document.getElementById('motion-toggle-banner');
+      if (!btn) return;
+
+      btn.onclick = (e) => {
+        e.preventDefault();
+        const active = document.documentElement.classList.toggle('user-reduced-motion');
+        localStorage.setItem(MOTION_KEY, String(active));
+        if (active) {
+          document.querySelectorAll('video').forEach((v) => v.pause());
+        }
+        paintMotionButton();
+        window.dispatchEvent(new CustomEvent('datt:motionchange'));
+      };
+
+      paintMotionButton();
+    }
 
     function initCookieBanner() {
       const banner = document.getElementById('cookie-banner');
@@ -145,7 +198,23 @@
       if (rejectBtn) rejectBtn.onclick = () => handleDecision('rejected');
     }
 
+    // Keep every motion toggle in sync, wherever the change came from.
+    window.addEventListener('datt:motionchange', paintMotionButton);
+
+    // Another tab changed the preference: mirror the class locally too.
+    window.addEventListener('storage', (ev) => {
+      if (ev.key !== MOTION_KEY) return;
+      const reduced = ev.newValue === 'true';
+      document.documentElement.classList.toggle('user-reduced-motion', reduced);
+      if (reduced) document.querySelectorAll('video').forEach((v) => v.pause());
+      paintMotionButton();
+    });
+
     initCookieBanner();
-    document.addEventListener('astro:after-swap', initCookieBanner);
+    initMotionToggle();
+    document.addEventListener('astro:after-swap', () => {
+      initCookieBanner();
+      initMotionToggle();
+    });
   })();
 </script>

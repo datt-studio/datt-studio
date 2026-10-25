@@ -139,31 +139,40 @@ const lastUpdated = "16 June 2026";
 </style>
 
 <script is:inline>
-  function initA11yPage() {
-    const btn = document.getElementById('reduced-motion-toggle');
-    const statusSpan = document.getElementById('motion-status');
+  (function () {
     const key = 'datt_studio_reduced_motion';
 
-    const updateUI = () => {
-      const isReduced = document.documentElement.classList.contains('user-reduced-motion');
-      if (statusSpan) statusSpan.textContent = isReduced ? 'ON' : 'OFF';
-      if (btn) {
-          btn.style.background = isReduced ? 'rgba(229, 229, 229, 0.2)' : '#FAFAFA';
-          btn.style.color = isReduced ? '#b4b4b4' : '#000';
-      }
+    const isReduced = () => document.documentElement.classList.contains('user-reduced-motion');
+
+    /* The per-line splitter rebuilds this section's innerHTML once fonts land,
+       which replaces the button node and any handler bound straight to it. Read
+       the button fresh every time and bind the click once on the document so
+       the control survives that rebuild. */
+    const paint = () => {
+      const btn = document.getElementById('reduced-motion-toggle');
+      if (!btn) return;
+      const reduced = isReduced();
+      btn.textContent = 'REDUCED MOTION: ' + (reduced ? 'ON' : 'OFF');
+      btn.style.background = reduced ? 'rgba(229, 229, 229, 0.2)' : '#FAFAFA';
+      btn.style.color = reduced ? '#b4b4b4' : '#000';
     };
 
-    if (btn) {
-      btn.onclick = (e) => {
-        e.preventDefault();
-        const active = document.documentElement.classList.toggle('user-reduced-motion');
-        localStorage.setItem(key, active);
-        if (active) { document.querySelectorAll('video').forEach(v => v.pause()); }
-        updateUI();
-      };
-    }
-    updateUI();
-  }
-  initA11yPage();
-  document.addEventListener('astro:after-swap', initA11yPage);
+    document.addEventListener('click', (e) => {
+      const btn = e.target instanceof Element ? e.target.closest('#reduced-motion-toggle') : null;
+      if (!btn) return;
+      e.preventDefault();
+      const active = document.documentElement.classList.toggle('user-reduced-motion');
+      localStorage.setItem(key, String(active));
+      if (active) { document.querySelectorAll('video').forEach(v => v.pause()); }
+      paint();
+      window.dispatchEvent(new CustomEvent('datt:motionchange'));
+    });
+
+    /* The banner toggle changes the same preference; keep this label honest. */
+    window.addEventListener('datt:motionchange', paint);
+    document.addEventListener('astro:after-swap', paint);
+    document.addEventListener('astro:page-load', paint);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(paint);
+    paint();
+  })();
 </script>
