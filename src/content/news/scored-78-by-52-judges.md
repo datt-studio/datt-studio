@@ -7,7 +7,7 @@ coverAlt: "The DATT STUDIO homepage on desktop and mobile."
 draft: false
 ---
 
-The FWA runs a live judging window. Ours was open for 14 days. Fifty-two jury members scored the site across the window, and the score held at 78.
+The FWA runs a live judging window. Ours was open for 14 days. Fifty-two jury members scored the site across the window, and the score closed at 78.
 
 We did not win Site of the Day. The FWA publishes winners, that is how their showcase works, and we are completely at peace with it.
 
@@ -16,6 +16,13 @@ Because winners are the only ones listed, most people will never see the score. 
 ## What the score says
 
 Fifty-two judges looked at this site carefully, on their own time, and independently arrived at the same number. That is a measure of the work itself, taken by jury members who do this every day and have no reason to be generous.
+
+<figure>
+  <img src="/news/fwa-awwwards-2.webp" alt="The FWA live jury scoreboard for DATT STUDIO, plotted across the 14-day judging window and closing at 78 points." width="1600" height="900" loading="lazy" decoding="async" />
+  <figcaption>The live jury score across the 14-day window. It opened at 79 and closed at 78.</figcaption>
+</figure>
+
+The line is not flat. It opened at 79, held there for the first few days, and settled at 78 as the window closed. The FWA recalculates the score as votes arrive, so the figure moves while judging runs, and where it closes is what the result records.
 
 78 out of 100 is a strong result. It is also not a top score, and every entry was judged against the same standard.
 
