@@ -7,7 +7,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "sanity:dev": "sanity start",
-    "sanity:build": "sanity build"
+    "sanity:build": "sanity build",
+    "news:og": "node scripts/news-og.mjs"
   },
   "dependencies": {
     "@sanity/astro": "^3.2.10",

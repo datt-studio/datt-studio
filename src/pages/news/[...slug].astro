@@ -3,6 +3,8 @@ import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import NewsCover from '../../components/NewsCover.astro';
+import { existsSync } from 'node:fs';
+import path from 'node:path';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -47,6 +49,22 @@ const shareLinks = [
   },
 ];
 
+/* Link previews use a JPEG twin of the cover rather than the cover itself.
+   LinkedIn is the reason: its crawler will not render a WebP og:image, so a
+   WebP cover shows as a bare link there while X and Threads would have shown
+   the image. The JPEG is built from the same file the article displays by
+   `npm run news:og`, so the two cannot drift while the cover is unchanged.
+   If one is ever missing the cover is used instead and the build says so. */
+const shareCardPath = post.data.cover ? `/news/og/${post.id}.jpg` : undefined;
+const hasShareCard =
+  shareCardPath && existsSync(path.join(process.cwd(), 'public', shareCardPath.replace(/^\//, '')));
+
+if (shareCardPath && !hasShareCard) {
+  console.warn(`[news] No JPEG share card for ${post.id}. Run: npm run news:og`);
+}
+
+const shareImage = hasShareCard ? shareCardPath : post.data.cover;
+
 const articleLd = {
   '@context': 'https://schema.org',
   '@type': 'Article',
@@ -70,7 +88,7 @@ const articleLd = {
   isDark={true}
   title={`${post.data.title} — DATT STUDIO`}
   description={post.data.summary}
-  image={post.data.cover}
+  image={shareImage}
   imageAlt={post.data.coverAlt ?? 'DATT STUDIO'}
 >
   <div class="flex flex-col bg-black">
@@ -125,7 +143,6 @@ const articleLd = {
         class="article-share"
         data-share-row
         data-share-url={shareUrl}
-        data-share-title={shareTitle}
       >
         <div class="article-share-inner">
           <div class="article-share-row">
@@ -543,16 +560,43 @@ const articleLd = {
     if (offset > 0) inner.style.setProperty('--share-align', `${offset}px`);
   }
 
-  /* Instagram has no web share intent, so the only route into the app is the
-     native share sheet. Where that does not exist the link is copied instead,
-     which is the honest thing to do rather than send the reader to a profile. */
+  /* Instagram has no web share intent and no way to prefill a post with a
+     link, so clicking it copies the article URL and opens Instagram, ready for
+     the reader to paste. Every other network has a real composer. */
+  function copyToClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text).then(
+        () => true,
+        () => legacyCopy(text)
+      );
+    }
+    return Promise.resolve(legacyCopy(text));
+  }
+
+  function legacyCopy(text) {
+    const field = document.createElement('textarea');
+    field.value = text;
+    field.setAttribute('readonly', '');
+    field.style.position = 'fixed';
+    field.style.top = '-1000px';
+    document.body.appendChild(field);
+    field.select();
+    let copied = false;
+    try {
+      copied = document.execCommand('copy');
+    } catch (error) {
+      copied = false;
+    }
+    field.remove();
+    return copied;
+  }
+
   function wireShare() {
     document.querySelectorAll('[data-share-row]').forEach((row) => {
       if (row.dataset.shareWired === 'true') return;
       row.dataset.shareWired = 'true';
 
       const url = row.dataset.shareUrl;
-      const title = row.dataset.shareTitle;
       const status = row.querySelector('[data-share-status]');
       const instagram = row.querySelector('[data-share-instagram]');
       let statusTimer = 0;
@@ -562,40 +606,20 @@ const articleLd = {
         status.textContent = message;
         status.classList.add('is-visible');
         clearTimeout(statusTimer);
-        statusTimer = setTimeout(() => status.classList.remove('is-visible'), 4000);
+        statusTimer = setTimeout(() => status.classList.remove('is-visible'), 6000);
       }
 
       if (!instagram) return;
 
-      instagram.addEventListener('click', async () => {
-        if (navigator.share) {
-          try {
-            await navigator.share({ title, url });
-            return;
-          } catch (error) {
-            if (error && error.name === 'AbortError') return;
-          }
-        }
-
-        try {
-          await navigator.clipboard.writeText(url);
-          say('Link copied');
-        } catch (error) {
-          const field = document.createElement('textarea');
-          field.value = url;
-          field.setAttribute('readonly', '');
-          field.style.position = 'fixed';
-          field.style.top = '-1000px';
-          document.body.appendChild(field);
-          field.select();
-          try {
-            document.execCommand('copy');
-            say('Link copied');
-          } catch (fallbackError) {
-            say('Copy the link from the address bar');
-          }
-          field.remove();
-        }
+      instagram.addEventListener('click', () => {
+        // The tab is opened before the clipboard call because a window opened
+        // after an await counts as a popup and is blocked.
+        window.open('https://www.instagram.com/', '_blank', 'noopener');
+        copyToClipboard(url).then((copied) => {
+          say(copied
+            ? 'Link copied. Paste it into Instagram.'
+            : 'Copy the link from the address bar.');
+        });
       });
     });
   }
