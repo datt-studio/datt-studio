@@ -135,13 +135,12 @@ const articleLd = {
       </article>
 
       <!-- SHARE
-           On desktop this becomes a sticky rail whose left edge is the left
-           edge of the News link in the header, so it stacks on the grid line
-           the way the legal pages stack their section links. It stays with the
-           reader through the article. On mobile and tablet it ends the article,
-           left aligned. The horizontal offset is measured from the News link in
-           the script below; without it the rail falls back to the page
-           margin. -->
+           One horizontal row on every screen. On desktop it leaves the flow,
+           takes its left edge from the News link in the header and sticks
+           beneath the header as the reader scrolls. On mobile and tablet it
+           ends the article, left aligned. The horizontal offset is measured
+           from the News link in the script below; without it the row falls back
+           to the page margin. -->
       <div
         class="article-share"
         data-share-row
@@ -354,13 +353,13 @@ const articleLd = {
   }
 
   /* SHARE
-     Mobile and tablet: the links end the article, left aligned to the page
-     margin. Desktop: they become a vertical rail whose left edge is the left
-     edge of the News link in the header, the way the legal pages stack their
-     section links on one line. --share-align is measured from that link in the
-     script below, and it is the distance from the section's content left edge
-     to the News left edge. Without JS the rail sits at the page margin, which
-     is where the row is on mobile, so the layout still holds. */
+     One horizontal row at every width. Mobile and tablet: it ends the article,
+     left aligned to the page margin. Desktop: the row leaves the flow, takes
+     its left edge from the left edge of the News link in the header, and sticks
+     beneath the header through the piece. --share-align is measured from that
+     link in the script below, and it is the distance from the section's content
+     left edge to the News left edge. Without JS the row sits at the page
+     margin, which is where it is on mobile, so the layout still holds. */
   .article-share {
     margin-top: clamp(4.5rem, 9vw, 9rem);
   }
@@ -425,24 +424,11 @@ const articleLd = {
       position: sticky;
       top: 132px;
     }
-    .article-share-row {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0.75rem;
-    }
-    .article-share-label {
-      margin-right: 0;
-      margin-bottom: 0.5rem;
-    }
-    /* The rail is narrow, so a long fallback message wraps down its own column
-       instead of running back across the article text. */
+    /* One line on desktop, exactly as it reads on mobile and tablet, only now
+       it sits on the News grid line and stays with the reader. */
     .article-share-status {
       left: 0;
       right: auto;
-      max-width: 100%;
-      white-space: normal;
-      text-align: left;
-      line-height: 1.5;
     }
   }
 </style>
@@ -570,13 +556,12 @@ const articleLd = {
 
   /* SHARE
      Ends the article on mobile and tablet, left aligned to the page margin.
-     From 1100px up the links leave the flow and become a sticky rail whose
-     left edge is the left edge of the News link in the header. Nothing in CSS
-     can know where that link lands, because the nav is spaced by its own
-     labels, so the distance is measured: the rail is laid out at the margin
-     first, and the offset is the gap between the two left edges. Clearing the
-     property before reading keeps a resize from measuring the offset it is
-     about to replace. */
+     From 1100px up the row leaves the flow and sticks beneath the header, with
+     its left edge on the left edge of the News link. Nothing in CSS can know
+     where that link lands, because the nav is spaced by its own labels, so the
+     distance is measured: the row is laid out at the margin first, and the
+     offset is the gap between the two left edges. Clearing the property before
+     reading keeps a resize from measuring the offset it is about to replace. */
   function alignShareRow() {
     const row = document.querySelector('[data-share-row]');
     if (!row) return;
