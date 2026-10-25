@@ -381,7 +381,7 @@ const articleLd = {
   .article-share-status.is-visible {
     opacity: 1;
   }
-  @media (min-width: 768px) {
+  @media (min-width: 1024px) {
     .article-share-inner {
       padding-right: var(--share-align, 0px);
     }
@@ -520,12 +520,13 @@ const articleLd = {
   document.addEventListener('astro:after-swap', wireVideos);
 
   /* SHARE ROW
-     Its right edge is the right edge of the News link in the header, not the
-     page margin. Nothing in CSS can know where that link lands, because the nav
-     is spaced by its own labels, so the distance is measured. The row is laid
-     out at the margin first, and the offset is the gap between the two right
-     edges. Clearing the property before reading keeps a resize from measuring
-     the offset it is about to replace. */
+     Ends the article on mobile and tablet, left aligned to the page margin.
+     From 1024px up its right edge becomes the right edge of the News link in
+     the header, not the page margin. Nothing in CSS can know where that link
+     lands, because the nav is spaced by its own labels, so the distance is
+     measured. The row is laid out at the margin first, and the offset is the
+     gap between the two right edges. Clearing the property before reading keeps
+     a resize from measuring the offset it is about to replace. */
   function alignShareRow() {
     const row = document.querySelector('[data-share-row]');
     if (!row) return;
@@ -534,7 +535,7 @@ const articleLd = {
     if (!inner || !news) return;
 
     inner.style.removeProperty('--share-align');
-    if (!window.matchMedia('(min-width: 768px)').matches) return;
+    if (!window.matchMedia('(min-width: 1024px)').matches) return;
 
     const offset = Math.round(
       inner.getBoundingClientRect().right - news.getBoundingClientRect().right
