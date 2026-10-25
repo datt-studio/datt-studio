@@ -33,6 +33,6 @@ This one runs on Astro. Fonts are self-hosted and subset to the characters the s
 Judging is open on all three, and scores move daily as votes come in. For more on The FWA's live judging process, see [How FWA Live Judging Works](https://www.thefwa.com/about/judging).
 
 
-**Update.** Two of the three have resolved. The site received Special Kudos at CSS Design Awards, and Site of the Day at CSS Winner. The FWA is still being judged. Both results are written up: [CSS Design Awards](/news/recognised-for-quality/) and [CSS Winner](/news/site-of-the-day-css-winner/).
+**Update.** All three have resolved. The site received Special Kudos at CSS Design Awards and Site of the Day at CSS Winner. The FWA scored it 78 out of 100 across 52 judges. All three are written up: [CSS Design Awards](/news/recognised-for-quality/), [CSS Winner](/news/site-of-the-day-css-winner/) and [Scored 78 by 52 judges](/news/scored-78-by-52-judges/).
 
 Thank you to the judges, and to anyone voting.
