@@ -60,7 +60,8 @@ const lines = [
   }
 
   /* Activation (Triggered by Intersection Observer in Layout or local script) */
-  .info-hero-section.is-active .brands-line-inner {
+  .info-hero-section.is-active .brands-line-inner,
+  .info-hero-section .brands-line-inner.is-active {
     transform: translateY(0) rotateX(0deg) !important;
     opacity: 1 !important;
   }
