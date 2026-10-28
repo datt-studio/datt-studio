@@ -14,9 +14,9 @@ const lines = [
          single cascade and each line starts after the one above it, rather than
          one sequence per block all starting together. -->
     <div class="brands-line-mask">
-      <div class="brands-line-inner">
-        {lines.map((line, i) => (
-          <h1 class:list={["hero-title", i === 0 ? "mb-12 md:mb-16" : ""]}>{line}</h1>
+      <div class="brands-line-inner flex flex-col gap-y-12 md:gap-y-16">
+        {lines.map((line) => (
+          <h1 class="hero-title m-0">{line}</h1>
         ))}
       </div>
     </div>
