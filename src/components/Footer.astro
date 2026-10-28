@@ -95,7 +95,7 @@ const { isInverted = false } = Astro.props;
 
     <!-- Copyright and motion toggle -->
     <div class="brands-line-mask">
-      <div class="brands-line-inner pb-4" style="transition-delay: 0.7s;">
+      <div class="brands-line-inner pb-4 relative" style="transition-delay: 0.7s;">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-y-3">
           <p class="text-label !text-[11px] opacity-50 !tracking-[0.05em]">
             © {currentYear} DATT STUDIO LTD.
@@ -103,7 +103,7 @@ const { isInverted = false } = Astro.props;
             Registered in England & Wales: 16695845.
           </p>
         </div>
-        <button id="footer-motion-toggle" type="button" class="footer-motion-toggle text-label !text-[11px] opacity-50 !tracking-[0.05em] md:absolute md:right-[var(--page-padding)] md:bottom-4">Turn off motion</button>
+        <button id="footer-motion-toggle" type="button" class="footer-motion-toggle text-label !text-[11px] opacity-50 !tracking-[0.05em] md:absolute md:right-0 md:bottom-4">Turn off motion</button>
       </div>
     </div>
   </div>
