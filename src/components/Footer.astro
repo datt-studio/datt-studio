@@ -93,14 +93,17 @@ const { isInverted = false } = Astro.props;
       </div>
     </div>
 
-    <!-- Copyright -->
+    <!-- Copyright and motion toggle -->
     <div class="brands-line-mask">
       <div class="brands-line-inner pb-4" style="transition-delay: 0.7s;">
-      <p class="text-label !text-[11px] opacity-50 !tracking-[0.05em]">
-      © {currentYear} DATT STUDIO LTD.
-      <br class="md:hidden" />
-      Registered in England & Wales: 16695845.
-      </p>
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-y-3">
+          <p class="text-label !text-[11px] opacity-50 !tracking-[0.05em]">
+            © {currentYear} DATT STUDIO LTD.
+            <br class="md:hidden" />
+            Registered in England & Wales: 16695845.
+          </p>
+          <button id="footer-motion-toggle" type="button" class="footer-motion-toggle text-label !text-[11px] opacity-50 !tracking-[0.05em]">Turn off motion</button>
+        </div>
       </div>
     </div>
   </div>
@@ -146,6 +149,27 @@ const { isInverted = false } = Astro.props;
   html.user-reduced-motion #footer-reveal-trigger .secure-email-copy.cta-link::after {
     transform: scaleX(1) !important;
     transition: none !important;
+  }
+
+  .footer-motion-toggle {
+    appearance: none;
+    -webkit-appearance: none;
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+    transition: opacity 0.4s var(--ease-mechanical);
+  }
+  .footer-motion-toggle:hover {
+    opacity: 1;
+  }
+  .footer-motion-toggle:focus-visible {
+    opacity: 1;
+    outline: 1px solid currentColor;
+    outline-offset: 2px;
   }
 
   /* Info grid. One column on mobile; two columns from 768px and four from
@@ -238,6 +262,35 @@ const { isInverted = false } = Astro.props;
 </style>
 
 <script is:inline>
+  function initFooterMotionToggle() {
+    const btn = document.getElementById('footer-motion-toggle');
+    if (!btn) return;
+    const MOTION_KEY = 'datt_studio_reduced_motion';
+    function paint() {
+      const reduced = document.documentElement.classList.contains('user-reduced-motion');
+      btn.textContent = reduced ? 'Turn motion on' : 'Turn off motion';
+    }
+    btn.onclick = (e) => {
+      e.preventDefault();
+      const active = document.documentElement.classList.toggle('user-reduced-motion');
+      localStorage.setItem(MOTION_KEY, String(active));
+      if (active) {
+        document.querySelectorAll('video').forEach((v) => v.pause());
+      }
+      paint();
+      window.dispatchEvent(new CustomEvent('datt:motionchange'));
+    };
+    window.addEventListener('datt:motionchange', paint);
+    window.addEventListener('storage', (ev) => {
+      if (ev.key !== MOTION_KEY) return;
+      const reduced = ev.newValue === 'true';
+      document.documentElement.classList.toggle('user-reduced-motion', reduced);
+      if (reduced) document.querySelectorAll('video').forEach((v) => v.pause());
+      paint();
+    });
+    paint();
+  }
+
   function initFooterReveals() {
     const footer = document.getElementById('site-footer');
     if (!footer) return;
@@ -291,8 +344,12 @@ const { isInverted = false } = Astro.props;
     stoppers.push(() => revealObserver.disconnect());
   }
 
+  initFooterMotionToggle();
   initFooterReveals();
-  document.addEventListener('astro:after-swap', initFooterReveals);
+  document.addEventListener('astro:after-swap', () => {
+    initFooterMotionToggle();
+    initFooterReveals();
+  });
 
   // Split the footer's info grid on the About, Services and News links in the
   // top nav, so New business starts under About, Legal under Services and
