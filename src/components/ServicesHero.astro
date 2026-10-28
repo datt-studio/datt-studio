@@ -16,7 +16,7 @@ const lines = [
     <div class="brands-line-mask">
       <div class="brands-line-inner">
         {lines.map((line, i) => (
-          <h1 class:list={["hero-title", i < lines.length - 1 ? "mb-12 md:mb-16" : "mb-0"]}>{line}</h1>
+          <h1 class:list={["hero-title", i === 0 ? "mb-12 md:mb-16" : ""]}>{line}</h1>
         ))}
       </div>
     </div>
