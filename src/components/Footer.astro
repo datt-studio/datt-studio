@@ -96,13 +96,13 @@ const { isInverted = false } = Astro.props;
     <!-- Copyright and motion toggle -->
     <div class="brands-line-mask">
       <div class="brands-line-inner pb-4" style="transition-delay: 0.7s;">
-        <div class="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-y-3 md:items-center">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-y-3">
           <p class="text-label !text-[11px] opacity-50 !tracking-[0.05em]">
             © {currentYear} DATT STUDIO LTD.
             <br class="md:hidden" />
             Registered in England & Wales: 16695845.
           </p>
-          <button id="footer-motion-toggle" type="button" class="footer-motion-toggle text-label !text-[11px] opacity-50 !tracking-[0.05em] md:justify-self-end">Turn off motion</button>
+          <button id="footer-motion-toggle" type="button" class="footer-motion-toggle text-label !text-[11px] opacity-50 !tracking-[0.05em] md:ml-auto">Turn off motion</button>
         </div>
       </div>
     </div>
