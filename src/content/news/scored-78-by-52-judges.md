@@ -9,7 +9,7 @@ draft: false
 
 The FWA runs a live judging window. Ours was open for 14 days. Fifty-two jury members scored the site across the window, and the score closed at 78.
 
-We received an Honorable Mention from Awwwards. The FWA publishes winners, that is how their showcase works, and we are completely at peace with it.
+The FWA publishes winners, that is how their showcase works, and we are completely at peace with it.
 
 Because winners are the only ones listed, most people will never see the score. Which is the reason for this article.
 
@@ -38,7 +38,7 @@ So thank you. To every member of The FWA jury who opened the site, spent time wi
 
 ## The same work, a second jury
 
-We submitted the same site to Awwwards and received an Honorable Mention. The nomination was dated 9 October 2026.
+We submitted the same site to Awwwards. The nomination was dated 9 October 2026. The jury score did not reach the threshold for an Honorable Mention, and the result was no award. The user votes were separate and remain appreciated.
 
 Our community votes are in. Thank you to everyone who took the time to support DATT STUDIO and cast a vote.
 
