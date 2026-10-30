@@ -38,7 +38,7 @@ So thank you. To every member of The FWA jury who opened the site, spent time wi
 
 ## The same work, a second jury
 
-We submitted the same site to Awwwards, and it is officially a nominee. The nomination is dated 9 October 2026. We are waiting on the jury decision, so we do not yet know whether it goes as far as an honourable mention or Site of the Day.
+We submitted the same site to Awwwards and received an Honorable Mention. The nomination was dated 9 October 2026.
 
 Our community votes are in. Thank you to everyone who took the time to support DATT STUDIO and cast a vote.
 
