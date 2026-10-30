@@ -60,5 +60,14 @@ if (coverSrc) {
     width: 100%;
     height: auto;
     border: 1px solid rgba(255, 255, 255, 0.12);
+    object-fit: cover;
+    object-position: left center;
+  }
+  @media (min-width: 768px) {
+    .news-cover img {
+      object-fit: contain;
+      object-position: center;
+      height: auto;
+    }
   }
 </style>

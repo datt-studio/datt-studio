@@ -9,7 +9,7 @@ draft: false
 
 The FWA runs a live judging window. Ours was open for 14 days. Fifty-two jury members scored the site across the window, and the score closed at 78.
 
-We did not win Site of the Day. The FWA publishes winners, that is how their showcase works, and we are completely at peace with it.
+We received an Honorable Mention from Awwwards. The FWA publishes winners, that is how their showcase works, and we are completely at peace with it.
 
 Because winners are the only ones listed, most people will never see the score. Which is the reason for this article.
 
