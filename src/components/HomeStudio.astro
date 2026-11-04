@@ -8,9 +8,9 @@ const body = "Work shaped through clarity, restraint, and careful execution. Bui
 // detail. Each row carries its own image, so the row and its picture can never
 // fall out of step.
 const recognition = [
-  { label: "X1 Awwwards — Honorable Mention", image: "/news/awwwards-hm.webp" },
-  { label: "X1 CSS Winner — Site Of The Day", image: "/news/csswinner-sotd.webp" },
+  { label: "X1 Awwwards — Honorable Mention", image: "/news/awwwards.webp" },
   { label: "X1 CSSDA Special Kudos — Voted by Public Best UI, UX & Innovation", image: "/news/cssda-awards.webp" },
+  { label: "X1 CSS Winner — Site Of The Day", image: "/news/csswinner-sotd.webp" },
 ];
 ---
 
@@ -76,7 +76,7 @@ const recognition = [
                     </div>
                     <div class="recognition-card-media" aria-hidden="true">
                       <div class="recognition-card-flip">
-                        <img src={item.image} alt="" loading="lazy" decoding="async" />
+                        <img src={item.image} alt="" loading="eager" decoding="async" />
                       </div>
                       <div class="recognition-card-curtain"></div>
                     </div>
@@ -98,7 +98,7 @@ const recognition = [
     <div id="recognition-image-flip" class="relative w-full h-full overflow-hidden bg-neutral-900 shadow-2xl">
       {recognition.map((item, i) => (
         <div class="recognition-image-layer absolute inset-0 opacity-0 transition-opacity duration-500" data-index={i}>
-          <img src={item.image} alt="" loading="lazy" decoding="async" class="h-full w-full object-cover" />
+          <img src={item.image} alt="" loading="eager" decoding="async" class="h-full w-full object-cover" />
         </div>
       ))}
     </div>
@@ -571,14 +571,8 @@ const recognition = [
         if (i === prev && next > prev) card.classList.add('is-hidden');
         if (on) card.classList.remove('is-hidden');
 
-        // Arriving on the first card opens it outright, with no flip.
-        const entering = on && i === 0 && prev === -1;
-        if (entering) {
-          card.classList.add('is-instant');
-          requestAnimationFrame(() => {
-            requestAnimationFrame(() => card.classList.remove('is-instant'));
-          });
-        }
+        // Nothing is skipped: every card, including the first, runs its full
+        // flip and curtain each time it takes the line, scrolling down or back up.
       }
     }
 
@@ -600,10 +594,19 @@ const recognition = [
     function revealBusy() {
       const el = document.querySelector('.recognition-reveal .brands-line-inner');
       if (!el) return false;
+      /* Compared numerically, not as a string. Engines print the settled
+         transform differently (matrix, matrix3d, "-0" entries), and a string
+         miss here reads as "still revealing" forever, which leaves every card
+         inactive: the stack never animates, down or up. */
       const t = getComputedStyle(el).transform;
-      return t !== 'none' &&
-        t !== 'matrix(1, 0, 0, 1, 0, 0)' &&
-        t !== 'matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)';
+      if (t === 'none') return false;
+      const m3 = t.indexOf('matrix3d(') === 0;
+      const v = (m3 ? t.slice(9, -1) : t.slice(7, -1)).split(',').map(Number);
+      const ident = m3
+        ? [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+        : [1, 0, 0, 1, 0, 0];
+      if (v.length !== ident.length || v.some((n) => !Number.isFinite(n))) return false;
+      return v.some((n, i) => Math.abs(n - ident[i]) > 0.01);
     }
 
     /* The stack line, read back off the first row's computed top so the script
@@ -678,6 +681,12 @@ const recognition = [
     }
 
     window.addEventListener('scroll', onScroll, { passive: true });
+    // The stack is held closed while the table's reveal turns. Re-read the
+    // moment that transition ends, so the right card opens without waiting for
+    // another scroll.
+    document.addEventListener('transitionend', (e) => {
+      if (e.target instanceof Element && e.target.closest('.recognition-reveal')) onScroll();
+    }, { passive: true });
     window.addEventListener('resize', () => { syncMode(); measureCard(); measureRows(); onScroll(); }, { passive: true });
     window.addEventListener('load', () => { measureCard(); measureRows(); onScroll(); });
     // The label's height moves when the real font lands, so re-read then.
