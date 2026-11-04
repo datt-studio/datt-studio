@@ -7,12 +7,9 @@ const body = "Work shaped through clarity, restraint, and careful execution. Bui
 // short list of what was recognised, and the articles under /news/ carry the
 // detail.
 const recognition = [
-  { label: "Awwwards Honourable Mention", video: -1 },
-  { label: "CSS Winner Site of the Day", video: 0 },
-  { label: "CSSDA Special Kudos", video: 1 },
-  { label: "CSSDA Public Awards Best UI", video: 2 },
-  { label: "CSSDA Public Awards Best UX", video: 3 },
-  { label: "CSSDA Public Awards Best Innovation", video: 4 },
+  { label: "Awwwards Honorable Mention", image: "/news/fwa-awwwards.webp" },
+  { label: "CSS Winner Site of the Day", image: "/news/csswinner-sotd.webp" },
+  { label: "CSSDA Special Kudos — Voted by Public Best UI, UX & Innovation", image: "/news/cssda-awards.webp" },
 ];
 
 // One clip per recognition row, in row order. The CSS Winner row reuses the
@@ -107,31 +104,11 @@ const previews = [
             </tr>
           </thead>
           <tbody>
-            {recognition.map((item) => (
-              <tr data-video-index={item.video}>
+            {recognition.map((item, idx) => (
+              <tr data-recognition-index={idx}>
                 <td>
-                  {/* Below 1024px the cell becomes a card the size of its clip.
-                      The label sits on a black band across the top of it, so the
-                      card keeps the clip's full 16:9 with nothing cropping it.
-                      On desktop the row stays a plain label and this card's own
-                      video is never shown or fetched. */}
-                  <div class="recognition-card" data-poster={previews[item.video].poster}>
-                    <div class="recognition-card-media" aria-hidden="true">
-                      {/* The turn sits on a wrapper div, never on the video
-                          element itself: the video's layer belongs to the media
-                          pipeline, and a transform transition on it has no
-                          reliable compositor path — on iOS it did not animate at
-                          all, which is how the handover lost its rotation. This
-                          is the desktop preview node's architecture, at the
-                          card's scale. */}
-                      <div class="recognition-card-flip">
-                        <video muted loop playsinline preload="none" class="h-full w-full object-cover">
-                          <source src={previews[item.video].card || previews[item.video].src} type="video/mp4" />
-                        </video>
-                      </div>
-                      <div class="recognition-card-curtain"></div>
-                    </div>
-                    <div class="recognition-card-label">{item.label}</div>
+                  <div class="recognition-row">
+                    <span class="recognition-row-label">{item.label}</span>
                   </div>
                 </td>
               </tr>
@@ -151,18 +128,11 @@ const previews = [
        cursor to follow, so it anchors under whichever row is crossing the
        middle of the screen, and flips open and closed as the rows swap. Layers
        crossfade so the clip changes without cutting. -->
-  <div id="recognition-video-node" class="pointer-events-none fixed top-0 left-0 z-[1200] w-[300px] aspect-video opacity-0 transition-opacity duration-500">
-    <div id="recognition-video-flip" class="relative w-full h-full overflow-hidden bg-neutral-900 shadow-2xl">
-      {previews.map((preview, i) => (
-        <div class="recognition-video-layer absolute inset-0 opacity-0 transition-opacity duration-500" data-index={i} data-poster={preview.poster}>
-          {/* The poster is attached by script when the layer is opened, not here.
-              These five videos sit in the document from page load, and a poster
-              attribute is fetched whether or not it is ever looked at — so writing
-              it here pulled all five posters into the first paint, which is the
-              cost the recognition cards go to such lengths to avoid. */}
-          <video muted loop playsinline preload="none" class="h-full w-full object-cover">
-            <source src={preview.src} type="video/mp4" />
-          </video>
+  <div id="recognition-image-node" class="pointer-events-none fixed top-0 left-0 z-[1200] w-[320px] aspect-video opacity-0 transition-opacity duration-500">
+    <div id="recognition-image-flip" class="relative w-full h-full overflow-hidden bg-neutral-900 shadow-2xl">
+      {recognition.map((item, i) => (
+        <div class="recognition-image-layer absolute inset-0 opacity-0 transition-opacity duration-500" data-index={i}>
+          <img src={item.image} alt="" loading="lazy" decoding="async" class="h-full w-full object-cover" />
         </div>
       ))}
     </div>
@@ -214,6 +184,20 @@ const previews = [
   .home-studio.is-active .brands-line-inner {
     transform: translateY(0) rotateX(0deg) !important;
     opacity: 1 !important;
+  }
+
+  .recognition-row {
+    display: block;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .recognition-row-label {
+    display: inline-block;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: var(--text-body);
+    line-height: 1.4;
+    letter-spacing: var(--track-normal);
   }
 
   /* --- CTA SYSTEM SYNC --- */
@@ -310,16 +294,16 @@ const previews = [
      from one award row to the next changes the clip smoothly rather than
      cutting. The box stays 16:9 and every clip is cropped to fill it edge to
      edge, so the 4:3 CSSDA cuts read full bleed rather than letterboxed. */
-  #recognition-video-node { perspective: 900px; }
-  #recognition-video-flip {
+  #recognition-image-node { perspective: 900px; }
+  #recognition-image-flip {
     transform: translateY(40%) rotateX(-60deg);
     transform-origin: bottom center;
     transition: transform 1.1s var(--ease-mechanical), opacity 0.5s ease;
   }
-  #recognition-video-node.is-visible #recognition-video-flip {
+  #recognition-image-node.is-visible #recognition-image-flip {
     transform: translateY(0) rotateX(0deg);
   }
-  .recognition-video-layer.is-active { opacity: 1 !important; z-index: 10; }
+  .recognition-image-layer.is-active { opacity: 1 !important; z-index: 10; }
 
   /* --- RECOGNITION CARD ---
      The card only takes shape below 1024px. On desktop the row is still a plain
@@ -572,7 +556,7 @@ const previews = [
      so it cannot be caught mid-turn by the handover if the layout ever falls
      back to it. */
   @media (max-width: 1023px), (hover: none) {
-    #recognition-video-flip {
+    #recognition-image-flip {
       transition: transform 0.42s var(--ease-mechanical), opacity 0.3s ease;
     }
   }
@@ -580,7 +564,7 @@ const previews = [
   /* Reduced motion keeps the preview and drops the flip between rows, so the
      clip still tracks the row it belongs to without anything moving. */
   @media (prefers-reduced-motion: reduce) {
-    #recognition-video-flip { transition: none !important; }
+    #recognition-image-flip { transition: none !important; }
   }
 
   /* Spacing Helper */
@@ -616,7 +600,7 @@ const previews = [
       document.documentElement.classList.contains('user-reduced-motion') ||
       (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
-    const node = () => document.getElementById('recognition-video-node');
+    const node = () => document.getElementById('recognition-image-node');
     const rows = () => document.querySelectorAll('.home-studio-table tbody tr');
 
     const show = () => {
@@ -655,32 +639,16 @@ const previews = [
     const setLayers = (index) => {
       const n = node();
       if (!n) return;
-      n.querySelectorAll('.recognition-video-layer').forEach((layer, i) => {
-        const video = layer.querySelector('video');
+      n.querySelectorAll('.recognition-image-layer').forEach((layer, i) => {
         if (i === index) {
           layer.classList.add('is-active');
-          // Nothing is fetched until the row is reached, so the homepage does
-          // not pay for these clips on load.
-          applyPoster(layer);
-          if (video.preload === 'none') { video.preload = 'auto'; video.load(); }
-          // Deferred rather than called straight away. On the cursor path the row
-          // is hovered, often in passing, and play() on a clip with nothing
-          // buffered yet restarts it from zero — so a row brushed on the way to
-          // another one would show its first frame rather than its clip.
-          if (video.readyState >= 3) video.play().catch(() => {});
-          else video.addEventListener('canplay', () => video.play().catch(() => {}), { once: true });
         } else {
           layer.classList.remove('is-active');
-          video.pause();
         }
       });
     };
 
-    const pauseAll = () => {
-      const n = node();
-      if (!n) return;
-      n.querySelectorAll('.recognition-video-layer video').forEach((video) => video.pause());
-    };
+    const pauseAll = () => {};
 
     /* --- CURSOR: hover a row, the clip follows the pointer --- */
 
@@ -693,7 +661,7 @@ const previews = [
          rather than a black panel. */
       if (motionOff()) {
         const n = node();
-        const layer = n && n.querySelectorAll('.recognition-video-layer')[index];
+        const layer = n && n.querySelectorAll('.recognition-image-layer')[index];
         applyPoster(layer);
         return;
       }
