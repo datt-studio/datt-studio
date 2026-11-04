@@ -275,11 +275,19 @@ const previews = [
   .home-studio-table td:last-child { padding-right: 0; }
 
   .home-studio-table tbody tr td {
-    border-bottom: none;
+    border-bottom: none !important;
+  }
+
+  .home-studio-table tbody tr {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  }
+
+  .home-studio-table tbody tr:last-child {
+    border-bottom: 0;
   }
 
   .home-studio-table tbody tr:last-child td {
-    border-bottom: 0;
+    border-bottom: 0 !important;
     padding-bottom: 0;
   }
 
