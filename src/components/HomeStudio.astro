@@ -7,9 +7,9 @@ const body = "Work shaped through clarity, restraint, and careful execution. Bui
 // short list of what was recognised, and the articles under /news/ carry the
 // detail.
 const recognition = [
-  { label: "X1 Awwwards Honorable Mention", image: "/news/fwa-awwwards.webp" },
-  { label: "X1 CSS Winner Site of the Day", image: "/news/csswinner-sotd.webp" },
+  { label: "X1 Awwwards — Honorable Mention", image: "/news/fwa-awwwards.webp" },
   { label: "X1 CSSDA Special Kudos — Voted by Public Best UI, UX & Innovation", image: "/news/cssda-awards.webp" },
+  { label: "X1 CSS Winner — Site Of The Day", image: "/news/csswinner-sotd.webp" },
 ];
 
 // One clip per recognition row, in row order. The CSS Winner row reuses the
@@ -188,16 +188,21 @@ const previews = [
 
   .recognition-row {
     display: block;
-    padding: 10px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 0.9em 1em 0.9em 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  }
+
+  .home-studio-table tbody tr:last-child .recognition-row {
+    border-bottom: 0;
+    padding-bottom: 0;
   }
 
   .recognition-row-label {
     display: inline-block;
     color: rgba(255, 255, 255, 0.9);
-    font-size: var(--text-body);
+    font-size: var(--font-label);
     line-height: 1.4;
-    letter-spacing: var(--track-normal);
+    letter-spacing: var(--track-tight);
   }
 
   /* --- CTA SYSTEM SYNC --- */
@@ -255,8 +260,8 @@ const previews = [
   .home-studio-table th,
   .home-studio-table td {
     text-align: left;
-    padding: 0.9em 1em 0.9em 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+    padding: 0;
+    border-bottom: none;
     vertical-align: top;
   }
 
@@ -276,10 +281,11 @@ const previews = [
 
   .home-studio-table tbody tr td {
     border-bottom: none !important;
+    padding: 0;
   }
 
   .home-studio-table tbody tr {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+    border-bottom: none;
   }
 
   .home-studio-table tbody tr:last-child {
