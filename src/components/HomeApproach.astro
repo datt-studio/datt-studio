@@ -1,15 +1,15 @@
 ---
 // HomeApproach.astro
-const title = "A considered approach.<br />Every project begins<br />with context.";
+const title = "A considered approach.<br />Every project begins with context.";
 const body = "Direction before execution. Structure before expression. Reduced to what matters. Refined until it holds.";
 ---
 
-<section class="home-approach reveal-trigger relative w-full min-h-[100svh] px-[var(--page-padding)] flex flex-col items-start justify-center text-left bg-black py-24">
-  <div class="max-w-[850px] w-full">
+<section data-ls-keep class="home-approach reveal-trigger relative w-full min-h-[100svh] px-[var(--page-padding)] flex flex-col items-center justify-center text-center bg-black py-24">
+  <div class="max-w-[1000px] w-full">
 
-    <!-- Title: the two sentences sit on their own lines so the statement reads
-         in two beats. The per-line split and stagger are still measured at
-         runtime from the real rendered line boxes. -->
+    <!-- Title: the authored break holds the statement in two beats. The block
+         is kept out of the per-line splitter so the break survives and
+         text-wrap decides the real lines at every width. -->
     <h2 class="text-white mb-12">
       <span class="brands-line-mask">
         <span class="brands-line-inner" set:html={title}></span>
@@ -17,7 +17,7 @@ const body = "Direction before execution. Structure before expression. Reduced t
     </h2>
 
     <!-- Description -->
-    <div class="max-w-[500px] mb-10">
+    <div class="max-w-[500px] mx-auto mb-10">
         <div class="brands-line-mask">
             <p class="brands-line-inner text-white/80" style="transition-delay: 0.4s;">
               {body}

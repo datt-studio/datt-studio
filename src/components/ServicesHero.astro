@@ -1,9 +1,9 @@
 ---
-// AboutHero.astro
+// ServicesHero.astro
 const lines = [
-  "Identity. Systems. Digital. Frictionless frameworks engineered for commercial scale and visual permanence. No noise. Restrained expression. Absolute presence.",
-  "Built with structure.",
-  "Made to last.",
+  "Identity. Systems. Digital.",
+  "Frictionless frameworks engineered for<br />commercial scale and visual permanence.<br />No noise. Restrained expression.<br />Absolute presence.",
+  "Built with structure. Made to last.",
 ];
 ---
 
@@ -16,7 +16,7 @@ const lines = [
     <div class="brands-line-mask">
       <div class="brands-line-inner">
         {lines.map((line) => (
-          <h1 class="hero-title mb-12 md:mb-16">{line}</h1>
+          <h1 class="hero-title mb-8 md:mb-10" set:html={line}></h1>
         ))}
       </div>
     </div>
@@ -27,7 +27,8 @@ const lines = [
 <style is:global>
   /* 1. TYPE SYSTEM INTEGRATION */
   .info-hero-section .hero-title {
-    font-size: var(--font-h1);
+    /* Same display step as the News H1 and Contact's "Let's talk." */
+    font-size: var(--font-h2);
     font-weight: 600;
     line-height: var(--lh-xtight);
     letter-spacing: var(--track-tighter);

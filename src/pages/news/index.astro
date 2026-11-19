@@ -114,11 +114,17 @@ const description =
   .news-card p {
     text-wrap: balance;
   }
+  /* Match the Contact page's "Let's talk." display size: both use the H2 step,
+     so the News H1 reads at the same scale wherever the type variables resolve. */
+  .news-hero h1 {
+    font-size: var(--font-h2);
+  }
   .news-grid {
     display: grid;
     grid-template-columns: 1fr;
-    /* 64px between rows of cards, 8px between columns */
-    row-gap: 4rem;
+    /* Keep the original horizontal gutter; only open up the space between one
+       row of cards and the next. */
+    row-gap: 7rem;
     column-gap: 0.5rem;
     list-style: none;
     margin: 0;

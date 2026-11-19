@@ -606,6 +606,14 @@ const videoLd = {
         // reveal, where the inline markup and its metrics stay intact.
         if (el.closest('[data-prose]') && el.querySelector('code, a, strong, em, sup, sub, br')) return true;
 
+        /* Approach sections take their column width from a nav measurement at
+           runtime and their titles carry authored <br> breaks. A split measured
+           before that width settles freezes lines at the wrong width, and the
+           write pass drops the <br>. A late font or layout change then strands
+           words on their own line. Keep these blocks intact so the authored
+           breaks and text-wrap decide the real lines, as on the article. */
+        if (el.closest('[data-ls-keep]')) return true;
+
         // The hero binds a mouseenter handler to .trigger-line on its own
         // "Made to hold." segment, and .has-trigger carries the underline and
         // hover rules this script wrote onto a specific element. That segment

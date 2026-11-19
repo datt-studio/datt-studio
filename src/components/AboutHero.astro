@@ -1,7 +1,7 @@
 ---
 // InfoSection.astro
-const part1 = "DATT STUDIO is an award-winning creative studio shaping distinctive brand identities, digital experiences, and design systems through strategy and careful execution.";
-const part2 = "We value restraint over noise, reducing your brand to what matters only. Designed for clarity. Built to hold.";
+const part1 = "DATT STUDIO is an award-winning creative studio shaping distinctive brand identities, digital experiences, and design systems through strategy and careful execution. We value restraint over noise, reducing your brand to what matters only.";
+const part2 = "Designed for clarity. Built to hold.";
 ---
 
 <section class="info-section px-[var(--page-padding)] pt-[120px] pb-20 md:pb-40 bg-black">
@@ -12,7 +12,7 @@ const part2 = "We value restraint over noise, reducing your brand to what matter
          last line of the first, rather than both beginning together. -->
     <div class="brands-line-mask">
       <div class="brands-line-inner flex flex-col">
-        <h1 class="hero-title mb-12 md:mb-16">{part1}</h1>
+        <h1 class="hero-title mb-8 md:mb-10">{part1}</h1>
         <h1 class="hero-title">{part2}</h1>
       </div>
     </div>
@@ -22,7 +22,8 @@ const part2 = "We value restraint over noise, reducing your brand to what matter
 
 <style is:global>
   .info-section .hero-title {
-    font-size: var(--font-h1); /* Restored to H1 */
+    /* Same display step as the News H1 and Contact's "Let's talk." */
+    font-size: var(--font-h2);
     font-weight: 600;
     line-height: var(--lh-xtight);
     letter-spacing: var(--track-tighter);
