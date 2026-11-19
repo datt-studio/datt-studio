@@ -73,7 +73,7 @@ It was wrong for a studio whose position is clarity. A translucent, floating nav
 
 <table>
 <thead>
-<tr><th></th><th scope="col">Before</th><th scope="col">After</th></tr>
+<tr><th scope="col"><span class="sr-only">Measure</span></th><th scope="col">Before</th><th scope="col">After</th></tr>
 </thead>
 <tbody>
 <tr><th scope="row">Transferred, mobile</th><td>6.66 MB</td><td>126,570 B (123.6 KiB / 126.6 KB)</td></tr>

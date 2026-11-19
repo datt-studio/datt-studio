@@ -1,58 +1,77 @@
 ---
 title: "Built to include"
 date: 2026-10-26
-summary: "The accessibility decisions in this build: touch targets, keyboard order, measured contrast, a motion switch offered on arrival, and a layout that holds on older devices."
-draft: true
+summary: "How we built this site for more people: motion control on arrival, clear touch targets, a readable page order, measured contrast, and a layout that holds on older devices."
+draft: false
+cover: /news/accessibility1.webp
+coverAlt: "The DATT Studio footer with the TURN OFF MOTION control visible beside the privacy links."
 ---
 
-Inclusion is a set of decisions, not a feature added at the end. Every choice in a site either opens it to someone or closes it. These are the choices we made in this one, and the reasons behind them.
+We think about who is using the site before we think about how it looks. That affects the type, the spacing, the colour, the order of the page, and the way it moves. We did this work while we could, before more work made proper adjustment harder. This is what we built, and why.
 
-## The first choice is yours
+## You can turn motion off straight away
 
-A first-time visitor sees the cookie banner two seconds after landing. Beside Privacy & Cookie Policy sits Turn off motion. It works before any cookie decision is made, and it works whether cookies are accepted or rejected.
+When someone lands on the site for the first time, the cookie banner appears two seconds later. Beside Privacy & Cookie Policy there is a button: Turn off motion. It works before any cookie choice is made, and it works whether cookies are accepted or rejected.
 
-That placement is deliberate. Motion is the thing most likely to end a visit early for someone with a vestibular disorder. Asking them to find a settings page, or to accept cookies first, puts the exit behind two doors. So the control sits in the first thing they see, and it says what it does.
+We put it there for a reason. For some people, motion on a page is enough to make them leave. We did not want that control hidden in a settings page, and we did not want it waiting behind a cookie decision. It needed to be available on arrival.
 
-The button is a switch, not a one-way door. Press it and it reads Turn motion on. Press it again and the site moves as it did before.
+<figure>
+  <img src="/news/accessibility2.webp" alt="The cookie banner with the TURN OFF MOTION switch beside the Privacy &amp; Cookie Policy link." width="1600" height="900" loading="lazy" decoding="async" />
+  <figcaption>The motion switch sits in the cookie banner, before any consent choice is made.</figcaption>
+</figure>
 
-The same control lives on the Accessibility Statement. It turns off every animation and transition, pauses any video already playing, and is remembered in the browser. Change it in one place and the other follows, including a second tab. The operating system preference is respected too, so a visitor who has already asked their device for less motion gets it without touching ours.
+The button is a switch. Press it and it reads Turn motion on. Press it again and motion returns.
 
-When motion is off, nothing is left half finished. Animation and transition durations fall to almost zero, smooth scrolling stops, and the line-by-line text reveals are skipped so the copy is simply there. A reduced experience is not a reduced page.
+The same control is in the footer, on the Accessibility Statement, and on error pages. Turning it off stops animations and transitions, pauses any video already playing, and saves the choice in the browser. Change it in one place and the others follow, including a second tab. If someone has already asked their device for less motion, we respect that too.
 
-## Touch targets are sized for a thumb
+When motion is off, the page still works as a whole. Animations and transitions drop away, smooth scrolling stops, and the line-by-line text reveals do not run. The content is simply there.
 
-The rows in the mobile menu are 48px tall and full width, with real space between them, so a thumb cannot land on the neighbouring link. The secondary rows in that menu, the social links, are 36px. The legal and social links in the footer use the same 36px row below the desktop breakpoint.
+## Touch targets sized for real use
 
-WCAG 2.2 sets the minimum target at 24px. We put the primary navigation well above it, because the menu is where a mis-tap costs the most. A target is not only a size on a screen. It is the difference between arriving somewhere and starting again.
+In the mobile menu, the main rows are 48px tall and full width, with space between them. That gives a thumb room to hit the right link. The secondary rows in that menu, including social links, are 36px. The legal and social links in the footer use the same 36px row on smaller screens.
 
-## The order you can follow
+WCAG 2.2 Level AA sets the minimum target size at 24px. We went higher for the main navigation because a mis-tap there sends someone to the wrong place.
 
-The page is built in the order it is read: header, article, share row, footer. Tab follows the same path. Nothing that looks interactive is a plain box. Links are links, the motion control and the share actions are buttons, and each share icon carries a name a screen reader can read, such as Share on LinkedIn, rather than the abbreviation printed on screen. When Instagram copies the link, a status message announces Link copied, so the confirmation is not only visual.
+## A page order that makes sense
 
-Headings carry the structure. One `h1` per page, `h2` for sections, `h3` beneath. In the comparison tables, the label down the left is marked as a row header, so a screen reader announces what each figure belongs to instead of reading a row of numbers with no subject. Images carry alt text that describes them. Decorative pieces are hidden from the accessibility tree rather than described as decoration.
+The page is built in the order it is read: header, content, share row, footer. Tabbing follows the same path.
 
-## Colour is measured, not judged
+Interactive elements behave like what they are. Links are links. The motion control and share actions are buttons. Each share icon has a name a screen reader can read, such as Share on LinkedIn, not just the letters shown on screen. When Instagram copies the link, a status message announces Link copied so the result is not only visual.
 
-The palette was chosen, then measured. A colour can look resolved on a studio screen and fail on a phone in daylight, so we worked to ratios rather than to taste alone.
+<figure>
+  <img src="/news/accessibility3.webp" alt="The selected state visible while tabbing through the site navigation." width="1600" height="900" loading="lazy" decoding="async" />
+  <figcaption>Focus stays visible as the keyboard moves through selected controls.</figcaption>
+</figure>
 
-On the light pages, body copy is `#131313` on `#FAFAFA`, 17.8:1. The grey email link is `#5F5F5F` on the same background, 6.1:1. On the black pages, body copy is `#B4B4B4` on `#000000`, 10.1:1, and the quieter labels sit at `#7E7E7E`, 5.2:1. In the cookie banner, the secondary links are `#808080` on `#0A0A0A`, 5.0:1.
+Headings follow a clear structure: one `h1` per page, `h2` for sections, `h3` beneath. In comparison tables, the label on the left is marked as a row header so a screen reader can tell what each figure refers to. Images have alt text that describes them. Decorative elements are hidden from assistive technology.
 
-WCAG 2.2 AA asks for 4.5:1 for normal text and 3:1 for large text. Every pair above clears the higher bar. The numbers matter less than what they make possible. They mean the decision can be checked by anyone, including us, long after the page is finished.
+## Colour checked by numbers
 
-## Made for the device you already have
+We chose the palette, then measured it. A colour can look fine on a studio screen and be hard to read on a phone in daylight, so we checked contrast ratios rather than relying on how it felt.
 
-The site is built to hold on the device someone owns, not the one on the desk in the studio. The layout starts at 320px and scales with the viewport rather than switching between fixed widths. Type is fluid, with a separate step for tablets between 768 and 1023px, so a headline does not arrive at desktop size on a small screen.
+The live site is dark. On dark pages, body copy is `#B4B4B4` on `#000000`, 10.1:1, and quieter labels are `#7E7E7E`, 5.2:1. In the cookie banner, secondary links are `#808080` on `#0A0A0A`, 5.0:1. The Share label and the Link copied confirmation sit at `#808080` on black, 5.3:1.
 
-The hero video is not downloaded until it is needed. It ships with a poster and `preload="none"`, and only warms on a device with a fine pointer and motion left on. A phone on a slow connection pays for the headline, the type and the poster, not for a film it did not ask to see. Images below the fold load lazily and decode off the main thread. The font is a self-hosted subset with `font-display: swap`, so text is readable before the font lands.
+The light palette is retained as a fallback and for future iterations of the site: body copy `#131313` on `#FAFAFA`, 17.8:1, and the grey email link `#5F5F5F` on the same background, 6.1:1.
 
-Hover is treated as an enhancement. Effects that depend on a cursor sit behind a check for a device that actually has one, so a touch screen never inherits a hover state it cannot clear. Motion stays optional throughout. The page holds on an older phone because the weight arrives in the order it is needed.
+<figure>
+  <img src="/news/accessibility4.webp" alt="The dark palette and the light fallback, with hex values and contrast ratios beside each colour pair." width="1600" height="900" loading="lazy" decoding="async" />
+  <figcaption>Contrast ratios are written beside each colour pair, not judged by eye.</figcaption>
+</figure>
 
-## Inclusion is a design decision
+WCAG 2.2 AA asks for 4.5:1 for normal text and 3:1 for large text. Every pair above meets the higher bar. The point is simple: we can check these choices again later, and so can anyone else.
 
-None of this is a certificate. Accessibility is not a state a site reaches and keeps. It is the habit of asking who is not in the room while the work is being made.
+## Built to hold up on older devices
 
-The Accessibility Statement names WCAG 2.2 Level AA as the target, and it gives a route to tell us when we miss it. That route matters as much as the target. A standard without a way to report a failure is only a claim.
+We built the site to work on the device someone already has. The layout starts at 320px and scales with the viewport. Type is fluid, with a separate step for tablets between 768 and 1023px so headings do not jump to desktop size too early.
 
-We think about inclusion in the type, the spacing, the colour, the order of the page and the way it moves. We think about it when a control is placed and when a sentence is written. Where we find something that does not hold, we fix it and say so.
+The hero video does not download until it is needed. It uses a poster and `preload="none"`, and it only warms up on devices with a fine pointer and motion left on. On a slower phone connection, the page loads the headline, the text, and the poster first.
 
-That is what inclusion means here. Not a page about accessibility. A site that assumes everyone is coming.
+Images below the fold load lazily and decode off the main thread. The font is a self-hosted subset with `font-display: swap`, so text stays readable before the font arrives.
+
+Hover effects only apply where a device actually has hover. A touch screen does not get stuck with a hover state it cannot clear. Motion remains optional across the site.
+
+## We keep checking
+
+We do not treat accessibility as finished. We checked the site against WCAG 2.2 Level A and AA, then added best-practice checks for names, landmarks and page structure. The Accessibility Statement sets WCAG 2.2 Level AA as our target and gives people a way to tell us when something does not work. A standard is only useful if there is a clear way to report a problem.
+
+Where we find an issue, we fix it and say so. That is the approach we are taking here: make the site easier to use for more people, and keep improving it as we go.

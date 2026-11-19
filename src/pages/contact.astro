@@ -16,8 +16,10 @@ import Footer from '../components/Footer.astro';
     <!-- 2. Header stays inverted (white) -->
     <Header isInverted={true} />
 
-    <main class="flex-none">
-       <!-- Empty or specific contact content -->
+    <main id="main-content" tabindex="-1" class="flex-none">
+       <!-- The page is carried by the footer contact block. A visually hidden
+            heading names the landmark for screen-reader users. -->
+       <h1 class="sr-only">Contact DATT STUDIO</h1>
     </main>
 
     <Footer isInverted={true} />

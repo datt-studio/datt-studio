@@ -130,6 +130,22 @@ const { isInverted = false } = Astro.props;
     opacity: 1 !important;
   }
 
+  /* WCAG 2.2 target size: legal and social links are 12px labels. Padding
+     lifts each row to 24px without changing the type scale. */
+  #site-footer .footer-legal a,
+  #site-footer .footer-follow a {
+    padding-top: 4px;
+    padding-bottom: 4px;
+  }
+
+  /* WCAG 2.2 target size: the footer email links sit on their own line, so
+     they take a 24px row rather than the 18px line box. */
+  #site-footer .secure-email-copy {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+  }
+
   /* The email underlines arrive after the words. Each is held undrawn
      (scaleX(0)) while its address flips in, then draws itself one beat later,
      so the rule follows the copy instead of arriving with it. This is tied to
@@ -162,13 +178,17 @@ const { isInverted = false } = Astro.props;
     font-family: inherit;
     text-align: left;
     transition: opacity 0.4s var(--ease-mechanical);
+    /* WCAG 2.2 target size: a 24px hit area for the 11px label. */
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
   }
   .footer-motion-toggle:hover {
     opacity: 1;
   }
   .footer-motion-toggle:focus-visible {
     opacity: 1;
-    outline: 1px solid currentColor;
+    outline: 2px solid currentColor;
     outline-offset: 2px;
   }
 

@@ -256,13 +256,50 @@ const videoLd = {
 
 
       * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
-      html { background: #FAFAFA; overflow-anchor: none; }
+      html { background: #FAFAFA; overflow-anchor: none; scroll-padding-top: 96px; }
       body {
         background: #FAFAFA; color: #131313; font-family: 'Inter', sans-serif;
         font-feature-settings: 'ss01' on, 'ss02' on, 'cv01' on, 'cv11' on, 'calt' on;
         overflow-x: hidden;
       }
       html.page-dark, body.page-dark { background-color: #000000 !important; color-scheme: dark; }
+
+
+      /* --- VISIBLE FOCUS ---
+         Every keyboard-operable control gets the same visible ring. Component
+         styles can still refine it, but none can remove it. */
+      :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+        outline: 2px solid currentColor;
+        outline-offset: 3px;
+      }
+
+      /* --- SKIP LINK ---
+         First focusable element on every page. It sits above the fixed header
+         so a keyboard or screen-reader user can jump the navigation entirely. */
+      .skip-link {
+        position: fixed;
+        top: 8px;
+        left: 50%;
+        transform: translate(-50%, -160%);
+        z-index: 100002;
+        background: #FAFAFA;
+        color: #131313;
+        padding: 10px 16px;
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        text-decoration: none;
+        transition: transform 0.25s var(--ease-mechanical);
+      }
+      .skip-link:focus-visible {
+        transform: translate(-50%, 0);
+        outline: 2px solid #131313;
+        outline-offset: 2px;
+      }
+      /* The skip link moves focus to <main>, which is a container rather than a
+         control. The ring belongs on the link above, not on the whole page. */
+      #main-content:focus { outline: none; }
 
 
       /* GLOBAL TYPOGRAPHY */
@@ -399,7 +436,8 @@ const videoLd = {
 
       /* GLOBAL CTA SYSTEM */
       .cta-link {
-        display: inline-block; position: relative; text-decoration: none !important;
+        display: inline-flex; align-items: center; min-height: 24px;
+        position: relative; text-decoration: none !important;
         color: currentColor; font-size: var(--font-label); font-weight: 600;
         text-transform: uppercase; letter-spacing: var(--track-wide); padding-bottom: 4px;
         transition: color 0.4s var(--ease-mechanical);
@@ -481,6 +519,7 @@ const videoLd = {
     </style>
   </head>
   <body class:list={[{ "page-dark": isDark }]} data-linesplit={lineSplit ? 'on' : undefined}>
+    <a href="#main-content" class="skip-link">Skip to content</a>
     <slot />
     <CookieBanner />
 
@@ -552,6 +591,14 @@ const videoLd = {
         // their own scroll trigger (.prose-in), not the section-wide .is-active,
         // and the article stylesheet keeps the generated line masks closed until
         // their block enters. See news/[...slug].astro.
+
+        // The write pass replaces each measured line with text nodes. Inline
+        // elements inside a prose block (code, links, emphasis) would be lost,
+        // so the font measured in the read pass is not the font rendered in the
+        // masks. That mismatch makes a measured line wrap again and leaves
+        // orphan words on their own line. Keep those blocks on the single block
+        // reveal, where the inline markup and its metrics stay intact.
+        if (el.closest('[data-prose]') && el.querySelector('code, a, strong, em, sup, sub, br')) return true;
 
         // The hero binds a mouseenter handler to .trigger-line on its own
         // "Made to hold." segment, and .has-trigger carries the underline and

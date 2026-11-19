@@ -23,13 +23,13 @@ const posterSrc = "/assets/video-poster-retina.webp";
 </div>
 
 <!-- 2. THE VIDEO PORTAL -->
-<div id="hero-portal-node" class="fixed inset-0 z-[2000] opacity-0 pointer-events-none transition-opacity duration-700 ease-[var(--ease-mechanical)]">
+<div id="hero-portal-node" role="dialog" aria-modal="true" aria-label="DATT STUDIO showreel" aria-hidden="true" inert class="fixed inset-0 z-[2000] opacity-0 pointer-events-none transition-opacity duration-700 ease-[var(--ease-mechanical)]">
     <!-- PORTAL CONTROLS -->
     <div id="hero-portal-controls" class="absolute inset-x-0 bottom-0 z-[200] opacity-0 pointer-events-none px-[var(--page-padding)] pb-12">
         <div class="flex items-end justify-between gap-4">
-            <button id="hero-pause" class="portal-btn link-underline">PAUSE</button>
-            <button id="hero-mute" class="portal-btn link-underline">UNMUTE</button>
-            <button id="hero-close" class="portal-btn link-underline">CLOSE</button>
+            <button id="hero-pause" type="button" class="portal-btn link-underline">PAUSE</button>
+            <button id="hero-mute" type="button" class="portal-btn link-underline">UNMUTE</button>
+            <button id="hero-close" type="button" class="portal-btn link-underline">CLOSE</button>
         </div>
     </div>
 
@@ -73,8 +73,8 @@ const posterSrc = "/assets/video-poster-retina.webp";
 
   .headline-line {
     display: block !important;
-    white-space: nowrap;
     width: fit-content;
+    max-width: 100%;
     transition: opacity 0.8s var(--ease-mechanical), transform 0.8s var(--ease-mechanical);
   }
 
@@ -102,6 +102,23 @@ const posterSrc = "/assets/video-poster-retina.webp";
      not sit flush against the descenders. */
   .trigger-line { padding-bottom: 9px; }
   .trigger-line::after { height: 4px; }
+
+  /* "Made to hold." is a real button so it is reachable and operable from the
+     keyboard. This reset keeps the headline typography and drops the native
+     chrome, leaving the underline system untouched. */
+  .trigger-button {
+    appearance: none;
+    -webkit-appearance: none;
+    background: none;
+    border: 0;
+    margin: 0;
+    padding: 0 0 9px;
+    font: inherit;
+    letter-spacing: inherit;
+    line-height: inherit;
+    text-align: left;
+    color: #fff !important;
+  }
 
   /* 2. Video Control Buttons: 2px weight & Very Close */
   .link-underline { padding-bottom: 0.2px; }
@@ -168,7 +185,9 @@ const posterSrc = "/assets/video-poster-retina.webp";
   /* --- PORTAL CONTROL BUTTONS (dedicated, no brand-line styling) --- */
   .portal-btn {
     position: relative;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
     color: #fff;
     font-weight: 700;
     text-transform: uppercase;
@@ -280,7 +299,10 @@ const posterSrc = "/assets/video-poster-retina.webp";
     headline.innerHTML = parts.map((t, i) => {
       const text = t.trim();
       const isTrigger = text.toLowerCase().includes("made to hold");
-      return `<span class="brands-line-mask headline-line ${isTrigger ? 'has-trigger' : ''}"><span class="brands-line-inner ${isTrigger ? 'trigger-line' : ''}" style="transition-delay: ${i * 0.1}s${isTrigger ? '' : `; --ls-base: ${i * 0.1}s`}">${text}</span></span>`;
+      const inner = isTrigger
+        ? `<button type="button" class="brands-line-inner trigger-line trigger-button" style="transition-delay: ${i * 0.1}s">${text}</button>`
+        : `<span class="brands-line-inner" style="transition-delay: ${i * 0.1}s; --ls-base: ${i * 0.1}s">${text}</span>`;
+      return `<span class="brands-line-mask headline-line ${isTrigger ? 'has-trigger' : ''}">${inner}</span>`;
     }).join('');
 
     /* Route the hero through the same per-line splitter as every other
@@ -320,11 +342,16 @@ const posterSrc = "/assets/video-poster-retina.webp";
             portalVideo.muted = false;
             document.getElementById('hero-mute').innerText = "MUTE";
             portal.classList.add('is-open');
+            portal.removeAttribute('inert');
+            portal.removeAttribute('aria-hidden');
 
             if (portalVideo.readyState >= 1) {
                 portalVideo.currentTime = bgVideo.currentTime;
             }
             portalVideo.play().catch(() => {});
+            // The portal is a dialog, so focus follows it in. CLOSE is the
+            // first control a keyboard user needs.
+            document.getElementById('hero-close').focus();
         };
     }
 
@@ -334,9 +361,45 @@ const posterSrc = "/assets/video-poster-retina.webp";
       document.documentElement.classList.remove('is-video-locked');
       document.body.classList.remove('video-active');
       portal.classList.remove('is-open');
+      portal.setAttribute('aria-hidden', 'true');
+      portal.setAttribute('inert', '');
       portalVideo.pause();
       bgVideo.pause();
+      if (trigger) trigger.focus();
     };
+
+    // Escape closes the reel from anywhere in the portal.
+    if (!window.__dattHeroEscape) {
+      window.__dattHeroEscape = true;
+      document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') return;
+        const p = document.getElementById('hero-portal-node');
+        if (p && p.classList.contains('is-open')) {
+          e.preventDefault();
+          document.getElementById('hero-close')?.click();
+        }
+      });
+    }
+
+    // The portal is modal: keep Tab inside its three controls.
+    if (!portal.__dattTrap) {
+      portal.__dattTrap = true;
+      portal.addEventListener('keydown', (e) => {
+        if (e.key !== 'Tab') return;
+        const items = Array.from(portal.querySelectorAll('button:not([disabled])'))
+          .filter((el) => el.offsetWidth > 0 || el.offsetHeight > 0);
+        if (!items.length) return;
+        const first = items[0];
+        const last = items[items.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      });
+    }
 
     document.getElementById('hero-pause').onclick = (e) => {
         if (portalVideo.paused) { portalVideo.play().catch(() => {}); e.currentTarget.innerText = "PAUSE"; }

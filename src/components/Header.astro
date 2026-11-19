@@ -9,7 +9,7 @@ const { isInverted = false } = Astro.props;
        right margin, and the rest spread with equal space between them. The equal
        gaps come from justify-between on this row, so the logo and the links are
        all direct children rather than split across two boxes. -->
-  <nav class:list={[
+  <nav aria-label="Primary" class:list={[
     "flex justify-between items-start w-full text-label",
     isInverted ? "text-white" : "text-black"
   ]}>
@@ -27,7 +27,7 @@ const { isInverted = false } = Astro.props;
     <a href="/contact/" class="desktop-nav-link hidden md:block">Contact</a>
 
     <!-- MOBILE TOGGLE: Hooked into global .cta-link -->
-    <button id="menu-toggle" class:list={[
+    <button id="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-overlay" class:list={[
       "md:hidden cta-link border-none bg-transparent cursor-pointer transition-colors duration-700 !text-[18px]",
       isInverted ? "text-white" : "text-black"
     ]}>
@@ -37,13 +37,13 @@ const { isInverted = false } = Astro.props;
 </header>
 
 <!-- MOBILE OVERLAY -->
-<div id="mobile-overlay" class="fixed inset-0 z-[1100] hidden bg-black/95 backdrop-blur-[40px] flex-col px-[var(--page-padding)] pt-4 overflow-y-auto">
+<div id="mobile-overlay" role="dialog" aria-modal="true" aria-label="Site menu" aria-hidden="true" class="fixed inset-0 z-[1100] hidden bg-black/95 backdrop-blur-[40px] flex-col px-[var(--page-padding)] pt-4 overflow-y-auto">
   <div class="flex justify-between items-start w-full text-white">
     <a href="/" class="font-bold uppercase text-[18px] md:text-[14px] tracking-[0.05em]">DATT STUDIO</a>
     <button id="menu-close" class="cta-link text-white border-none bg-transparent cursor-pointer !text-[18px]">CLOSE</button>
   </div>
 
-  <nav class="flex flex-col items-stretch mt-9 gap-y-3">
+  <nav aria-label="Mobile" class="flex flex-col items-stretch mt-9 gap-y-3">
     {[
       { label: 'Home', href: '/' },
       { label: 'About', href: '/about/' },
@@ -85,6 +85,21 @@ const { isInverted = false } = Astro.props;
   /* Local color overrides only - transitions are handled by global classes */
   .desktop-nav-link { transition: color 0.4s var(--ease-mechanical); }
   .desktop-nav-link:hover { color: var(--studio-grey) !important; }
+
+  /* TARGET SIZE: the nav labels are 20px tall. The padding extends the hit area
+     to 28px without moving the text off the header baseline. */
+  #main-header .nav-logo,
+  #main-header .desktop-nav-link {
+    padding-bottom: 8px;
+  }
+  #menu-toggle,
+  #menu-close {
+    min-height: 32px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
 
   /* MOBILE MENU TOUCH TARGETS
      Every row is a full-width 48px tap target with real space between rows, so
@@ -152,10 +167,18 @@ const { isInverted = false } = Astro.props;
     const closeBtn = document.getElementById('menu-close');
     if (!overlay || !toggle || !closeBtn) return;
 
-    function toggleMenu(show) {
+    function focusableItems() {
+      return Array.from(
+        overlay.querySelectorAll('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])')
+      ).filter((el) => el.offsetWidth > 0 || el.offsetHeight > 0);
+    }
+
+    function toggleMenu(show, restoreFocus = true) {
       if (show) {
         document.body.style.overflow = 'hidden';
         overlay.style.display = 'flex';
+        overlay.removeAttribute('aria-hidden');
+        toggle.setAttribute('aria-expanded', 'true');
         void overlay.offsetWidth; // Force reflow
         // Split now that the overlay is laid out and rects are measurable.
         // At load the overlay is display:none, so the splitter could not read
@@ -168,12 +191,20 @@ const { isInverted = false } = Astro.props;
         overlay.querySelectorAll('.brands-line-inner').forEach(el => {
           el.classList.add('is-active');
         });
+
+        // The overlay is a dialog: keyboard focus goes to its first control.
+        closeBtn.focus();
       } else {
         overlay.classList.remove('is-active');
+        toggle.setAttribute('aria-expanded', 'false');
         // Reset the animation state for the next open
         overlay.querySelectorAll('.brands-line-inner').forEach(el => {
           el.classList.remove('is-active');
         });
+
+        // Move focus out before hiding the dialog from assistive technology.
+        if (restoreFocus) toggle.focus();
+        overlay.setAttribute('aria-hidden', 'true');
 
         setTimeout(() => {
           if (!overlay.classList.contains('is-active')) {
@@ -188,8 +219,34 @@ const { isInverted = false } = Astro.props;
     closeBtn.onclick = () => toggleMenu(false);
 
     overlay.querySelectorAll('a').forEach(link => {
-      link.onclick = () => toggleMenu(false);
+      // Let the navigation happen; do not pull focus back to the toggle first.
+      link.onclick = () => toggleMenu(false, false);
     });
+
+    if (!overlay.__dattMenuKeys) {
+      overlay.__dattMenuKeys = true;
+      overlay.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          toggleMenu(false);
+          return;
+        }
+        if (e.key !== 'Tab') return;
+
+        const items = focusableItems();
+        if (!items.length) return;
+        const first = items[0];
+        const last = items[items.length - 1];
+
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      });
+    }
   }
 
   // Initialize

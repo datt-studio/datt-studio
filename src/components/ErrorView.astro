@@ -15,7 +15,7 @@ const digits = (code ?? 'ERR').split('');
 <Layout title={`${code} — ${message}`} isDark={true} robots="noindex, follow">
   <div class="error-page-wrapper">
     <Header />
-    <main class="error-content px-[var(--page-padding)]">
+    <main id="main-content" tabindex="-1" class="error-content px-[var(--page-padding)]">
 
       <div class="error-code-container">
         <h1 class="error-code">
@@ -41,19 +41,58 @@ const digits = (code ?? 'ERR').split('');
             <a href="/" class="cta-link inverted-cta">Return Home</a>
           </div>
         </div>
+        <!-- The digits loop forever, so this page carries its own motion
+             control. It writes the same key as the cookie banner and footer,
+             and the choice holds across the rest of the site. -->
+        <div class="brands-line-mask inline-block">
+          <div class="brands-line-inner" style="transition-delay: 0.3s">
+            <button id="error-motion-toggle" type="button" class="error-motion-toggle">Turn off motion</button>
+          </div>
+        </div>
       </footer>
     </main>
   </div>
-</Layout>
 
-<script is:inline>
-  function triggerErrorReveal() {
-    const footer = document.getElementById('error-footer');
-    if (footer) setTimeout(() => footer.classList.add('is-active'), 150);
-  }
-  triggerErrorReveal();
-  document.addEventListener('astro:after-swap', triggerErrorReveal);
-</script>
+  <script is:inline>
+    function triggerErrorReveal() {
+      const footer = document.getElementById('error-footer');
+      if (footer) setTimeout(() => footer.classList.add('is-active'), 150);
+    }
+    triggerErrorReveal();
+    document.addEventListener('astro:after-swap', triggerErrorReveal);
+
+    function initErrorMotionToggle() {
+      const MOTION_KEY = 'datt_studio_reduced_motion';
+      const paint = () => {
+        const btn = document.getElementById('error-motion-toggle');
+        if (!btn) return;
+        btn.textContent = document.documentElement.classList.contains('user-reduced-motion')
+          ? 'Turn motion on'
+          : 'Turn off motion';
+      };
+      // The inline script can run before the footer is parsed, and a view
+      // transition can replace the button later. One delegated listener on
+      // the document survives both, so the control is never inert.
+      if (!window.__dattErrorMotionDelegated) {
+        window.__dattErrorMotionDelegated = true;
+        document.addEventListener('click', (e) => {
+          const btn = e.target.closest && e.target.closest('#error-motion-toggle');
+          if (!btn) return;
+          e.preventDefault();
+          const active = document.documentElement.classList.toggle('user-reduced-motion');
+          localStorage.setItem(MOTION_KEY, String(active));
+          if (active) document.querySelectorAll('video').forEach((v) => v.pause());
+          paint();
+          window.dispatchEvent(new CustomEvent('datt:motionchange'));
+        });
+        window.addEventListener('datt:motionchange', paint);
+      }
+      paint();
+    }
+    initErrorMotionToggle();
+    document.addEventListener('astro:after-swap', initErrorMotionToggle);
+  </script>
+</Layout>
 
 <style is:global>
   /* Keep all your existing CSS here */
@@ -69,6 +108,21 @@ const digits = (code ?? 'ERR').split('');
     92% { transform: translateY(-110%) rotateX(115deg); opacity: 0; }
     100% { transform: translateY(110%) rotateX(-115deg); opacity: 0; }
   }
+  /* The digits loop forever. With motion off, hold the number still and fully
+     visible instead of letting the global kill-switch leave it on the final
+     keyframe, which is transparent. */
+  html.user-reduced-motion .digit-inner {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .digit-inner {
+      animation: none !important;
+      opacity: 1;
+      transform: none;
+    }
+  }
   .error-footer .brands-line-mask { display: block; overflow: hidden; perspective: 1200px; padding-top: 0.2em; padding-bottom: 0.2em; margin-top: -0.2em; margin-bottom: -0.2em; }
   .error-footer .brands-line-inner { display: block; transform: translateY(115%) rotateX(-60deg); transform-origin: top center; opacity: 0; transition: transform 1.3s var(--ease-mechanical), opacity 0.9s var(--ease-mechanical); will-change: transform, opacity; }
   .error-footer.is-active .brands-line-inner { transform: translateY(0) rotateX(0deg) !important; opacity: 1 !important; }
@@ -76,6 +130,28 @@ const digits = (code ?? 'ERR').split('');
   .error-footer p { font-size: var(--font-h3); font-weight: 600; letter-spacing: var(--track-tight); line-height: 1.1; max-width: 450px; }
   .error-page-wrapper .cta-link.inverted-cta { color: #FFFFFF !important; font-size: var(--font-label); font-weight: 600; text-transform: uppercase; letter-spacing: var(--track-wide); }
   .error-page-wrapper .cta-link.inverted-cta::after { background: #FFFFFF !important; }
+  /* Page-level motion control. Styled as a quiet label rather than a second
+     CTA, but given a 24px hit area for WCAG 2.2 target size. */
+  .error-motion-toggle {
+    appearance: none;
+    -webkit-appearance: none;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #808080;
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    transition: color 0.4s var(--ease-mechanical);
+  }
+  .error-motion-toggle:hover { color: #FFFFFF; }
   @media (max-width: 768px) {
     .error-code { font-size: clamp(6rem, 45vw, 14rem); letter-spacing: -0.01em; gap: 0.02em; }
     .error-footer p { font-size: 24px; }

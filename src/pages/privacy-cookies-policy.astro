@@ -34,7 +34,7 @@ const lastUpdated = "16 June 2026";
     .policy-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   </style>
 
-  <main id="main-content" class="reveal-trigger w-full max-w-[1440px] pt-[120px] px-[var(--page-padding)] pb-32 bg-black text-white">
+  <main id="main-content" tabindex="-1" class="reveal-trigger w-full max-w-[1440px] pt-[120px] px-[var(--page-padding)] pb-32 bg-black text-white">
     <div class="flex flex-col md:flex-row w-full gap-y-16 md:gap-x-24">
 
       <article class="w-full md:w-[65%] flex flex-col">
@@ -65,7 +65,7 @@ const lastUpdated = "16 June 2026";
                 <!-- 1. Controller -->
                 <div class="brands-line-mask">
                   <div class="brands-line-inner flex flex-col">
-                    <h4 class="text-white">1. Data Controller & ICO</h4>
+                    <h3 class="text-white legal-subhead">1. Data Controller & ICO</h3>
                     <div class="mt-4"><p>DATT STUDIO LTD is a data controller registered in England (No. 16695845). We process personal data in accordance with the UK GDPR and the Data Protection Act 2018. We maintain active registration with the Information Commissioner’s Office (ICO).</p></div>
                   </div>
                 </div>
@@ -73,7 +73,7 @@ const lastUpdated = "16 June 2026";
                 <!-- 2. Lawful Basis -->
                 <div class="brands-line-mask">
                   <div class="brands-line-inner flex flex-col">
-                    <h4 class="text-white">2. Lawful Basis for Processing</h4>
+                    <h3 class="text-white legal-subhead">2. Lawful Basis for Processing</h3>
                     <div class="mt-4"><p>We process data under the following legal bases: <strong>Consent</strong> for analytical cookies; <strong>Contractual Necessity</strong> for service delivery; and <strong>Legitimate Interests</strong> for responding to enquiries and maintaining site security.</p></div>
                   </div>
                 </div>
@@ -81,7 +81,7 @@ const lastUpdated = "16 June 2026";
                 <!-- 3. AI Protection -->
                 <div class="brands-line-mask">
                   <div class="brands-line-inner flex flex-col">
-                    <h4 class="text-white">3. Usage & AI Protection</h4>
+                    <h3 class="text-white legal-subhead">3. Usage & AI Protection</h3>
                     <div class="mt-4"><p>Personal data is processed solely for service delivery and site analytics. DATT STUDIO LTD guarantees that no personal data collected via this Site - including enquiry info and tracking identifiers - is utilized for automated profiling, machine learning optimization, or the training of third-party AI models.</p></div>
                   </div>
                 </div>
@@ -89,7 +89,7 @@ const lastUpdated = "16 June 2026";
                 <!-- 4. Transfers -->
                 <div class="brands-line-mask">
                   <div class="brands-line-inner flex flex-col">
-                    <h4 class="text-white">4. Third-Party Disclosures & Transfers</h4>
+                    <h3 class="text-white legal-subhead">4. Third-Party Disclosures & Transfers</h3>
                     <div class="mt-4"><p>We do not sell your data. We share information only with essential service providers (e.g., Google Analytics, Vercel). Data may be processed outside the UK/EEA (e.g., on US-based servers). We ensure standard contractual clauses or equivalent safeguards are in place to protect your information.</p></div>
                   </div>
                 </div>
@@ -97,7 +97,7 @@ const lastUpdated = "16 June 2026";
                 <!-- 5. Retention -->
                 <div class="brands-line-mask">
                   <div class="brands-line-inner flex flex-col">
-                    <h4 class="text-white">5. Data Retention</h4>
+                    <h3 class="text-white legal-subhead">5. Data Retention</h3>
                     <div class="mt-4"><p>General enquiry data is held for two years. Contractual and financial records are held for six years in accordance with English statutory limitation periods and HMRC requirements.</p></div>
                   </div>
                 </div>
@@ -105,7 +105,7 @@ const lastUpdated = "16 June 2026";
                 <!-- 6. Rights -->
                 <div class="brands-line-mask">
                   <div class="brands-line-inner flex flex-col">
-                    <h4 class="text-white">6. Your Rights</h4>
+                    <h3 class="text-white legal-subhead">6. Your Rights</h3>
                     <div class="mt-4">
                         <p>You have the right to access, rectify, or erase your data, and to object to processing. Contact our Data Protection Officer:
                         <SecureEmail email="hello@dattstudio.com" className="cta-link !lowercase !text-[16px] !tracking-tight" isInverted={true} />. You also have the right to lodge a complaint with the ICO (ico.org.uk).</p>
@@ -125,14 +125,14 @@ const lastUpdated = "16 June 2026";
                 <div class="flex flex-col gap-y-12">
                   <div class="brands-line-mask">
                     <div class="brands-line-inner flex flex-col">
-                      <h4 class="text-white">1. Analysis & Function</h4>
+                      <h3 class="text-white legal-subhead">1. Analysis & Function</h3>
                       <div class="mt-4"><p>We use cookies to ensure site stability and to analyse traffic via Google Analytics (GA4). Strictly necessary cookies are deployed by default; analytics cookies require your explicit consent.</p></div>
                     </div>
                   </div>
 
                   <div class="brands-line-mask">
                     <div class="brands-line-inner flex flex-col">
-                      <h4 class="text-white">2. Specific Identifiers</h4>
+                      <h3 class="text-white legal-subhead">2. Specific Identifiers</h3>
                       <div class="mt-4 policy-table-wrap">
                         <table class="policy-table">
                           <thead>
@@ -154,10 +154,10 @@ const lastUpdated = "16 June 2026";
                           <div class="mt-2"><p>Full transparency over your local identifiers and current choice status.</p></div>
 
                           <div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 bg-white/5 p-8 border border-white/10 rounded-sm mb-12">
-                              <div><p class="text-label !text-[10px] opacity-40 mb-2">Current Choice</p><div id="log-decision" class="font-semibold text-[13px] uppercase tracking-wider text-white">NO DATA</div></div>
-                              <div><p class="text-label !text-[10px] opacity-40 mb-2">Local ID</p><div id="log-id" class="font-semibold text-[13px] break-all text-white">NOT ASSIGNED</div></div>
-                              <div><p class="text-label !text-[10px] opacity-40 mb-2">Timestamp</p><div id="log-time" class="font-semibold text-[13px] text-white">N/A</div></div>
-                              <div><p class="text-label !text-[10px] opacity-40 mb-2">Global Status</p><div id="nuclear-status" class="font-semibold text-[13px] text-white uppercase tracking-wider">PENDING</div></div>
+                              <div><p class="text-label !text-[10px] opacity-80 mb-2">Current Choice</p><div id="log-decision" class="font-semibold text-[13px] uppercase tracking-wider text-white">NO DATA</div></div>
+                              <div><p class="text-label !text-[10px] opacity-80 mb-2">Local ID</p><div id="log-id" class="font-semibold text-[13px] break-all text-white">NOT ASSIGNED</div></div>
+                              <div><p class="text-label !text-[10px] opacity-80 mb-2">Timestamp</p><div id="log-time" class="font-semibold text-[13px] text-white">N/A</div></div>
+                              <div><p class="text-label !text-[10px] opacity-80 mb-2">Global Status</p><div id="nuclear-status" class="font-semibold text-[13px] text-white uppercase tracking-wider">PENDING</div></div>
                           </div>
 
                           <button id="nuclear-erase" class="erase-btn w-fit">Erase All Consent Data</button>
@@ -169,7 +169,7 @@ const lastUpdated = "16 June 2026";
       </article>
 
       <aside class="legal-sidebar w-full md:w-[35%] lg:sticky lg:top-[132px] h-fit md:pl-20 border-l border-white/5">
-        <nav class="flex flex-col items-start gap-y-3">
+        <nav aria-label="Legal pages" class="flex flex-col items-start gap-y-3">
           {sidebarLinks.map((link, i) => (
             <div class="brands-line-mask">
               <a href={link.href} class:list={['sidebar-link text-label !text-[13px]', { 'active': isActive(link.href) }]} style={`transition-delay: ${0.1 + (i * 0.05)}s`}>{link.label}</a>
@@ -184,13 +184,14 @@ const lastUpdated = "16 June 2026";
 
 <style is:global>
   #main-content h4 { font-size: var(--font-h4); font-weight: 600; }
+  #main-content h3.legal-subhead { font-size: var(--font-h4); font-weight: 600; }
   #main-content p { color: #b4b4b4; font-weight: 400; line-height: var(--lh-body); text-wrap: pretty; }
   #main-content h1, #main-content h2, #main-content h3, #main-content h4 { text-wrap: balance; }
   .cta-link:hover { color: #7e7e7e !important; }
-  .sidebar-link { color: #7e7e7e !important; text-decoration: none; transition: color 0.4s var(--ease-mechanical); }
+  .sidebar-link { color: #7e7e7e !important; text-decoration: none; transition: color 0.4s var(--ease-mechanical); display: inline-flex; align-items: center; min-height: 24px; }
   .sidebar-link:hover, .sidebar-link.active { color: #ffffff !important; }
   .erase-btn { appearance: none; border-radius: 2px; background: #FAFAFA; color: #000; padding: 14px 24px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: all 0.5s var(--ease-mechanical); border: none; }
-  .erase-btn:hover { background: #7e7e7e; color: #fff; }
+  .erase-btn:hover { background: #5F5F5F; color: #fff; }
 </style>
 
 <script is:inline>

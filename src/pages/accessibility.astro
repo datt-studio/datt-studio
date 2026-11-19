@@ -15,7 +15,7 @@ const sidebarLinks = [
   { href: '/data-processing/', label: 'Data Processing Agreement' },
 ];
 
-const lastUpdated = "16 June 2026";
+const lastUpdated = "16 November 2026";
 ---
 
 <Layout
@@ -29,7 +29,7 @@ const lastUpdated = "16 June 2026";
     html, body { background-color: #000000 !important; }
   </style>
 
-  <main id="main-content" class="reveal-trigger w-full max-w-[1440px] pt-[120px] px-[var(--page-padding)] pb-32 bg-black text-white">
+  <main id="main-content" tabindex="-1" class="reveal-trigger w-full max-w-[1440px] pt-[120px] px-[var(--page-padding)] pb-32 bg-black text-white">
     <div class="flex flex-col md:flex-row w-full gap-y-16 md:gap-x-24">
 
       <article class="w-full md:w-[65%] flex flex-col">
@@ -83,7 +83,8 @@ const lastUpdated = "16 June 2026";
                   <div class="brands-line-inner flex flex-col">
                     <h3 class="text-white">3. Technical Standard</h3>
                     <div class="mt-4">
-                      <p>We aim for conformance with <strong>WCAG 2.2 Level AA</strong>. We test our interface against modern screen readers and keyboard-only navigation paths to ensure critical functionality such as enquiry forms and project navigation is preserved for all users. While we strive for full accessibility, the highly visual nature of our studio portfolio may present challenges in specific edge cases; we are constantly refining our code to provide robust alternatives for visual-only elements.</p>
+                      <p>We aim for conformance with <strong>WCAG 2.2 Level AA</strong>. We test our interface against modern screen readers, keyboard-only navigation, and narrow screens, so critical paths such as email links and project navigation work for all users. Every page opens with a skip link, and every control shows a visible focus ring.</p>
+                      <p>Accessibility is an ongoing process rather than a one-off certificate. We review the highly visual portfolio case by case and keep refining the code behind it.</p>
                     </div>
                   </div>
                 </div>
@@ -114,7 +115,7 @@ const lastUpdated = "16 June 2026";
       </article>
 
       <aside class="legal-sidebar w-full md:w-[35%] lg:sticky lg:top-[132px] h-fit md:pl-20 border-l border-white/5">
-        <nav class="flex flex-col items-start gap-y-3">
+        <nav aria-label="Legal pages" class="flex flex-col items-start gap-y-3">
           {sidebarLinks.map((link, i) => (
             <div class="brands-line-mask">
               <a href={link.href} class:list={['sidebar-link text-label !text-[13px]', { 'active': isActive(link.href) }]} style={`transition-delay: ${0.1 + (i * 0.05)}s`}>{link.label}</a>
@@ -132,10 +133,10 @@ const lastUpdated = "16 June 2026";
   #main-content p { color: #b4b4b4; font-weight: 400; line-height: var(--lh-body); text-wrap: balance; }
   #main-content h1, #main-content h2, #main-content h3, #main-content h4 { text-wrap: balance; }
   .cta-link:hover { color: #7e7e7e !important; }
-  .sidebar-link { color: #7e7e7e !important; text-decoration: none; transition: color 0.4s var(--ease-mechanical); }
+  .sidebar-link { color: #7e7e7e !important; text-decoration: none; transition: color 0.4s var(--ease-mechanical); display: inline-flex; align-items: center; min-height: 24px; }
   .sidebar-link:hover, .sidebar-link.active { color: #ffffff !important; }
   .erase-btn { appearance: none; border-radius: 2px; background: #FAFAFA; color: #000; padding: 14px 24px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: all 0.5s var(--ease-mechanical); border: none; }
-  .erase-btn:hover { background: #7e7e7e; color: #fff; }
+  .erase-btn:hover { background: #5F5F5F; color: #fff; }
 </style>
 
 <script is:inline>

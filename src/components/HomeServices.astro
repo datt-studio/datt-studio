@@ -18,6 +18,7 @@ const items = [
       {items.map((item, index) => (
         <div class="hs-cube-reveal-mask pb-12 mb-[-3rem]">
           <button
+            type="button"
             class="hs-cube-reveal-inner service-nav-item-node relative uppercase"
             data-index={index}
             data-slug={item.slug}
@@ -32,24 +33,24 @@ const items = [
 
 
   <!-- 2. THE VIDEO PORTAL -->
-  <div id="cursor-video-node" class="pointer-events-none fixed top-0 left-0 z-[1200] w-[600px] aspect-[16/9] opacity-0 transition-opacity duration-500">
+  <div id="cursor-video-node" aria-hidden="true" inert class="pointer-events-none fixed top-0 left-0 z-[1200] w-[600px] aspect-[16/9] opacity-0 transition-opacity duration-500">
 
 
     <!-- MOBILE CONTROLS (Top Layer) -->
     <div id="mobile-video-controls" class="md:hidden absolute inset-0 w-full px-[var(--page-padding)] pb-12 grid grid-cols-3 items-end z-[200] opacity-0 pointer-events-none mix-blend-difference">
         <div class="flex justify-start">
             <div class="brands-line-mask pointer-events-auto">
-                <button id="mobile-pause-node" class="brands-line-inner link-underline text-white font-bold uppercase text-[14px] tracking-[0.02em] bg-transparent border-none cursor-pointer" style="transition-delay: 1.1s;">PAUSE</button>
+                <button id="mobile-pause-node" type="button" class="brands-line-inner link-underline text-white font-bold uppercase text-[14px] tracking-[0.02em] bg-transparent border-none cursor-pointer" style="transition-delay: 1.1s;">PAUSE</button>
             </div>
         </div>
         <div class="flex justify-center">
             <div class="brands-line-mask pointer-events-auto">
-                <button id="mobile-mute-node" class="brands-line-inner link-underline text-white font-bold uppercase text-[14px] tracking-[0.02em] bg-transparent border-none cursor-pointer" style="transition-delay: 1.2s;">UNMUTE</button>
+                <button id="mobile-mute-node" type="button" class="brands-line-inner link-underline text-white font-bold uppercase text-[14px] tracking-[0.02em] bg-transparent border-none cursor-pointer" style="transition-delay: 1.2s;">UNMUTE</button>
             </div>
         </div>
         <div class="flex justify-end">
             <div class="brands-line-mask pointer-events-auto">
-                <button id="mobile-x-node" class="brands-line-inner link-underline text-white font-bold uppercase text-[14px] tracking-[0.02em] bg-transparent border-none cursor-pointer" style="transition-delay: 1.3s;">CLOSE</button>
+                <button id="mobile-x-node" type="button" class="brands-line-inner link-underline text-white font-bold uppercase text-[14px] tracking-[0.02em] bg-transparent border-none cursor-pointer" style="transition-delay: 1.3s;">CLOSE</button>
             </div>
         </div>
     </div>
@@ -160,6 +161,15 @@ const items = [
     top: auto !important;
     bottom: 0 !important;
   }
+  /* The controls are 14px labels; the hit area is lifted to 44px so a thumb
+     cannot miss them and WCAG 2.2 target size is met. */
+  #mobile-video-controls button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0;
+  }
 
 
   #services-interactive-node.is-video-open #nav-container-node,
@@ -204,6 +214,7 @@ const items = [
 
 
     let isFullscreen = false;
+    let opener = null;
     let dStartX = 0, dStartY = 0, isDragging = false;
 
 
@@ -244,6 +255,11 @@ const items = [
       stopRender();
       navItems.forEach(n => n.classList.remove('is-active-hover'));
       layers.forEach(l => l.querySelector('video').pause());
+      // Hide the dialog from assistive technology, then restore the focus ring
+      // to the service the reader opened it from.
+      cursorVideo.setAttribute('aria-hidden', 'true');
+      cursorVideo.setAttribute('inert', '');
+      if (opener) { opener.focus(); opener = null; }
     };
 
 
@@ -267,10 +283,16 @@ const items = [
 
         if (window.innerWidth < 768) {
           isFullscreen = true;
+          opener = item;
           document.documentElement.classList.add('is-video-locked');
           section.classList.add('is-video-open');
           cursorVideo.classList.add('is-fullscreen');
           openVideo(index);
+          // The fullscreen clip is a dialog on mobile: expose it and move focus
+          // to CLOSE, then put focus back on the service when it closes.
+          cursorVideo.removeAttribute('inert');
+          cursorVideo.removeAttribute('aria-hidden');
+          if (mobileX) mobileX.focus();
         } else {
           // Desktop Navigation with Anchor
           window.location.href = `/services#${item.dataset.slug}`;
@@ -307,6 +329,39 @@ const items = [
 
 
     if (mobileX) mobileX.onclick = (e) => closeVideo();
+
+    // Escape closes the fullscreen clip from the keyboard.
+    if (!window.__dattServicesEscape) {
+      window.__dattServicesEscape = true;
+      document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') return;
+        const node = document.getElementById('cursor-video-node');
+        if (node && node.classList.contains('is-fullscreen')) {
+          e.preventDefault();
+          document.getElementById('mobile-x-node')?.click();
+        }
+      });
+    }
+
+    // The fullscreen clip is modal: keep Tab inside its controls.
+    if (!cursorVideo.__dattTrap) {
+      cursorVideo.__dattTrap = true;
+      cursorVideo.addEventListener('keydown', (e) => {
+        if (e.key !== 'Tab') return;
+        const items = Array.from(cursorVideo.querySelectorAll('button:not([disabled])'))
+          .filter((el) => el.offsetWidth > 0 || el.offsetHeight > 0);
+        if (!items.length) return;
+        const first = items[0];
+        const last = items[items.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      });
+    }
 
 
     videoFlip.addEventListener('touchstart', (e) => {

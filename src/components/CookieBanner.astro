@@ -1,7 +1,7 @@
 ---
 // CookieBanner.astro
 ---
-<div id="cookie-banner" class="fixed bottom-3 left-3 right-3 md:bottom-6 md:right-6 md:left-auto z-[100001] pointer-events-none">
+<div id="cookie-banner" role="region" aria-label="Cookie consent" aria-hidden="true" inert class="fixed bottom-3 left-3 right-3 md:bottom-6 md:right-6 md:left-auto z-[100001] pointer-events-none">
   <div class="liquid-bar-container w-full md:w-fit border border-white/10 rounded-sm">
     <div class="px-5 py-4 md:px-6 md:py-5 flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8">
 
@@ -35,13 +35,18 @@
 <style is:global>
   #cookie-banner {
     transform: translateY(100%);
-    transition: transform 1.2s var(--ease-mechanical), opacity 0.15s ease;
+    transition: transform 1.2s var(--ease-mechanical), opacity 0.15s ease, visibility 0s linear 1.2s;
     opacity: 0;
+    visibility: hidden;
   }
   #cookie-banner.is-visible {
     transform: translateY(0) !important;
     opacity: 1 !important;
+    visibility: visible !important;
     pointer-events: auto !important;
+    /* Visibility flips instantly on the way in; only the way out waits for
+       the slide to finish. */
+    transition: transform 1.2s var(--ease-mechanical), opacity 0.15s ease, visibility 0s linear 0s;
   }
   .liquid-bar-container {
     background: rgba(10, 10, 10, 0.98);
@@ -57,6 +62,10 @@
     font-weight: 600;
     letter-spacing: 0.08em;
     transition: color 0.4s var(--ease-mechanical);
+    /* WCAG 2.2 target size: a 24px row rather than the 13px line box. */
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
   }
   .banner-policy-link:hover {
     color: #ffffff !important;
@@ -78,7 +87,7 @@
   }
   .banner-policy-button:focus-visible {
     color: #ffffff !important;
-    outline: 1px solid currentColor;
+    outline: 2px solid currentColor;
     outline-offset: 3px;
   }
 
@@ -92,7 +101,9 @@
     margin: 0;
     cursor: pointer;
     position: relative;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
     text-decoration: none;
     color: #ffffff !important;
     font-size: 11px;
@@ -166,13 +177,24 @@
       const rejectBtn = document.getElementById('reject-cookies');
       if (!banner) return;
 
+      const setBannerState = (visible) => {
+        banner.classList.toggle('is-visible', visible);
+        if (visible) {
+          banner.removeAttribute('inert');
+          banner.removeAttribute('aria-hidden');
+        } else {
+          banner.setAttribute('inert', '');
+          banner.setAttribute('aria-hidden', 'true');
+        }
+      };
+
       const consentRaw = localStorage.getItem(CONSENT_KEY);
       if (!consentRaw) {
         setTimeout(() => {
-          if (!localStorage.getItem(CONSENT_KEY)) banner.classList.add('is-visible');
+          if (!localStorage.getItem(CONSENT_KEY)) setBannerState(true);
         }, 2000);
       } else {
-        banner.classList.remove('is-visible');
+        setBannerState(false);
       }
 
       const handleDecision = (choice) => {
@@ -180,7 +202,7 @@
         const storageData = { decision: choice, timestamp: new Date().toISOString(), localId: localId };
 
         localStorage.setItem(CONSENT_KEY, JSON.stringify(storageData));
-        banner.classList.remove('is-visible');
+        setBannerState(false);
 
         if (typeof gtag === 'function') {
           const status = choice === 'accepted' ? 'granted' : 'denied';
