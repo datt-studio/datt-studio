@@ -76,7 +76,7 @@ const recognition = [
                     </div>
                     <div class="recognition-card-media" aria-hidden="true">
                       <div class="recognition-card-flip">
-                        <img src={item.image} alt="" loading="eager" decoding="async" />
+                        <img src={item.image} alt="" loading="lazy" decoding="async" />
                       </div>
                       <div class="recognition-card-curtain"></div>
                     </div>
@@ -278,11 +278,12 @@ const recognition = [
   .recognition-card-label { display: contents; }
   .recognition-card-media { display: none; }
 
-  /* --- RECOGNITION CARD: MOBILE AND TABLET ---
-     Each cell becomes a card the size of its image, label on a black band across
-     the top. Cards stack: one sticks at the stack line and the next slides up
-     over it. overflow: clip (not hidden) so the mask never becomes a scroll
-     container and trap the sticky rows. */
+  /* --- RECOGNITION ON TOUCH / NARROW SCREENS ---
+     The table stays a table. The card stack and its image flip were measured
+     against a viewport whose short axis changes on rotation, and on a phone the
+     sticky rows and the reveal transform fought each other. The media is now
+     never shown or fetched here: the desktop pointer preview keeps the images,
+     and a touch screen gets the labels and their rules only. */
   @media (max-width: 1023px), (hover: none) {
     .home-studio .recognition-reveal {
       overflow: clip;
@@ -298,118 +299,19 @@ const recognition = [
       background: #000;
       padding: 0 0 0.75em 0;
     }
-
-    /* The stack line: half the viewport less half a card, so a card hanging
-       from it is centred on the screen. */
-    .home-studio-table tbody tr {
-      position: sticky;
-      top: calc(50svh - var(--recognition-card-h, 240px) / 2);
-      background: #000;
-      z-index: 1;
-      /* The whole row is the touch target and must not swallow scrolling. */
-      touch-action: pan-y;
-    }
     .home-studio-table tbody td {
       padding: 0;
       border-bottom: 0;
       background: #000;
-      font-size: 16px;
     }
 
-    /* Every card is the same height open or closed, so opening one changes no
-       layout (otherwise the push would delay the next arrival and the two would
-       chase each other). */
-    .recognition-card {
-      display: grid;
-      grid-template-rows: auto auto;
-      position: relative;
-      width: 100%;
-      background: #000;
-      overflow: hidden;
+    /* The row copy is the same size as the body copy beside it. The --font-label
+       step is a caption size, which read as too small on a phone. */
+    .recognition-row-label {
+      font-size: clamp(18px, 3vw, 16px);
+      line-height: var(--lh-body);
+      letter-spacing: var(--track-tight);
     }
-
-    /* Mobile owner of the divider. The inner .recognition-row gives up its own
-       border and padding, which is what stops the double line. */
-    .recognition-card-label {
-      display: block;
-      grid-row: 1;
-      position: relative;
-      z-index: 3;
-      background: #000;
-      padding: 0.6em 0 0.55em;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.14);
-    }
-    .recognition-card-label .recognition-row,
-    .home-studio-table tbody tr:last-child .recognition-card-label .recognition-row {
-      border-bottom: 0;
-      padding: 0;
-    }
-    .recognition-card.is-active .recognition-card-label {
-      border-bottom-color: transparent;
-    }
-
-    .recognition-card-media {
-      grid-row: 2;
-      display: block;
-      position: relative;
-      z-index: 1;
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      overflow: hidden;
-      perspective: calc(var(--recognition-card-h, 480px) * 4.5);
-    }
-
-    /* The mask, as a composited curtain: slides down as the card opens, rises
-       back as it closes. The image underneath is never touched. */
-    .recognition-card-curtain {
-      position: absolute;
-      inset: 0;
-      background: #000;
-      transform: translateY(0);
-      transition: transform 0.6s var(--ease-mechanical);
-      pointer-events: none;
-    }
-    .recognition-card.is-active .recognition-card-curtain {
-      transform: translateY(100%);
-    }
-    .recognition-card-flip {
-      position: absolute;
-      inset: 0;
-      transform: translateY(30%) rotateX(-54deg);
-      transform-origin: bottom center;
-      opacity: 0;
-      transition: transform 0.6s var(--ease-mechanical), opacity 0.5s ease;
-    }
-    .recognition-card.is-active .recognition-card-flip {
-      transform: translateY(0) rotateX(0deg);
-      opacity: 1;
-    }
-    .recognition-card-flip img {
-      display: block;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    /* The card leaving the top on the way down is simply put out of sight; the
-       incoming card covers it anyway. */
-    .recognition-card.is-hidden .recognition-card-flip {
-      opacity: 0;
-      transition: none;
-    }
-
-    /* Entering the stack on the first card opens it outright. */
-    .recognition-card.is-instant .recognition-card-flip,
-    .recognition-card.is-instant .recognition-card-curtain {
-      transition: none;
-    }
-
-    /* The open card is lifted above its siblings so the incoming label never
-       paints over the outgoing image. */
-    .home-studio-table tbody tr:has(.recognition-card.is-active) { z-index: 5; }
-
-    /* Clearance under the last card. */
-    .home-studio .recognition-reveal { padding-bottom: 22vh; }
   }
 
   /* The cursor node is not used below 1024px or without a pointer. */
@@ -441,15 +343,13 @@ const recognition = [
     if (window.__dattRecognitionBound) return;
     window.__dattRecognitionBound = true;
 
-    /* Two ways of driving the same preview. 1024px+ with a real pointer gets the
-       cursor-following node. Everything else (phones, and tablets of any size,
-       which have no cursor) gets the scroll-driven card stack. */
+    /* Only a desktop pointer gets the preview. Narrow windows and touch screens
+       read the table as a table, so there is no scroll state to keep in sync. */
     const isDesktop = () =>
       window.innerWidth >= 1024 &&
       !(window.matchMedia && window.matchMedia('(hover: none)').matches);
 
     const node = () => document.getElementById('recognition-image-node');
-    const rows = () => document.querySelectorAll('.home-studio-table tbody tr');
 
     const motionOff = () =>
       document.documentElement.classList.contains('user-reduced-motion') ||
@@ -546,157 +446,8 @@ const recognition = [
       if (followRaf) { cancelAnimationFrame(followRaf); followRaf = 0; }
     }
 
-    /* --- SCROLL: the card on top of the stack owns the image ---
-
-       The overlay itself is CSS: rows are sticky at the same line and the later
-       one paints over the earlier. All this decides is which card is on top. */
-
-    let scrollIndex = -1;
-
-    function setScrollIndex(next) {
-      if (next === scrollIndex) return;
-      const prev = scrollIndex;
-      scrollIndex = next;
-
-      const list = rows();
-      for (let i = 0; i < list.length; i++) {
-        const card = list[i].querySelector('.recognition-card');
-        if (!card) continue;
-
-        const on = i === next;
-        card.classList.toggle('is-active', on);
-
-        // Hidden at once when a card above takes over; left to close for real
-        // when it leaves downward or nothing takes over.
-        if (i === prev && next > prev) card.classList.add('is-hidden');
-        if (on) card.classList.remove('is-hidden');
-
-        // Nothing is skipped: every card, including the first, runs its full
-        // flip and curtain each time it takes the line, scrolling down or back up.
-      }
-    }
-
-    /* The card on top is the highest index whose own top has reached the stack
-       line. Tops are read from layout (offsetTop), not from rects, because rects
-       read through the reveal's transform while it is still turning. */
-    let rowTops = null;
-    function measureRows() {
-      const tops = [];
-      rows().forEach((row) => {
-        let y = 0;
-        for (let n = row; n; n = n.offsetParent) y += n.offsetTop;
-        tops.push(y);
-      });
-      rowTops = tops;
-    }
-
-    /* Hold the stack closed while the reveal is still turning. */
-    function revealBusy() {
-      const el = document.querySelector('.recognition-reveal .brands-line-inner');
-      if (!el) return false;
-      /* Compared numerically, not as a string. Engines print the settled
-         transform differently (matrix, matrix3d, "-0" entries), and a string
-         miss here reads as "still revealing" forever, which leaves every card
-         inactive: the stack never animates, down or up. */
-      const t = getComputedStyle(el).transform;
-      if (t === 'none') return false;
-      const m3 = t.indexOf('matrix3d(') === 0;
-      const v = (m3 ? t.slice(9, -1) : t.slice(7, -1)).split(',').map(Number);
-      const ident = m3
-        ? [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
-        : [1, 0, 0, 1, 0, 0];
-      if (v.length !== ident.length || v.some((n) => !Number.isFinite(n))) return false;
-      return v.some((n, i) => Math.abs(n - ident[i]) > 0.01);
-    }
-
-    /* The stack line, read back off the first row's computed top so the script
-       and the CSS can never disagree. */
-    function stackLine() {
-      const row = rows()[0];
-      if (!row) return 0;
-      const top = parseFloat(getComputedStyle(row).top);
-      return Number.isFinite(top) ? Math.round(top) : 0;
-    }
-
-    function activeRow() {
-      const list = rows();
-      if (!list.length) return -1;
-      if (revealBusy()) return -1;
-      if (!rowTops || rowTops.length !== list.length) measureRows();
-      const line = stackLine();
-      const y = window.scrollY;
-      let best = -1;
-      for (let i = 0; i < list.length; i++) {
-        if (rowTops[i] - y <= line + 2) best = i;
-      }
-      return best;
-    }
-
-    /* Card height handed to the CSS so the line sits half a card above the
-       middle of the screen. offsetHeight, not a rect: layout is correct even
-       while the table is inside the reveal transform. */
-    function measureCard() {
-      const table = document.querySelector('.home-studio-table');
-      const card = document.querySelector('.recognition-card');
-      if (!table) return;
-      if (isDesktop()) { table.style.removeProperty('--recognition-card-h'); return; }
-      if (!card) return;
-      const h = Math.round(card.offsetHeight);
-      if (h > 0) table.style.setProperty('--recognition-card-h', h + 'px');
-    }
-
-    let queued = false;
-    function onScroll() {
-      if (queued) return;
-      queued = true;
-      requestAnimationFrame(() => {
-        queued = false;
-        if (!isDesktop()) setScrollIndex(activeRow());
-      });
-    }
-
-    /* Resizing across the 1024px line swaps which path owns the preview, so the
-       state left behind is cleared rather than inherited. */
-    let mode = isDesktop() ? 'cursor' : 'scroll';
-
-    function resetForMode(next) {
-      mode = next;
-      scrollIndex = -1;
-      const n = node();
-      if (n) {
-        n.classList.remove('is-visible');
-        n.style.opacity = '0';
-        n.style.transform = '';
-        stopFollow();
-      }
-      rows().forEach((row) => {
-        const card = row.querySelector('.recognition-card');
-        if (card) card.classList.remove('is-active', 'is-hidden');
-      });
-    }
-
-    function syncMode() {
-      const next = isDesktop() ? 'cursor' : 'scroll';
-      if (next !== mode) resetForMode(next);
-    }
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-    // The stack is held closed while the table's reveal turns. Re-read the
-    // moment that transition ends, so the right card opens without waiting for
-    // another scroll.
-    document.addEventListener('transitionend', (e) => {
-      if (e.target instanceof Element && e.target.closest('.recognition-reveal')) onScroll();
-    }, { passive: true });
-    window.addEventListener('resize', () => { syncMode(); measureCard(); measureRows(); onScroll(); }, { passive: true });
-    window.addEventListener('load', () => { measureCard(); measureRows(); onScroll(); });
-    // The label's height moves when the real font lands, so re-read then.
-    if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(() => { measureCard(); measureRows(); onScroll(); });
-    }
-    syncMode();
-    measureCard();
-    measureRows();
-    onScroll();
+    /* A resize into a touch layout takes the preview away with it. */
+    window.addEventListener('resize', () => { if (!isDesktop()) hide(); }, { passive: true });
   }
 
   setupRecognitionPreview();

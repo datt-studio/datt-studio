@@ -74,4 +74,19 @@ const posts = (await getCollection('news', ({ data }) => !data.draft))
       min-height: 65svh;
     }
   }
+
+  /* Give each block room of its own on a phone. The min-heights above stop the
+     middle of the page from being mostly empty, so the separation is stated as
+     space between the sections rather than by padding each one out further. */
+  @media (max-width: 767px) {
+    /* Components leave inline <script> nodes between sections, so an adjacent
+       sibling selector misses half of them. Every section but the first gets
+       the same gap. */
+    #main-content > section {
+      margin-top: 2.5rem;
+    }
+    #main-content > section:first-of-type {
+      margin-top: 0;
+    }
+  }
 </style>

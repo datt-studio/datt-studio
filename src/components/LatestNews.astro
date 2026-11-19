@@ -298,41 +298,6 @@ const fmt = (d) =>
       scroll-snap-align: start;
     }
 
-    /* Covers go square on a phone only.
-
-       At one card across, a 16:9 frame on a 350px card is a short letterbox
-       under a narrow image and the article has nothing to look at; a square
-       holds the frame the card actually has.
-
-       From 768px the card is 720px and up, and a square there is 720px tall,
-       which is too much of the viewport for one article and crops the frame
-       harder than the wide card needs cropping. So a tablet goes back to the
-       desktop's 16:9 and only a phone keeps the square. 768px is the width the
-       header treats as the same line — below it the site is on its phone
-       layout. object-fit stays cover either way, so the crop is the fill and
-       the image is never letterboxed or stretched. */
-    @media (max-width: 767px) {
-      .latest-news-cover img {
-        aspect-ratio: 1 / 1;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-
-      /* One cover is not centred worth showing. This article's frame is a wide
-         screenshot, so squaring it keeps only the middle third and whatever was
-         in the middle of it — a column of readings and nothing around them,
-         which reads as a mistake rather than as a crop. Anchoring the fill to the
-         left keeps the start of the frame, where the subject is.
-
-         Written against the article rather than against the last card, so it
-         stays this cover if the order changes, and only on a phone: at 768px and
-         up the frame is 16:9 and is not cropped at all. */
-      .latest-news-card[data-latest-id="from-6-66-mb-to-128-kb"] .latest-news-cover img {
-        object-position: left center;
-      }
-    }
-
     .latest-news-foot {
       display: flex;
       align-items: flex-end;

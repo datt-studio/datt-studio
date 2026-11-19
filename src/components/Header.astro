@@ -99,6 +99,12 @@ const { isInverted = false } = Astro.props;
     display: inline-flex;
     align-items: center;
     justify-content: flex-end;
+    /* Same type treatment as the wordmark on the same line. Both were already
+       18px, but the CTA defaults made them lighter and wider-tracked, so they
+       read as a smaller control next to DATT STUDIO. */
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    line-height: 1.4;
   }
 
   /* MOBILE MENU TOUCH TARGETS

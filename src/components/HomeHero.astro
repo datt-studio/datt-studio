@@ -250,10 +250,13 @@ const posterSrc = "/assets/video-poster-retina.webp";
      floor: if the screen is shorter still, the words keep their distance from
      the logo instead of touching it. */
   @media (orientation: landscape) and (max-height: 520px) {
+    /* The header is fixed and 80px tall. At 20px the wordmark started at y=17,
+       sitting straight on top of the small nav logo. Match the portrait
+       clearance so the wordmark arrives below the nav on the first frame. */
     #hero-section {
-      padding-top: 20px;
-      padding-bottom: 20px;
-      gap: 18px;
+      padding-top: 64px;
+      padding-bottom: 16px;
+      gap: 12px;
     }
     .hero-headline { font-size: min(clamp(34px, 7.4vw, 64px), 11vh); }
     /* The full wordmark is far wider than the old compact mark, so cap it by
