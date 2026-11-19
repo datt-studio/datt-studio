@@ -2,78 +2,244 @@
 interface Props {
   email: string;
   className?: string;
-  isInverted?: boolean; // 1. Added isInverted prop
+  isInverted?: boolean;
 }
 const { email, className = "", isInverted = false } = Astro.props;
+const uid = Math.random().toString(36).slice(2, 10);
+const hintId = `email-copy-hint-${uid}`;
+const statusId = `email-copy-status-${uid}`;
 ---
 
-<a
-  href={`mailto:${email}`}
+<button
+  type="button"
   data-copy-email={email}
+  data-status-id={statusId}
+  aria-label={`${email}. Copy to clipboard`}
+  aria-describedby={hintId}
   class:list={[
     "secure-email-copy font-black transition-colors cursor-pointer",
-    // 2. Conditional colors based on inversion
     isInverted ? "text-[#B4B4B4] hover:text-white" : "text-[#5F5F5F] hover:text-black",
     isInverted ? "is-inverted-theme" : "",
     className
   ]}
 >
-  {email}
-</a>
+  <span class="email-mask">
+    <span class="email-line is-open" data-email-label>{email}</span>
+  </span>
+</button>
+
+<span id={hintId} class="sr-only">Copy email address to clipboard.</span>
+<span id={statusId} class="sr-only" role="status" aria-live="polite" data-email-status></span>
 
 <script>
+  const KEY = '__dattEmailCopy';
+  type State = { timer: number | null; busy: boolean };
+  const w = window as any;
+
+  if (!w[KEY]) {
+    w[KEY] = {
+      wired: new WeakSet<Element>(),
+      states: new WeakMap<Element, State>(),
+    };
+  }
+
+  const registry = w[KEY] as { wired: WeakSet<Element>; states: WeakMap<Element, State> };
+  const sleep = (ms: number) => new Promise<void>(r => window.setTimeout(r, ms));
+
+  function reducedMotion() {
+    return document.documentElement.classList.contains('user-reduced-motion') ||
+      (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  }
+
+  async function writeClipboard(text: string): Promise<boolean> {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    } catch (_) {}
+
+    /* Local previews and older browsers still get a working copy action. */
+    const field = document.createElement('textarea');
+    field.value = text;
+    field.setAttribute('readonly', '');
+    field.style.position = 'fixed';
+    field.style.top = '-1000px';
+    field.style.opacity = '0';
+    document.body.appendChild(field);
+    field.select();
+
+    let copied = false;
+    try { copied = document.execCommand('copy'); } catch (_) {}
+    field.remove();
+    return copied;
+  }
+
+  /* The label uses the same clipped mask and closed transform as the site's
+     on-load line reveal: translateY + rotateX under a perspective. Closing and
+     opening the mask replays that draw instead of a generic fade. */
+  async function collapse(label: HTMLElement) {
+    if (reducedMotion()) return;
+    label.classList.remove('is-instant');
+    label.classList.add('is-quick');
+    label.classList.remove('is-open');
+    await sleep(230);
+  }
+
+  async function reveal(button: HTMLElement, label: HTMLElement, text: string, quick: boolean) {
+    if (reducedMotion()) {
+      label.textContent = text;
+      label.classList.add('is-open');
+      button.classList.remove('email-swapping');
+      return;
+    }
+
+    label.textContent = text;
+    label.classList.add('is-instant');
+    label.classList.remove('is-open');
+    void label.offsetWidth; // commit the closed state before opening the mask
+    label.classList.remove('is-instant');
+    label.classList.toggle('is-quick', quick);
+    label.classList.add('is-open');
+
+    /* The underline is the line that draws. Register its held, scaleX(0) state
+       with a read before releasing it, or the browser merges the two changes
+       and the rule never animates. It then draws one beat after the words, as
+       it does on load. */
+    void getComputedStyle(button, '::after').transform;
+    button.classList.remove('email-swapping');
+    button.classList.add('email-revealing');
+
+    await sleep(quick ? 240 : 1340);
+    label.classList.remove('is-quick');
+    if (quick) {
+      button.classList.remove('email-revealing');
+    } else {
+      window.setTimeout(() => button.classList.remove('email-revealing'), 900);
+    }
+  }
+
   function initEmailCopy() {
-    const emailLinks = document.querySelectorAll('.secure-email-copy');
+    document.querySelectorAll<HTMLButtonElement>('.secure-email-copy').forEach((button) => {
+      if (registry.wired.has(button)) return;
+      registry.wired.add(button);
 
-    emailLinks.forEach(link => {
-      let timeoutId: number | null = null;
+      let state = registry.states.get(button);
+      if (!state) {
+        state = { timer: null, busy: false };
+        registry.states.set(button, state);
+      }
 
-      link.addEventListener('click', async (e) => {
-        e.preventDefault();
+      button.addEventListener('click', async () => {
+        const email = button.dataset.copyEmail;
+        const label = button.querySelector<HTMLElement>('[data-email-label]');
+        if (!email || !label || state.busy) return;
 
-        const email = link.getAttribute('data-copy-email');
-        if (!email) return;
+        const status = document.getElementById(button.dataset.statusId || '');
+        const copied = await writeClipboard(email);
 
-        try {
-          await navigator.clipboard.writeText(email);
-
-          const originalText = email;
-          link.textContent = 'Copied';
-          link.classList.add('is-copied');
-
-          if (timeoutId) clearTimeout(timeoutId);
-
-          timeoutId = window.setTimeout(() => {
-            link.textContent = originalText;
-            link.classList.remove('is-copied');
-            timeoutId = null;
-          }, 3500);
-
-        } catch (err) {
-          console.error('Failed to copy email: ', err);
+        if (!copied) {
+          if (status) status.textContent = 'Copy failed. Please select the email address.';
+          return;
         }
+
+        state.busy = true;
+        button.dataset.copied = 'true';
+        button.classList.add('email-swapping');
+        if (status) status.textContent = 'Email address copied to clipboard.';
+
+        await collapse(label);
+        await reveal(button, label, 'Copied', false);
+
+        state.timer = window.setTimeout(async () => {
+          state.timer = null;
+          button.classList.add('email-swapping');
+          await collapse(label);
+          await reveal(button, label, email, false);
+          delete button.dataset.copied;
+          if (status) status.textContent = '';
+          state.busy = false;
+        }, 3000);
       });
     });
   }
 
   initEmailCopy();
   document.addEventListener('astro:after-swap', initEmailCopy);
+  document.addEventListener('astro:before-swap', () => {
+    registry.states.forEach((state) => {
+      if (state.timer !== null) window.clearTimeout(state.timer);
+    });
+  });
 </script>
 
 <style>
-  .secure-email-copy {
-    display: inline-block;
-    transition: all 0.3s ease;
+  button.secure-email-copy {
+    appearance: none;
+    -webkit-appearance: none;
+    background: transparent;
+    border: 0;
+    padding: 0 0 4px;
+    margin: 0;
+    text-align: left;
+    cursor: pointer;
   }
 
-  /* FEEDBACK COLORS */
-  /* Normal theme: turns black when copied */
-  .secure-email-copy.is-copied {
-    color: #000 !important;
+  /* Matches .brands-line-mask: the overflow is what makes the line draw read
+     as arriving from below rather than simply fading in place. */
+  .secure-email-copy .email-mask {
+    display: block;
+    overflow: hidden;
+    perspective: 1200px;
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
+    margin-top: -0.2em;
+    margin-bottom: -0.2em;
   }
 
-  /* Inverted theme: turns white when copied */
-  .secure-email-copy.is-inverted-theme.is-copied {
-    color: #fff !important;
+  /* Matches .brands-line-inner, including the site's reveal easing. */
+  .secure-email-copy .email-line {
+    display: block;
+    transform: translateY(115%) rotateX(-60deg);
+    transform-origin: top center;
+    opacity: 0;
+    transition: transform 1.3s var(--ease-mechanical), opacity 0.9s var(--ease-mechanical);
+    backface-visibility: hidden;
+  }
+
+  .secure-email-copy .email-line.is-open {
+    transform: translateY(0) rotateX(0deg);
+    opacity: 1;
+  }
+
+  .secure-email-copy .email-line.is-quick {
+    transition-duration: 0.22s, 0.18s;
+  }
+
+  .secure-email-copy .email-line.is-instant {
+    transition: none;
+  }
+
+  button.secure-email-copy[data-copied='true'] {
+    color: #000;
+  }
+
+  button.secure-email-copy.is-inverted-theme[data-copied='true'] {
+    color: #fff;
+  }
+
+  /* On load the address flips in with its underline held back, then the rule
+     draws. Replay that hold and draw on both swaps, so neither state arrives
+     with a static line already sitting under moving words. */
+  .secure-email-copy.email-swapping::after {
+    transform: scaleX(0) !important;
+    /* A transition must exist in the held state too. With `none`, the browser
+       treats the later change as a style snap and skips the draw entirely. */
+    transition: transform 0s linear 0s !important;
+  }
+
+  .secure-email-copy.email-revealing::after {
+    transform: scaleX(1) !important;
+    transition: transform 0.6s var(--ease-mechanical) 1.6s !important;
   }
 </style>

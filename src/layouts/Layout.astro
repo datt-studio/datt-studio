@@ -587,6 +587,12 @@ const videoLd = {
         if (el.closest('.ls-mask')) return true;
         if (el.querySelector('img, video, iframe, svg, canvas, table, .brands-line-mask, .clock-instance')) return true;
 
+        // The footer email is a live copy button with a screen-reader hint and
+        // status beside it. Splitting its mask measures those hidden spans as
+        // text and folds them into the visible label, so the control must keep
+        // the markup the reveal authored.
+        if (el.querySelector('.secure-email-copy')) return true;
+
         // Article prose is split like the rest of the site. Its blocks reveal on
         // their own scroll trigger (.prose-in), not the section-wide .is-active,
         // and the article stylesheet keeps the generated line masks closed until
