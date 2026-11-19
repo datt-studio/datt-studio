@@ -1,6 +1,6 @@
 ---
 title: "Built to include"
-date: 2026-10-26
+date: 2026-11-19
 summary: "How we built this site for more people: motion control on arrival, clear touch targets, a readable page order, measured contrast, and a layout that holds on older devices."
 draft: false
 cover: /news/accessibility1.webp
