@@ -18,6 +18,11 @@
 
 No CMS. Content lives in the repo (see `public/` assets + `src/pages/`).
 
+Article view counts come from GA4 and are read at build time. To refresh them
+daily, add a Cloudflare deploy hook URL as the GitHub Actions secret
+`CLOUDFLARE_DEPLOY_HOOK_URL`. The scheduled workflow in
+`.github/workflows/refresh-views.yml` triggers a rebuild at 06:00 UTC.
+
 ## Quick start
 
 ```bash

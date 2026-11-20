@@ -8,3 +8,8 @@ dattstudio/
 *.bak
 *.bak2
 *.md.bak*
+
+# Local secrets. Never commit these.
+.env.local
+.env.*.local
+*service-account*.json

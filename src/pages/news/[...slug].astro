@@ -3,6 +3,7 @@ import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import NewsCover from '../../components/NewsCover.astro';
+import { getArticleViews, formatViews } from '../../lib/ga4-views';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { getCollection, render } from 'astro:content';
@@ -65,6 +66,13 @@ if (shareCardPath && !hasShareCard) {
 
 const shareImage = hasShareCard ? shareCardPath : post.data.cover;
 
+/* Read the aggregate page-view figure from GA4 at build time. The count is a
+   number only, with no personal data. If no service account is configured the
+   label is omitted rather than showing a made-up figure. */
+const viewCounts = await getArticleViews([Astro.url.pathname]);
+const rawViews = viewCounts[Astro.url.pathname] ?? 0;
+const viewsLabel = rawViews > 0 ? formatViews(rawViews) : null;
+
 const articleLd = {
   '@context': 'https://schema.org',
   '@type': 'Article',
@@ -106,7 +114,11 @@ const articleLd = {
         <div class="brands-line-mask block">
           <div class="brands-line-inner block" style="transition-delay: 0.1s">
             <p class="text-label text-white/50 mb-4">
-              <time datetime={post.data.date.toISOString()}>{fmt(post.data.date)}</time>
+              <time datetime={post.data.date.toISOString()}>{fmt(post.data.date)}</time>{viewsLabel && (
+                <>
+                  <span aria-hidden="true"> · </span><span>{viewsLabel} VIEWS</span>
+                </>
+              )}
             </p>
           </div>
         </div>
@@ -129,7 +141,12 @@ const articleLd = {
           </div>
         </div>
 
-        <div class="news-prose" data-prose>
+        <!-- Article copy keeps its own wrapping. The per-line splitter measures
+             once and freezes each line into its own mask, which strands short
+             trailing lines and, on some widths, re-wraps a mask onto a second
+             line. The block reveal below already animates each paragraph on its
+             own, so the copy can wrap with text-wrap at every width. -->
+        <div class="news-prose" data-prose data-ls-keep>
           <Content />
         </div>
       </article>
@@ -182,6 +199,13 @@ const articleLd = {
   .news-prose p {
     color: rgba(255, 255, 255, 0.8);
     margin-bottom: 1.4em;
+  }
+  /* On a wide column the copy runs to five or six lines, where balance evens
+     them out and removes the short final line. Below 768px paragraphs run
+     longer than balance can handle, so the global pretty rule keeps deciding
+     the last line instead. */
+  @media (min-width: 768px) {
+    .news-prose p { text-wrap: balance; }
   }
   .news-prose h2 {
     color: #ffffff;

@@ -1,0 +1,28 @@
+name: Refresh article view counts
+
+# Article view counts are read from GA4 at build time, so the figures go stale
+# until the site is rebuilt. This job triggers a Cloudflare deploy hook once a
+# day to rebuild from main and bake in the latest counts.
+#
+# Setup: create a deploy hook in Cloudflare (Workers & Pages > datt-studio >
+# Builds > Deploy Hooks) and store its URL as the GitHub Actions repository
+# secret CLOUDFLARE_DEPLOY_HOOK_URL.
+
+on:
+  schedule:
+    - cron: '0 6 * * *' # 06:00 UTC daily
+  workflow_dispatch:
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Cloudflare rebuild
+        env:
+          DEPLOY_HOOK_URL: ${{ secrets.CLOUDFLARE_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$DEPLOY_HOOK_URL" ]; then
+            echo "CLOUDFLARE_DEPLOY_HOOK_URL is not set. Add the Cloudflare deploy hook URL as a GitHub Actions secret."
+            exit 1
+          fi
+          curl --fail --silent --show-error --request POST "$DEPLOY_HOOK_URL"
