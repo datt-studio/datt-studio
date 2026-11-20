@@ -613,6 +613,10 @@ const videoLd = {
            words on their own line. Keep these blocks intact so the authored
            breaks and text-wrap decide the real lines, as on the article. */
         if (el.closest('[data-ls-keep]')) return true;
+        // A kept subtree inside this block must not be measured or split. The
+        // walker flattens text across hosts, so a date line with sibling spans
+        // gets its text duplicated into the wrong mask.
+        if (el.querySelector('[data-ls-keep]')) return true;
 
         // The hero binds a mouseenter handler to .trigger-line on its own
         // "Made to hold." segment, and .has-trigger carries the underline and

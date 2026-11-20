@@ -113,7 +113,10 @@ const articleLd = {
 
         <div class="brands-line-mask block">
           <div class="brands-line-inner block" style="transition-delay: 0.1s">
-            <p class="text-label text-white/50 mb-4">
+            <!-- Keep the date and view count out of the per-line splitter. It
+                 folds sibling inline text into the time mask, duplicating the
+                 count on screen. -->
+            <p class="text-label text-white/50 mb-4" data-ls-keep>
               <time datetime={post.data.date.toISOString()}>{fmt(post.data.date)}</time>{viewsLabel && (
                 <>
                   <span aria-hidden="true"> · </span><span>{viewsLabel} VIEWS</span>
