@@ -17,27 +17,30 @@ const { isInverted = false } = Astro.props;
 
     <!-- Headline: Safe-zone padding added to prevent clipping. -->
     <div class="mb-12 md:mb-12">
-      <div class="flex items-baseline justify-between gap-x-6">
-        <div class="brands-line-mask !py-[0.8em] !-my-[0.8em]">
-          <h2 class="brands-line-inner max-w-[1100px]">
-            Let’s talk.
-          </h2>
-        </div>
+      <div class="brands-line-mask !py-[0.8em] !-my-[0.8em]">
+        <h2 class="brands-line-inner max-w-[1100px]">
+          Let’s talk.
+        </h2>
       </div>
     </div>
 
     <!-- Info Grid
-         The clock sits at the top of the first column, with the enquiries and
-         the legal / social columns on the row beneath it. Below lg this is a
-         two-column grid: the two enquiries sit side by side on the first row and
-         Legal / Follow us on the second. From lg it is split on the About,
-         Services and News links in the top nav, so New business starts under
-         About, Legal under Services and Follow us under News. Those offsets are
-         measured in the footer script because the nav gaps are fluid. -->
+         UK time sits above General enquiries, VN time above New business. Below
+         lg this is a two-column grid: clocks on the first row, the two enquiries
+         on the second, and Legal / Follow us on the third. From lg it is split
+         on the About, Services and News links in the top nav, so New business
+         starts under About, Legal under Services and Follow us under News. Those
+         offsets are measured in the footer script because the nav gaps are
+         fluid. -->
     <div class="footer-info w-full mb-10 lg:mb-24">
       <div class="brands-line-mask footer-time">
         <div class="brands-line-inner" style="transition-delay: 0.15s;">
           <TimeDisplay isInverted={isInverted} />
+        </div>
+      </div>
+      <div class="brands-line-mask footer-time-vn">
+        <div class="brands-line-inner" style="transition-delay: 0.18s;">
+          <TimeDisplay isInverted={isInverted} label="VN (GMT+7)" timeZone="Asia/Ho_Chi_Minh" />
         </div>
       </div>
       <div class="brands-line-mask footer-enquiries footer-general">
@@ -95,15 +98,15 @@ const { isInverted = false } = Astro.props;
 
     <!-- Copyright and motion toggle -->
     <div class="brands-line-mask">
-      <div class="brands-line-inner pb-6 relative" style="transition-delay: 0.7s;">
+      <div class="brands-line-inner pb-6" style="transition-delay: 0.7s;">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-y-3">
           <p class="text-label !text-[11px] opacity-50 !tracking-[0.05em]">
             © {currentYear} DATT STUDIO LTD.
             <br class="md:hidden" />
             Registered in England & Wales: 16695845.
           </p>
+          <button id="footer-motion-toggle" type="button" class="footer-motion-toggle text-label !text-[11px] opacity-50 !tracking-[0.05em] self-end md:self-auto md:shrink-0" data-ls-keep>Turn off motion</button>
         </div>
-        <button id="footer-motion-toggle" type="button" class="footer-motion-toggle text-label !text-[11px] opacity-50 !tracking-[0.05em] mt-3 md:mt-0 md:absolute md:right-0 md:bottom-4 md:-mb-1">Turn off motion</button>
       </div>
     </div>
   </div>
@@ -176,12 +179,18 @@ const { isInverted = false } = Astro.props;
     margin: 0;
     cursor: pointer;
     font-family: inherit;
-    text-align: left;
+    text-align: right;
     transition: opacity 0.4s var(--ease-mechanical);
     /* WCAG 2.2 target size: a 24px hit area for the 11px label. */
-    display: inline-flex;
+    display: flex !important;
+    width: fit-content !important;
+    margin-left: auto !important;
+    align-self: flex-end !important;
     align-items: center;
     min-height: 24px;
+  }
+  @media (min-width: 768px) {
+    .footer-motion-toggle { align-self: auto !important; margin-left: 0 !important; }
   }
   .footer-motion-toggle:hover {
     opacity: 1;
@@ -203,8 +212,10 @@ const { isInverted = false } = Astro.props;
     column-gap: 2rem;
     row-gap: 3rem;
   }
-  /* The clock spans the full width above the grid below lg. */
-  #site-footer .footer-time { grid-column: 1 / -1; }
+  /* UK clock above General enquiries, VN clock above New business. */
+  #site-footer .footer-time { grid-column: 1; }
+  #site-footer .footer-time-vn { grid-column: 2; }
+
 
   /* --- TABLET: THE SECOND COLUMN HANGS OFF THE SERVICES ITEM ---
      Between 768px and 1023px the grid is in two columns and the second one
@@ -242,10 +253,11 @@ const { isInverted = false } = Astro.props;
       row-gap: 1.5rem;
       align-items: start;
     }
-    /* Pull the clock up so it sits about 20px under the headline. A transform is
+    /* Pull the clocks up so they sit about 20px under the headline. A transform is
        used rather than a margin so the grid rows (and the columns below) stay
        exactly where they are. */
     #site-footer .footer-time { grid-column: 1; grid-row: 1; transform: translateY(-14px); }
+    #site-footer .footer-time-vn { grid-column: 2; grid-row: 1; transform: translateY(-14px); }
     /* Each column anchors to a different top-nav link, so the headings all share
        the second row and line up across the footer. */
     #site-footer .footer-general { grid-column: 1; grid-row: 2; }
