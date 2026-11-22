@@ -39,7 +39,7 @@ const lastUpdated = "20 November 2026";
             <section id="terms-of-use" class="flex flex-col">
               <div class="mb-[48px]">
                 <div class="brands-line-mask">
-                    <p class="brands-line-inner text-label !text-[#7e7e7e]">Last Updated — {lastUpdated}</p>
+                    <p class="brands-line-inner text-label !text-[#7e7e7e]">UPDATED · {lastUpdated}</p>
                 </div>
               </div>
 
@@ -125,8 +125,10 @@ const lastUpdated = "20 November 2026";
                   <div class="brands-line-inner flex flex-col">
                     <h3 class="text-white legal-subhead">8. Inquiries</h3>
                     <div class="mt-4">
-                        <p>For inquiries regarding licensing or usage rights, contact:
-                          <SecureEmail email="hello@dattstudio.com" className="cta-link !lowercase !text-[16px] !tracking-tight" isInverted={true} />.</p>
+                        <p>For inquiries regarding licensing or usage rights, contact:</p>
+                        <div class="mt-4">
+                          <SecureEmail email="hello@dattstudio.com" className="cta-link !lowercase !text-[16px] !tracking-tight" isInverted={true} />
+                        </div>
                     </div>
                   </div>
                 </div>
@@ -192,7 +194,8 @@ const lastUpdated = "20 November 2026";
   #main-content h4 { font-size: var(--font-h4); font-weight: 600; }
   #main-content h3.legal-subhead { font-size: var(--font-h4); font-weight: 600; }
   #main-content p { color: #b4b4b4; font-weight: 400; line-height: var(--lh-body); text-wrap: pretty; }
-  #main-content h1, #main-content h2, #main-content h3, #main-content h4 { text-wrap: balance; }
+  #main-content p + p { margin-top: 1.4em; }
+  #main-content h1, #main-content h2, #main-content h3, #main-content h4 { text-wrap: pretty; }
   .cta-link:hover { color: #7e7e7e !important; }
   .sidebar-link { color: #7e7e7e !important; text-decoration: none; transition: color 0.4s var(--ease-mechanical); display: inline-flex; align-items: center; min-height: 24px; }
   .sidebar-link:hover, .sidebar-link.active { color: #ffffff !important; }

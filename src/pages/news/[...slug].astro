@@ -203,12 +203,11 @@ const articleLd = {
     color: rgba(255, 255, 255, 0.8);
     margin-bottom: 1.4em;
   }
-  /* On a wide column the copy runs to five or six lines, where balance evens
-     them out and removes the short final line. Below 768px paragraphs run
-     longer than balance can handle, so the global pretty rule keeps deciding
-     the last line instead. */
+  /* Prefer pretty over balance on desktop. Balance can force two short lines
+     to split into equal-width halves, leaving a large right gap. Pretty still
+     avoids orphans without changing the natural line breaks. */
   @media (min-width: 768px) {
-    .news-prose p { text-wrap: balance; }
+    .news-prose p { text-wrap: pretty; }
   }
   .news-prose h2 {
     color: #ffffff;
